@@ -1,0 +1,24 @@
+{
+  "home": {
+    "title": "Home"
+  },
+  "about": {
+    "title": "About"
+  },
+  "work": {
+    "title": "Work"
+  },
+  "contact": {
+    "title": "Contact"
+  },
+  "blog": {
+    "title": "Blog"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "work": "Work",
+    "contact": "Contact",
+    "blog": "Blog"
+  }
+}
