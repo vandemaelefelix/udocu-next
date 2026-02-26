@@ -1,6 +1,7 @@
 {
   "home": {
-    "title": "Home"
+    "title": "Home",
+    "tagline": "Om niet te vergeten wie u was"
   },
   "about": {
     "title": "Over ons"
@@ -20,5 +21,9 @@
     "work": "Werk",
     "contact": "Contact",
     "blog": "Blog"
+  },
+  "metadata": {
+    "title": "udocu",
+    "description": "Om niet te vergeten wie u was"
   }
 }

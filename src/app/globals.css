@@ -1,8 +1,30 @@
 @import "tailwindcss";
 
 @theme inline {
+  /* Base colors */
   --color-primary: #2563eb;
   --color-secondary: #64748b;
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-garamond);
+  --font-helvetica: var(--font-helvetica-neue);
+  --font-posterman: var(--font-posterman);
+
+  /* Theme Pair 1: Orange (Dark background + Light text) */
+  --color-orange-dark: #d97706;
+  --color-orange-light: #da551c;
+
+  /* Theme Pair 2: Green (Dark background + Light text) */
+  --color-green-dark: #686121;
+  --color-green-light: #aed473;
+
+  /* Theme Pair 3: Red/Rose (Dark background + Light text) */
+  --color-red-dark: #5a2c2c;
+  --color-red-light: #c4b5fd;
+
+  /* Theme Pair 4: Blue/Teal (Dark background + Light text) */
+  --color-blue-dark: #2d5f63;
+  --color-blue-light: #c5e8e6;
+}
+
+body {
+  font-family: var(--font-serif);
 }

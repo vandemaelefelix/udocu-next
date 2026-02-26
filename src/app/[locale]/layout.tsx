@@ -1,25 +1,28 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
-import { Geist, Geist_Mono } from "next/font/google";
+import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
+import { garamond, helveticaNeue, posterman } from "../fonts";
 import "../globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata" });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
-export const metadata: Metadata = {
-  title: "udocu",
-  description: "udocu",
-};
+const fontVariables = [garamond, helveticaNeue, posterman]
+  .map((f) => f.variable)
+  .join(" ");
 
 export default async function LocaleLayout({
   children,
@@ -38,9 +41,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${fontVariables} antialiased`}>
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>

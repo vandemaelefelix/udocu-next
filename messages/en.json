@@ -1,6 +1,7 @@
 {
   "home": {
-    "title": "Home"
+    "title": "Home",
+    "tagline": "So as not to forget who you were"
   },
   "about": {
     "title": "About"
@@ -20,5 +21,9 @@
     "work": "Work",
     "contact": "Contact",
     "blog": "Blog"
+  },
+  "metadata": {
+    "title": "udocu",
+    "description": "So as not to forget who you were"
   }
 }
