@@ -4,7 +4,12 @@
     "tagline": "Om niet te vergeten wie u was"
   },
   "about": {
-    "title": "Over ons"
+    "title": "Over ons",
+    "paragraph1": "Udocu is een creatieve studio die zich toelegt op het bewaren van persoonlijk en cultureel erfgoed door middel van documentaire verhalen.",
+    "paragraph2": "Wij geloven dat elk leven verhalen draagt die het waard zijn om te onthouden. Ons werk legt de stemmen, beelden en momenten vast die bepalen wie we zijn — voordat ze vervagen.",
+    "paragraph3": "Door middel van film, fotografie en digitale archieven creëren we blijvende documenten die generaties en gemeenschappen verbinden.",
+    "paragraph4": "Of het nu gaat om een familiegeschiedenis, een orale traditie of een culturele praktijk die dreigt te worden vergeten — wij documenteren het, om niet te vergeten.",
+    "contactLink": "CONTACT"
   },
   "work": {
     "title": "Werk"

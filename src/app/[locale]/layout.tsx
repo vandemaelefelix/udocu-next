@@ -4,6 +4,7 @@ import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { garamond, helveticaNeue, posterman } from "../fonts";
+import NoiseOverlay from "@/components/NoiseOverlay";
 import "../globals.css";
 
 export async function generateMetadata({
@@ -44,6 +45,7 @@ export default async function LocaleLayout({
       <body className={`${fontVariables} antialiased`}>
         <NextIntlClientProvider messages={messages}>
           {children}
+          <NoiseOverlay />
         </NextIntlClientProvider>
       </body>
     </html>

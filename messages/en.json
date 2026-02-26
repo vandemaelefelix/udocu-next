@@ -4,7 +4,12 @@
     "tagline": "So as not to forget who you were"
   },
   "about": {
-    "title": "About"
+    "title": "About",
+    "paragraph1": "Udocu is a creative studio dedicated to preserving personal and cultural heritage through documentary storytelling.",
+    "paragraph2": "We believe every life carries stories worth remembering. Our work captures the voices, images, and moments that define who we are — before they fade.",
+    "paragraph3": "Through film, photography, and digital archives, we create lasting records that connect generations and communities.",
+    "paragraph4": "Whether it's a family history, an oral tradition, or a cultural practice on the verge of being forgotten — we document it, so as not to forget.",
+    "contactLink": "CONTACT"
   },
   "work": {
     "title": "Work"
