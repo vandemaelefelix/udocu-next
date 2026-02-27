@@ -57,7 +57,7 @@ export default function ContactSection() {
             {t("name")}
           </h2>
           <div
-            className="space-y-1 font-serif text-[18px] leading-[26px]"
+            className="space-y-1 font-serif text-[18px] leading-6.5"
             style={{ color: "var(--color-orange-light)" }}
           >
             <p>
@@ -78,7 +78,7 @@ export default function ContactSection() {
             </p>
           </div>
           <div
-            className="mt-6 font-serif text-[18px] leading-[26px]"
+            className="mt-6 font-serif text-[18px] leading-6.5"
             style={{ color: "var(--color-orange-light)" }}
           >
             <p>{t("addressLine1")}</p>
