@@ -23,10 +23,21 @@
   /* Theme Pair 4: Blue/Teal (Dark background + Light text) */
   --color-blue-dark: #2d5f63;
   --color-blue-light: #c5e8e6;
+
+  /* Contact section */
+  --color-contact-bg: #5c2800;
 }
 
 body {
   font-family: var(--font-serif);
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 @keyframes noise-shift {

@@ -10,8 +10,8 @@ interface ColorStop {
 const COLOR_STOPS: ColorStop[] = [
   { bg: [62, 2, 2], text: [196, 181, 253] }, // #3E0202 / red-light
   { bg: [45, 95, 99], text: [197, 232, 230] }, // blue-dark / blue-light
+  { bg: [92, 40, 0], text: [218, 85, 28] }, // contact-bg / orange-light
   { bg: [104, 97, 33], text: [174, 212, 115] }, // green-dark / green-light
-  { bg: [217, 119, 6], text: [218, 85, 28] }, // orange-dark / orange-light
 ];
 
 function lerp(a: number, b: number, t: number): number {
@@ -94,15 +94,21 @@ export default function ScrollBackground({
       }
     }
 
+    // Compress the transition into a narrow band around the boundary
+    // so the color change happens faster instead of spanning the full distance
+    const compressed = Math.max(0, Math.min(1, (t - 0.65) / 0.25));
+    // Smooth-step for a natural ease
+    const smooth = compressed * compressed * (3 - 2 * compressed);
+
     const bg = interpolateColor(
       COLOR_STOPS[index].bg,
       COLOR_STOPS[index + 1].bg,
-      t,
+      smooth,
     );
     const text = interpolateColor(
       COLOR_STOPS[index].text,
       COLOR_STOPS[index + 1].text,
-      t,
+      smooth,
     );
 
     setBgColor(rgbToString(...bg));

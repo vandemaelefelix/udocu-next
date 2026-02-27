@@ -5,6 +5,9 @@ import ParallaxHero from "@/components/ParallaxHero";
 import ScrollBackground from "@/components/ScrollBackground";
 import StickyNav from "@/components/StickyNav";
 import AboutSection from "@/components/AboutSection";
+import WorkSection from "@/components/WorkSection";
+import ContactSection from "@/components/ContactSection";
+import SocialDock from "@/components/SocialDock";
 
 export default function HomePage() {
   const t = useTranslations("home");
@@ -21,6 +24,11 @@ export default function HomePage() {
       <ScrollBackground>
         <StickyNav />
         <AboutSection />
+        <SocialDock />
+        <div className="-mt-[95vh]">
+          <WorkSection />
+        </div>
+        <ContactSection />
       </ScrollBackground>
     </main>
   );
