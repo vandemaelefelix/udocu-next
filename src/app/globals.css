@@ -40,20 +40,36 @@ body {
   display: none;
 }
 
-@keyframes noise-shift {
-  0% {
-    background-position: 0 0;
+@keyframes grain {
+  0%,
+  100% {
+    transform: translate(0);
   }
-  25% {
-    background-position: -100px 50px;
+  10% {
+    transform: translate(-5%, -10%);
+  }
+  20% {
+    transform: translate(-15%, 5%);
+  }
+  30% {
+    transform: translate(7%, -25%);
+  }
+  40% {
+    transform: translate(-5%, 25%);
   }
   50% {
-    background-position: 50px -75px;
+    transform: translate(-15%, 10%);
   }
-  75% {
-    background-position: -50px 100px;
+  60% {
+    transform: translate(15%, 0);
   }
-  100% {
-    background-position: 100px -50px;
+  70% {
+    transform: translateY(15%);
+  }
+  80% {
+    transform: translate(3%, 35%);
+  }
+  90% {
+    transform: translate(-10%, 10%);
   }
 }
