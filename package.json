@@ -15,6 +15,7 @@
     "@prismicio/client": "^7.21.6",
     "@prismicio/next": "^2.2.1",
     "@prismicio/react": "^3.4.0",
+    "motion": "^12.34.3",
     "next": "16.1.6",
     "next-intl": "^4.8.3",
     "react": "19.2.3",

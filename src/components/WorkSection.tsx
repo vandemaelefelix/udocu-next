@@ -1,41 +1,37 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import type { Content } from "@prismicio/client";
-import { useIsMobile } from "@/hooks/useIsMobile";
-
-type InterviewItem = {
-  id: string;
-  uid: string;
-  imageUrl: string;
-  alt: string;
-};
-
-const ITEM_W = 350;
-const ITEM_H = ITEM_W;
-const GAP = 24;
-const STRIDE = ITEM_W + GAP;
-
-// Curve: exponential — flat/high on left, steeply descending on right
-const CURVE_MAX = 130; // overall curve intensity (px)
-const CURVE_SPAN = 850; // horizontal scale (px)
-// When the curve straightens, items settle here (≈ left-edge height at full curve)
-// so the left side never dips back down to center.
-const STRAIGHT_Y = CURVE_MAX * (Math.exp(-0.85) - 1); // ≈ -74px above center
-
-const SECTION_VH = 170; // total scroll height of section
-const ENTRY_END = 0.5; // fraction of scroll where entry animation completes
+import {
+  motion,
+  useMotionValue,
+  useScroll,
+  useTransform,
+  MotionValue,
+} from "motion/react";
+import Image from "next/image";
+import { useCallback, useEffect, useRef } from "react";
 
 type Props = {
   interviews: Content.InterviewDocument[];
 };
 
-export default function WorkSection({ interviews }: Props) {
-  const isMobile = useIsMobile();
+const GAP = 24; // gap-6 = 1.5rem = 24px
 
-  const items: InterviewItem[] = interviews
+// Configurable item sizing
+const ITEM_SIZE = {
+  className: "w-96 h-96",
+  px: 384, // matches w-96 (24rem = 384px)
+};
+
+const STEP = ITEM_SIZE.px + GAP; // width of one item slot
+const COPIES = 6; // number of repeated sets for infinite illusion
+
+const STAGGER = 0.0; // scroll progress offset between each item
+const ANIM_DURATION = 0.6; // scroll progress range each item animates over
+
+const filteredInterviews = (interviews: Content.InterviewDocument[]) =>
+  interviews
     .filter((i) => i.data.image_url?.url)
     .map((i) => ({
       id: i.id,
@@ -44,262 +40,186 @@ export default function WorkSection({ interviews }: Props) {
       alt: i.data.image_url.alt ?? "",
     }));
 
-  if (isMobile) {
-    return <MobileCarousel items={items} />;
-  }
-
-  return <DesktopCarousel items={items} />;
+function circOutEasing(t: number): number {
+  return Math.sqrt(1 - Math.pow(t - 1, 2));
 }
 
-/* ─── Mobile: horizontal scroll-snap carousel ─── */
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
 
-const MOBILE_ITEM_SIZE = 280;
-const CLICK_THRESHOLD = 5; // px — below this drag distance = click
+export default function WorkSection({ interviews }: Props) {
+  const locale = useLocale();
+  const t = useTranslations();
+  const items = filteredInterviews(interviews);
 
-function MobileCarousel({ items }: { items: InterviewItem[] }) {
-  const params = useParams();
-  const locale = Array.isArray(params.locale)
-    ? params.locale[0]
-    : params.locale;
+  const displayedItems = items.map((item) => ({
+    href: `/${locale}/interviews/${item.uid}`,
+    ...item,
+  }));
 
-  return (
-    <section id="work" className="flex h-screen flex-col justify-center">
-      <div
-        className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-[calc(50vw-140px)] py-8"
-        style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
-      >
-        {items.map((item) => (
-          <a
-            key={item.id}
-            href={`/${locale}/interviews/${item.uid}`}
-            className="relative shrink-0 snap-center overflow-hidden"
-            style={{
-              width: MOBILE_ITEM_SIZE,
-              height: MOBILE_ITEM_SIZE,
-              borderRadius: 6,
-              display: "block",
-            }}
-          >
-            <Image
-              src={item.imageUrl}
-              alt={item.alt}
-              fill
-              sizes={`${MOBILE_ITEM_SIZE}px`}
-              className="object-cover"
-            />
-          </a>
-        ))}
-      </div>
-    </section>
+  const itemCount = displayedItems.length;
+  const setWidth = itemCount * STEP; // width of one full set of items
+
+  // Repeat items for seamless infinite scrolling
+  const repeatedItems = Array.from({ length: COPIES }, (_, copyIdx) =>
+    displayedItems.map((item, i) => ({
+      ...item,
+      key: `${item.id}-${copyIdx}`,
+      flexIndex: copyIdx * itemCount + i,
+    })),
+  ).flat();
+
+  // Start centered on the middle copy (copy index 3)
+  const x = useMotionValue(-3 * setWidth);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Normalize x back to the center copy range
+  // Since all copies are identical, shifting by setWidth is visually imperceptible
+  const normalizeX = useCallback(
+    (val: number) => {
+      if (setWidth === 0) return val;
+      const mod = ((-val % setWidth) + setWidth) % setWidth;
+      return -(mod + 3 * setWidth);
+    },
+    [setWidth],
   );
-}
 
-/* ─── Desktop: curve scroll animation with drag ─── */
+  // Wheel scrolling — normalize immediately on each event since
+  // shifting by setWidth is visually identical (no debounce needed)
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
 
-function DesktopCarousel({ items }: { items: InterviewItem[] }) {
-  const params = useParams();
-  const locale = Array.isArray(params.locale)
-    ? params.locale[0]
-    : params.locale;
-  const router = useRouter();
+    const handleWheel = (e: WheelEvent) => {
+      // Only handle horizontal scrolling if deltaX is significant and greater than deltaY
+      // This prevents vertical scroll events from triggering carousel movement
+      const horizontalIntensity = Math.abs(e.deltaX);
+      const verticalIntensity = Math.abs(e.deltaY);
+
+      // Require horizontal movement to be at least 2x stronger than vertical
+      if (horizontalIntensity < verticalIntensity * 2) return;
+
+      e.preventDefault();
+      x.set(normalizeX(x.get() - e.deltaX));
+    };
+
+    wrapper.addEventListener("wheel", handleWheel, { passive: false });
+    return () => wrapper.removeEventListener("wheel", handleWheel);
+  }, [x, normalizeX]);
 
   const sectionRef = useRef<HTMLElement>(null);
-  const [scrollProg, setScrollProg] = useState(0);
-  const offsetRef = useRef(0);
-  const [offset, setOffset] = useState(0);
-  const [vw, setVw] = useState(1440);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start center", "end start"],
+  });
 
-  const drag = useRef({ on: false, x: 0, v: 0, t: 0, startX: 0 });
-  const rafRef = useRef(0);
+  // the title should appear together with the first item, so it has the same stagger and duration but no translateY, just opacity
+  const titleOpacity = useTransform(scrollYProgress, (progress: number) => {
+    const start = 0 * STAGGER;
+    const end = Math.min(1, start + ANIM_DURATION);
+    if (end <= start) return 1;
+    return clamp((progress - start) / (end - start), 0, 1);
+  });
 
-  // Track viewport width
-  useEffect(() => {
-    const update = () => setVw(window.innerWidth);
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
-
-  // Section scroll progress: 0 when section top hits viewport, 1 when fully scrolled
-  useEffect(() => {
-    const tick = () => {
-      const el = sectionRef.current;
-      if (!el) return;
-      const top = el.getBoundingClientRect().top;
-      const scrollable = el.offsetHeight - window.innerHeight;
-      setScrollProg(
-        scrollable > 0 ? Math.max(0, Math.min(1, -top / scrollable)) : 0,
-      );
-    };
-    window.addEventListener("scroll", tick, { passive: true });
-    tick();
-    return () => window.removeEventListener("scroll", tick);
-  }, []);
-
-  // Entry: linear 0→1 over first ENTRY_END fraction of scroll
-  const entryRaw = Math.min(1, scrollProg / ENTRY_END);
-
-  // Curve straightens after entry completes — linear so scroll maps 1:1 to visual change
-  const curveP = Math.max(0, (scrollProg - ENTRY_END) / (1 - ENTRY_END));
-  const curve = CURVE_MAX * (1 - curveP);
-
-  // Pointer drag
-  const onDown = useCallback((e: React.PointerEvent) => {
-    cancelAnimationFrame(rafRef.current);
-    drag.current = {
-      on: true,
-      x: e.clientX,
-      v: 0,
-      t: performance.now(),
-      startX: e.clientX,
-    };
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-  }, []);
-
-  const onMove = useCallback((e: React.PointerEvent) => {
-    const d = drag.current;
-    if (!d.on) return;
-    const now = performance.now();
-    const dx = e.clientX - d.x;
-    d.v = (dx / Math.max(1, now - d.t)) * 16;
-    d.x = e.clientX;
-    d.t = now;
-    offsetRef.current += dx;
-    setOffset(offsetRef.current);
-  }, []);
-
-  const onUp = useCallback(
-    (e: React.PointerEvent) => {
-      const d = drag.current;
-      if (!d.on) return;
-      d.on = false;
-
-      const totalDrag = Math.abs(e.clientX - d.startX);
-      if (totalDrag < CLICK_THRESHOLD) {
-        // Treat as click — find which item is under the pointer
-        const N = items.length;
-        if (N > 0) {
-          const currentCx = vw / 2;
-          const slot = Math.round(
-            (e.clientX - currentCx - offsetRef.current) / STRIDE,
-          );
-          const item = items[((slot % N) + N) % N];
-          router.push(`/${locale}/interviews/${item.uid}`);
-        }
-        return;
-      }
-
-      let v = d.v;
-      const momentum = () => {
-        v *= 0.93;
-        if (Math.abs(v) < 0.4) return;
-        offsetRef.current += v;
-        setOffset(offsetRef.current);
-        rafRef.current = requestAnimationFrame(momentum);
-      };
-      rafRef.current = requestAnimationFrame(momentum);
-    },
-    [items, locale, router, vw],
-  );
-
-  // Horizontal wheel scroll
-  useEffect(() => {
-    const el = sectionRef.current?.querySelector(
-      "[data-carousel]",
-    ) as HTMLElement | null;
-    if (!el) return;
-    const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) * 2) {
-        e.preventDefault();
-        offsetRef.current -= e.deltaX;
-        setOffset(offsetRef.current);
-      }
-    };
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, []);
-
-  // Visible slots: enough to cover viewport + buffer on each side
-  const cx = vw / 2;
-  const half = Math.ceil(vw / STRIDE) + 3;
-  const baseSlot = Math.round(-offset / STRIDE);
-  const slots = Array.from(
-    { length: half * 2 + 1 },
-    (_, i) => baseSlot - half + i,
-  );
+  if (itemCount === 0) return null;
 
   return (
-    <section ref={sectionRef} id="work" style={{ height: `${SECTION_VH}vh` }}>
-      <div
-        data-carousel
-        className="sticky top-0 h-screen cursor-grab overflow-hidden select-none active:cursor-grabbing"
-        onPointerDown={onDown}
-        onPointerMove={onMove}
-        onPointerUp={onUp}
-        onPointerCancel={(e) => {
-          drag.current.on = false;
-          void e;
-        }}
-        style={{ touchAction: "pan-y" }}
-      >
-        {items.length > 0 &&
-          slots.map((slot) => {
-            const N = items.length;
-            const item = items[((slot % N) + N) % N];
-
-            // X center of this item on screen
-            const itemCx = cx + slot * STRIDE + offset;
-            const dist = itemCx - cx;
-
-            // Exponential curve: left items sit high, right items descend steeply.
-            // As the curve straightens (curveP → 1), items settle at STRAIGHT_Y
-            // instead of y=0 — so the left side stays elevated rather than dipping back.
-            const curveFull = CURVE_MAX * (Math.exp(dist / CURVE_SPAN) - 1);
-            const curveY =
-              (curve / CURVE_MAX) * curveFull +
-              (1 - curve / CURVE_MAX) * STRAIGHT_Y;
-
-            // Entry stagger: leftmost items (negative dist) enter first
-            // Map dist from [-vw/2 .. +vw] → staggerT [0 .. 1]
-            const staggerT = Math.max(0, Math.min(1, (dist + vw * 0.5) / vw));
-            const delay = staggerT * 0.58;
-            const rawP =
-              delay >= 1
-                ? 0
-                : Math.max(0, Math.min(1, (entryRaw - delay) / (1 - delay)));
-            const itemEntry = rawP;
-
-            const entryY = (1 - itemEntry) * 130;
-            const opacity = itemEntry;
-
-            return (
-              <div
-                key={slot}
-                style={{
-                  position: "absolute",
-                  left: itemCx - ITEM_W / 2,
-                  top: `calc(50% - ${ITEM_H / 2}px + ${curveY + entryY}px)`,
-                  width: ITEM_W,
-                  height: ITEM_H,
-                  borderRadius: 6,
-                  overflow: "hidden",
-                  opacity,
-                  willChange: "transform, opacity",
-                  pointerEvents: "none",
-                }}
-              >
-                <Image
-                  src={item.imageUrl}
-                  alt={item.alt}
-                  fill
-                  sizes={`${ITEM_W}px`}
-                  className="object-cover"
-                  draggable={false}
-                />
-              </div>
-            );
-          })}
+    <section
+      ref={sectionRef}
+      id="work"
+      className="flex min-h-[100vh] flex-col overflow-x-clip"
+    >
+      {/* Sticky wrapper: measures width, does NOT clip overflow */}
+      <div ref={wrapperRef} className="sticky top-2/5 z-10">
+        <motion.h1
+          className="absolute top-0 left-4 pb-4 translate-y-[-100%] font-posterman font-black text-[74px] leading-22 tracking-normal"
+          style={{
+            opacity: titleOpacity,
+          }}
+        >
+          {t("work.title")}
+        </motion.h1>
+        {/* Draggable row: no overflow constraint so Y-translated items show */}
+        <motion.div
+          className="flex gap-6 cursor-grab w-max"
+          drag="x"
+          dragElastic={0.05}
+          dragTransition={{ power: 0.3, timeConstant: 300 }}
+          whileDrag={{ cursor: "grabbing" }}
+          style={{ x }}
+          onDragTransitionEnd={() => {
+            x.set(normalizeX(x.get()));
+          }}
+        >
+          {repeatedItems.map((item) => (
+            <CarouselItem
+              key={item.key}
+              flexIndex={item.flexIndex}
+              item={item}
+              x={x}
+              scrollYProgress={scrollYProgress}
+            />
+          ))}
+        </motion.div>
       </div>
     </section>
   );
 }
+
+const CarouselItem = ({
+  item,
+  flexIndex,
+  x,
+  scrollYProgress,
+}: {
+  item: { id: string; href: string; imageUrl: string; alt: string };
+  flexIndex: number;
+  x: MotionValue<number>;
+  scrollYProgress: MotionValue<number>;
+}) => {
+  // Compute visual index: leftmost visible item = 0, next = 1, etc.
+  // Items off-screen left (vi < 0) are clamped to 0 so they're already
+  // fully "entered" and don't visibly appear at the viewport edge.
+  const y = useTransform([scrollYProgress, x], ([progress, xVal]: number[]) => {
+    const screenPos = flexIndex * STEP + xVal;
+    const vi = clamp(Math.round(screenPos / STEP), 0, 20);
+    const initialY = vi * 150;
+    const start = vi * STAGGER;
+    const end = Math.min(1, start + ANIM_DURATION);
+    if (end <= start) return initialY;
+    const t = clamp((progress - start) / (end - start), 0, 1);
+    return initialY * (1 - circOutEasing(t));
+  });
+
+  const opacity = useTransform(
+    [scrollYProgress, x],
+    ([progress, xVal]: number[]) => {
+      const screenPos = flexIndex * STEP + xVal;
+      const vi = clamp(Math.round(screenPos / STEP), 0, 20);
+      const start = vi * STAGGER;
+      const end = Math.min(1, start + ANIM_DURATION);
+      if (end <= start) return 1;
+      return clamp((progress - start) / (end - start), 0, 1);
+    },
+  );
+
+  return (
+    <a href={item.href} className="no-underline">
+      <motion.div
+        data-carousel-item
+        className={`shrink-0 rounded-lg overflow-hidden bg-gray-100 ${ITEM_SIZE.className}`}
+        style={{ y, opacity }}
+      >
+        <Image
+          src={item.imageUrl}
+          alt={item.alt}
+          className="w-full h-full object-cover"
+          loading="lazy"
+          width={ITEM_SIZE.px}
+          height={ITEM_SIZE.px}
+        />
+      </motion.div>
+    </a>
+  );
+};

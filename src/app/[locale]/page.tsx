@@ -39,11 +39,15 @@ export default async function HomePage() {
 
         <ScrollBackground>
           <AboutSection />
-          <SocialDock />
-          <div className="md:-mt-[95vh]">
+
+          {/* TODO: Add this back, this is so it would overlap with the about section */}
+          <div className="md:-mt-96">
             <WorkSection interviews={interviews} />
           </div>
+          <div className="h-96"></div>
           <ContactSection />
+
+          <SocialDock />
         </ScrollBackground>
       </main>
     </ScrollColorProvider>

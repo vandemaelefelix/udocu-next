@@ -1,5 +1,9 @@
+"use client";
+
+import { useRef } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { motion, useScroll, useTransform } from "motion/react";
 import contactImage from "@/assets/images/contact-image.jpg";
 import {
   FacebookIcon,
@@ -9,14 +13,26 @@ import {
 
 export default function ContactSection() {
   const t = useTranslations("contact");
+  const sectionRef = useRef<HTMLElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end end"],
+  });
+
+  const imageOpacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   return (
     <section
+      ref={sectionRef}
       id="contact"
       className="flex min-h-screen flex-col md:h-screen md:flex-row"
     >
       {/* Left: image with text overlay */}
-      <div className="relative h-[45vh] w-full overflow-hidden md:h-auto md:w-3/5">
+      <motion.div
+        className="relative h-[45vh] w-full overflow-hidden md:h-auto md:w-3/5"
+        style={{ opacity: imageOpacity }}
+      >
         <Image
           src={contactImage}
           alt="Contact"
@@ -39,7 +55,7 @@ export default function ContactSection() {
             TALK
           </p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Right: contact details */}
       <div className="flex w-full flex-col justify-end px-6 pb-8 pt-8 md:w-2/5 md:px-12 md:pb-12 md:pt-0">
