@@ -1,10 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useEffect, useRef, useState, useCallback } from "react";
 
-// Placeholder work items — will be replaced with Prismic data
-const WORK_ITEMS = [
+const ITEMS = [
   { id: 1, color: "#c4956a" },
   { id: 2, color: "#8a7d6b" },
   { id: 3, color: "#6b8a7d" },
@@ -17,222 +15,182 @@ const WORK_ITEMS = [
   { id: 10, color: "#6a7b9a" },
 ];
 
-const ITEM_WIDTH = 280;
+const ITEM_W = 350;
+const ITEM_H = ITEM_W;
 const GAP = 24;
-const ITEM_STRIDE = ITEM_WIDTH + GAP;
-const SET_WIDTH = WORK_ITEMS.length * ITEM_STRIDE;
+const STRIDE = ITEM_W + GAP;
+const N = ITEMS.length;
 
-// Scroll space for the entry animation (vh)
-const SCROLL_HEIGHT_VH = 200;
+// Curve: exponential — flat/high on left, steeply descending on right
+const CURVE_MAX = 130; // overall curve intensity (px)
+const CURVE_SPAN = 850; // horizontal scale (px)
+// When the curve straightens, items settle here (≈ left-edge height at full curve)
+// so the left side never dips back down to center.
+const STRAIGHT_Y = CURVE_MAX * (Math.exp(-0.85) - 1); // ≈ -74px above center
 
-// How far the row drifts left during entry (px)
-const DRIFT_DISTANCE = 250;
+const SECTION_VH = 170; // total scroll height of section
+const ENTRY_END = 0.5; // fraction of scroll where entry animation completes
 
-// Title appears after this progress
-const TITLE_THRESHOLD = 0.35;
+const ease = (t: number) => 1 - Math.pow(Math.max(0, Math.min(1, 1 - t)), 3);
 
 export default function WorkSection() {
-  const t = useTranslations("work");
   const sectionRef = useRef<HTMLElement>(null);
-  const [progress, setProgress] = useState(0);
+  const [scrollProg, setScrollProg] = useState(0);
+  const offsetRef = useRef(0);
+  const [offset, setOffset] = useState(0);
+  const [vw, setVw] = useState(1440);
 
-  // Carousel offset after entry is done — driven by arrow buttons
-  const carouselOffsetRef = useRef(0);
-  const [carouselOffset, setCarouselOffset] = useState(0);
-  const animFrameRef = useRef<number>(0);
+  const drag = useRef({ on: false, x: 0, v: 0, t: 0 });
+  const rafRef = useRef(0);
 
-  const entryComplete = progress >= 1;
-
-  // Track scroll progress
-  const onScroll = useCallback(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    const rect = section.getBoundingClientRect();
-    const sectionHeight = section.offsetHeight;
-    const viewportHeight = window.innerHeight;
-
-    const scrolled = -rect.top;
-    const totalScrollable = sectionHeight - viewportHeight;
-    if (totalScrollable <= 0) {
-      setProgress(0);
-      return;
-    }
-    const rawProgress = scrolled / totalScrollable;
-    setProgress(Math.max(0, Math.min(1, rawProgress)));
-  }, []);
-
+  // Track viewport width
   useEffect(() => {
-    let rafId: number;
-    function handleScroll() {
-      rafId = requestAnimationFrame(onScroll);
-    }
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      cancelAnimationFrame(rafId);
-    };
-  }, [onScroll]);
-
-  // Smooth animate carousel offset toward target
-  const animateCarousel = useCallback((target: number) => {
-    cancelAnimationFrame(animFrameRef.current);
-
-    const animate = () => {
-      const current = carouselOffsetRef.current;
-      const diff = target - current;
-
-      if (Math.abs(diff) < 0.5) {
-        // Wrap for infinite loop
-        let final = target % SET_WIDTH;
-        if (final > 0) final -= SET_WIDTH;
-        carouselOffsetRef.current = final;
-        setCarouselOffset(final);
-        return;
-      }
-
-      carouselOffsetRef.current = current + diff * 0.08;
-      setCarouselOffset(carouselOffsetRef.current);
-      animFrameRef.current = requestAnimationFrame(animate);
-    };
-
-    animFrameRef.current = requestAnimationFrame(animate);
+    const update = () => setVw(window.innerWidth);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
   }, []);
 
+  // Section scroll progress: 0 when section top hits viewport, 1 when fully scrolled
   useEffect(() => {
-    return () => cancelAnimationFrame(animFrameRef.current);
-  }, []);
-
-  const scrollCarousel = (direction: "left" | "right") => {
-    const step = ITEM_STRIDE * 2;
-    const target =
-      direction === "left"
-        ? carouselOffsetRef.current + step
-        : carouselOffsetRef.current - step;
-    animateCarousel(target);
-  };
-
-  // Entry drift (eased) — starts at DRIFT_DISTANCE and eases down to 0
-  const driftEased = 1 - Math.pow(1 - progress, 2);
-  const entryOffset = (1 - driftEased) * DRIFT_DISTANCE;
-
-  // Unified track position — no jump between entry and carousel.
-  // Always anchored on the middle set (-SET_WIDTH). During entry, entryOffset
-  // pushes items right; it eases to 0 so the carousel starts exactly in place.
-  const trackX = -SET_WIDTH + entryOffset + carouselOffset;
-
-  // Title fade
-  const titleProgress = Math.max(
-    0,
-    Math.min(1, (progress - TITLE_THRESHOLD) / 0.2),
-  );
-  const titleEased = 1 - Math.pow(1 - titleProgress, 2);
-
-  // Render a full set of items. The middle set (index 1) gets the entry animation.
-  const renderSet = (setIndex: number) =>
-    WORK_ITEMS.map((item, index) => {
-      const isEntrySet = setIndex === 1;
-
-      let translateY = 0;
-      let opacity = 1;
-
-      if (!entryComplete && isEntrySet) {
-        // Staggered left-to-right: each item delayed by 7% of scroll progress
-        const staggerDelay = index * 0.07;
-        const fadeEnd = staggerDelay + 0.2;
-        const fadeProgress = Math.max(
-          0,
-          Math.min(1, (progress - staggerDelay) / (fadeEnd - staggerDelay)),
-        );
-        opacity = 1 - Math.pow(1 - fadeProgress, 3);
-
-        // Per-item vertical rise: starts at the stagger point, finishes
-        // at progress=1 so it stays coupled with the horizontal drift.
-        const verticalProgress = Math.max(
-          0,
-          (progress - staggerDelay) / (1 - staggerDelay),
-        );
-        const verticalEased = 1 - Math.pow(1 - verticalProgress, 2);
-        translateY = (1 - verticalEased) * 40;
-      } else if (!entryComplete && !isEntrySet) {
-        opacity = 0;
-      }
-
-      return (
-        <div
-          key={`${setIndex}-${item.id}`}
-          className="aspect-[3/4] flex-shrink-0 overflow-hidden rounded-sm"
-          style={{
-            width: ITEM_WIDTH,
-            transform: `translateY(${translateY}%)`,
-            opacity,
-            transition: !isEntrySet ? "opacity 0.6s ease" : undefined,
-            backgroundColor: item.color,
-          }}
-        />
+    const tick = () => {
+      const el = sectionRef.current;
+      if (!el) return;
+      const top = el.getBoundingClientRect().top;
+      const scrollable = el.offsetHeight - window.innerHeight;
+      setScrollProg(
+        scrollable > 0 ? Math.max(0, Math.min(1, -top / scrollable)) : 0,
       );
-    });
+    };
+    window.addEventListener("scroll", tick, { passive: true });
+    tick();
+    return () => window.removeEventListener("scroll", tick);
+  }, []);
+
+  // Entry: linear 0→1 over first ENTRY_END fraction of scroll
+  const entryRaw = Math.min(1, scrollProg / ENTRY_END);
+
+  // Curve straightens after entry completes — linear so scroll maps 1:1 to visual change
+  const curveP = Math.max(0, (scrollProg - ENTRY_END) / (1 - ENTRY_END));
+  const curve = CURVE_MAX * (1 - curveP);
+
+  // Pointer drag
+  const onDown = useCallback((e: React.PointerEvent) => {
+    cancelAnimationFrame(rafRef.current);
+    drag.current = { on: true, x: e.clientX, v: 0, t: performance.now() };
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }, []);
+
+  const onMove = useCallback((e: React.PointerEvent) => {
+    const d = drag.current;
+    if (!d.on) return;
+    const now = performance.now();
+    const dx = e.clientX - d.x;
+    d.v = (dx / Math.max(1, now - d.t)) * 16;
+    d.x = e.clientX;
+    d.t = now;
+    offsetRef.current += dx;
+    setOffset(offsetRef.current);
+  }, []);
+
+  const onUp = useCallback(() => {
+    const d = drag.current;
+    if (!d.on) return;
+    d.on = false;
+    let v = d.v;
+    const momentum = () => {
+      v *= 0.93;
+      if (Math.abs(v) < 0.4) return;
+      offsetRef.current += v;
+      setOffset(offsetRef.current);
+      rafRef.current = requestAnimationFrame(momentum);
+    };
+    rafRef.current = requestAnimationFrame(momentum);
+  }, []);
+
+  // Horizontal wheel scroll
+  useEffect(() => {
+    const el = sectionRef.current?.querySelector(
+      "[data-carousel]",
+    ) as HTMLElement | null;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) * 2) {
+        e.preventDefault();
+        offsetRef.current -= e.deltaX;
+        setOffset(offsetRef.current);
+      }
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
+  // Visible slots: enough to cover viewport + buffer on each side
+  const cx = vw / 2;
+  const half = Math.ceil(vw / STRIDE) + 3;
+  const baseSlot = Math.round(-offset / STRIDE);
+  const slots = Array.from(
+    { length: half * 2 + 1 },
+    (_, i) => baseSlot - half + i,
+  );
 
   return (
-    <section
-      id="work"
-      ref={sectionRef}
-      style={{ height: `${SCROLL_HEIGHT_VH}vh` }}
-    >
-      <div className="sticky top-0 flex h-screen flex-col overflow-hidden px-8 pt-24 pb-12">
-        {/* Title — appears later */}
-        <h2
-          className="mb-10 font-posterman text-[74px] font-black leading-[88px]"
-          style={{
-            opacity: titleEased,
-            transform: `translateY(${(1 - titleEased) * 30}px)`,
-          }}
-        >
-          {t("title")}
-        </h2>
+    <section ref={sectionRef} id="work" style={{ height: `${SECTION_VH}vh` }}>
+      <div
+        data-carousel
+        className="sticky top-0 h-screen overflow-hidden cursor-grab active:cursor-grabbing select-none"
+        onPointerDown={onDown}
+        onPointerMove={onMove}
+        onPointerUp={onUp}
+        onPointerCancel={onUp}
+        style={{ touchAction: "pan-y" }}
+      >
+        {slots.map((slot) => {
+          const item = ITEMS[((slot % N) + N) % N];
 
-        {/* Image track — all movement via translateX, no native scroll */}
-        <div className="relative flex-1 overflow-hidden">
-          <div
-            className="absolute top-0 left-0 flex h-full items-center"
-            style={{
-              gap: GAP,
-              transform: `translateX(${trackX}px)`,
-              willChange: "transform",
-            }}
-          >
-            {renderSet(0)}
-            {renderSet(1)}
-            {renderSet(2)}
-          </div>
-        </div>
+          // X center of this item on screen
+          const itemCx = cx + slot * STRIDE + offset;
+          const dist = itemCx - cx;
 
-        {/* Navigation arrows */}
-        <div className="mt-auto flex items-center gap-4 pt-8">
-          <button
-            onClick={() => scrollCarousel("left")}
-            className="text-3xl transition-opacity hover:opacity-70"
-            style={{ opacity: entryComplete ? 1 : 0 }}
-            aria-label="Previous"
-            disabled={!entryComplete}
-            aria-hidden={!entryComplete}
-            tabIndex={entryComplete ? 0 : -1}
-          >
-            &larr;
-          </button>
-          <button
-            onClick={() => scrollCarousel("right")}
-            className="text-3xl transition-opacity hover:opacity-70"
-            style={{ opacity: entryComplete ? 1 : 0 }}
-            aria-label="Next"
-            disabled={!entryComplete}
-            aria-hidden={!entryComplete}
-            tabIndex={entryComplete ? 0 : -1}
-          >
-            &rarr;
-          </button>
-        </div>
+          // Exponential curve: left items sit high, right items descend steeply.
+          // As the curve straightens (curveP → 1), items settle at STRAIGHT_Y
+          // instead of y=0 — so the left side stays elevated rather than dipping back.
+          const curveFull = CURVE_MAX * (Math.exp(dist / CURVE_SPAN) - 1);
+          const curveY =
+            (curve / CURVE_MAX) * curveFull +
+            (1 - curve / CURVE_MAX) * STRAIGHT_Y;
+
+          // Entry stagger: leftmost items (negative dist) enter first
+          // Map dist from [-vw/2 .. +vw] → staggerT [0 .. 1]
+          const staggerT = Math.max(0, Math.min(1, (dist + vw * 0.5) / vw));
+          const delay = staggerT * 0.58;
+          const rawP =
+            delay >= 1
+              ? 0
+              : Math.max(0, Math.min(1, (entryRaw - delay) / (1 - delay)));
+          const itemEntry = rawP;
+
+          const entryY = (1 - itemEntry) * 130;
+          const opacity = itemEntry;
+
+          return (
+            <div
+              key={slot}
+              style={{
+                position: "absolute",
+                left: itemCx - ITEM_W / 2,
+                top: `calc(50% - ${ITEM_H / 2}px + ${curveY + entryY}px)`,
+                width: ITEM_W,
+                height: ITEM_H,
+                borderRadius: 6,
+                backgroundColor: item.color,
+                opacity,
+                willChange: "transform, opacity",
+                pointerEvents: "none",
+              }}
+            />
+          );
+        })}
       </div>
     </section>
   );
