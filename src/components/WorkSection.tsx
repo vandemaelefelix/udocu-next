@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const ITEMS = [
   { id: 1, color: "#c4956a" },
@@ -31,9 +32,47 @@ const STRAIGHT_Y = CURVE_MAX * (Math.exp(-0.85) - 1); // ≈ -74px above center
 const SECTION_VH = 170; // total scroll height of section
 const ENTRY_END = 0.5; // fraction of scroll where entry animation completes
 
-const ease = (t: number) => 1 - Math.pow(Math.max(0, Math.min(1, 1 - t)), 3);
-
 export default function WorkSection() {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return <MobileCarousel />;
+  }
+
+  return <DesktopCarousel />;
+}
+
+/* ─── Mobile: horizontal scroll-snap carousel ─── */
+
+const MOBILE_ITEM_SIZE = 280;
+
+function MobileCarousel() {
+  return (
+    <section id="work" className="flex h-screen flex-col justify-center">
+      <div
+        className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-[calc(50vw-140px)] py-8"
+        style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
+      >
+        {ITEMS.map((item) => (
+          <div
+            key={item.id}
+            className="shrink-0 snap-center"
+            style={{
+              width: MOBILE_ITEM_SIZE,
+              height: MOBILE_ITEM_SIZE,
+              borderRadius: 6,
+              backgroundColor: item.color,
+            }}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ─── Desktop: curve scroll animation with drag ─── */
+
+function DesktopCarousel() {
   const sectionRef = useRef<HTMLElement>(null);
   const [scrollProg, setScrollProg] = useState(0);
   const offsetRef = useRef(0);
@@ -138,7 +177,7 @@ export default function WorkSection() {
     <section ref={sectionRef} id="work" style={{ height: `${SECTION_VH}vh` }}>
       <div
         data-carousel
-        className="sticky top-0 h-screen overflow-hidden cursor-grab active:cursor-grabbing select-none"
+        className="sticky top-0 h-screen cursor-grab overflow-hidden select-none active:cursor-grabbing"
         onPointerDown={onDown}
         onPointerMove={onMove}
         onPointerUp={onUp}

@@ -30,7 +30,7 @@ export default function SocialDock() {
 
   return (
     <div
-      className="fixed right-8 bottom-6 z-50 flex gap-4 transition-opacity duration-500"
+      className="fixed right-8 bottom-6 z-50 hidden gap-4 transition-opacity duration-500 md:flex"
       style={{
         opacity: visible ? 1 : 0,
         pointerEvents: visible ? "auto" : "none",

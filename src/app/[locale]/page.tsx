@@ -8,28 +8,34 @@ import AboutSection from "@/components/AboutSection";
 import WorkSection from "@/components/WorkSection";
 import ContactSection from "@/components/ContactSection";
 import SocialDock from "@/components/SocialDock";
+import { ScrollColorProvider } from "@/context/ScrollColorContext";
 
 export default function HomePage() {
   const t = useTranslations("home");
 
   return (
-    <main>
-      <ParallaxHero backgroundImage={backgroundHero}>
-        <UdocuLogo className="w-full" color="var(--color-green-light)" />
-        <p className="user-select-none mt-4 whitespace-nowrap font-serif text-[80px] font-bold leading-24 tracking-[0.019em] text-green-light">
-          {t("tagline")}
-        </p>
-      </ParallaxHero>
-
-      <ScrollBackground>
+    <ScrollColorProvider>
+      <main>
         <StickyNav />
-        <AboutSection />
-        <SocialDock />
-        <div className="-mt-[95vh]">
-          <WorkSection />
-        </div>
-        <ContactSection />
-      </ScrollBackground>
-    </main>
+
+        <ParallaxHero backgroundImage={backgroundHero}>
+          <div className="w-[90vw] md:w-auto">
+            <UdocuLogo className="w-full" color="var(--color-green-light)" />
+            <p className="user-select-none mt-4 font-serif text-4xl font-bold leading-tight tracking-[0.019em] text-green-light md:whitespace-nowrap md:text-[80px] md:leading-24">
+              {t("tagline")}
+            </p>
+          </div>
+        </ParallaxHero>
+
+        <ScrollBackground>
+          <AboutSection />
+          <SocialDock />
+          <div className="md:-mt-[95vh]">
+            <WorkSection />
+          </div>
+          <ContactSection />
+        </ScrollBackground>
+      </main>
+    </ScrollColorProvider>
   );
 }

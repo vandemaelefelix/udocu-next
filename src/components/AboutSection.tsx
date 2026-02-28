@@ -3,21 +3,24 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import tvBackground from "@/assets/images/tv-background-image.png";
 
 export default function AboutSection() {
   const t = useTranslations("about");
   const sectionRef = useRef<HTMLElement>(null);
   const [opacity, setOpacity] = useState(1);
+  const isMobile = useIsMobile();
 
-  // TODO: Fade out image with grain effect. It should look like an old tv
   useEffect(() => {
+    if (isMobile) return;
+
     const handleScroll = () => {
       if (!sectionRef.current) return;
       const rect = sectionRef.current.getBoundingClientRect();
       const vh = window.innerHeight;
-      const fadeStart = vh * 1.3; // start fading when section is nearly gone
-      const fadeEnd = vh * 1.15; // fully faded before sticky element unsticks
+      const fadeStart = vh * 1.3;
+      const fadeEnd = vh * 1.15;
       setOpacity(
         Math.max(
           0,
@@ -29,22 +32,29 @@ export default function AboutSection() {
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isMobile]);
 
   return (
-    <section ref={sectionRef} id="about" className="flex min-h-[150vh]">
+    <section
+      ref={sectionRef}
+      id="about"
+      className="flex min-h-screen flex-col md:min-h-[150vh] md:flex-row"
+    >
+      {/* Image */}
       <div
-        className="sticky top-0 z-10 h-screen w-3/5 shrink-0 self-start"
-        style={{ opacity }}
+        className="relative h-[50vh] w-full shrink-0 md:sticky md:top-0 md:z-10 md:h-screen md:w-3/5 md:self-start"
+        style={{ opacity: isMobile ? 1 : opacity }}
       >
         <Image src={tvBackground} alt="" fill className="object-cover" />
       </div>
-      <div className="flex h-screen w-2/5 flex-col px-12 py-24">
-        <div className="mt-auto max-w-93">
-          <h2 className="mb-10 font-posterman text-[74px] font-black leading-22">
+
+      {/* Text content */}
+      <div className="flex w-full flex-col px-6 py-12 md:h-screen md:w-2/5 md:px-12 md:py-24">
+        <div className="md:mt-auto md:max-w-93">
+          <h2 className="mb-10 font-posterman text-[40px] font-black leading-12 md:text-[74px] md:leading-22">
             {t("title")}
           </h2>
-          <div className="space-y-6 font-serif text-[20px] font-normal leading-5.5">
+          <div className="space-y-6 font-serif text-[18px] font-normal leading-5.5 md:text-[20px]">
             <p>{t("paragraph1")}</p>
             <p>{t("paragraph2")}</p>
             <p>{t("paragraph3")}</p>

@@ -1,11 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { useScrollColor } from "@/context/ScrollColorContext";
 
 interface ColorStop {
   bg: [number, number, number];
   text: [number, number, number];
 }
+
+// Color used when the viewport is over the hero section (before ScrollBackground)
+const HERO_STOP: ColorStop = {
+  bg: [62, 2, 2], // same bg as first section (used for mobile overlay)
+  text: [174, 212, 115], // green-light
+};
 
 const COLOR_STOPS: ColorStop[] = [
   { bg: [62, 2, 2], text: [196, 181, 253] }, // #3E0202 / red-light
@@ -36,10 +43,7 @@ export default function ScrollBackground({
   children: React.ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [bgColor, setBgColor] = useState(rgbToString(...COLOR_STOPS[0].bg));
-  const [textColor, setTextColor] = useState(
-    rgbToString(...COLOR_STOPS[0].text),
-  );
+  const { bgColor, textColor, setColors } = useScrollColor();
 
   const onScroll = useCallback(() => {
     const el = ref.current;
@@ -52,13 +56,31 @@ export default function ScrollBackground({
 
     // If only one section (or none), stay on the first color stop
     if (sectionCount <= 1) {
-      setBgColor(rgbToString(...COLOR_STOPS[0].bg));
-      setTextColor(rgbToString(...COLOR_STOPS[0].text));
+      setColors(
+        rgbToString(...COLOR_STOPS[0].bg),
+        rgbToString(...COLOR_STOPS[0].text),
+      );
       return;
     }
 
     const wrapperTop = el.getBoundingClientRect().top;
     const viewportMiddle = window.innerHeight / 2;
+
+    // While the viewport is still over the hero (before ScrollBackground),
+    // interpolate from hero colors to the first section using the same smooth-step.
+    if (wrapperTop > 0) {
+      const heroProgress = Math.min(1, window.scrollY / window.innerHeight);
+      const compressed = Math.max(0, Math.min(1, (heroProgress - 0.65) / 0.25));
+      const smooth = compressed * compressed * (3 - 2 * compressed);
+      const bg = interpolateColor(HERO_STOP.bg, COLOR_STOPS[0].bg, smooth);
+      const text = interpolateColor(
+        HERO_STOP.text,
+        COLOR_STOPS[0].text,
+        smooth,
+      );
+      setColors(rgbToString(...bg), rgbToString(...text));
+      return;
+    }
 
     // Build section midpoints relative to the wrapper
     const midpoints: number[] = [];
@@ -111,9 +133,8 @@ export default function ScrollBackground({
       smooth,
     );
 
-    setBgColor(rgbToString(...bg));
-    setTextColor(rgbToString(...text));
-  }, []);
+    setColors(rgbToString(...bg), rgbToString(...text));
+  }, [setColors]);
 
   useEffect(() => {
     let rafId: number;

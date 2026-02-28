@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import Image, { type StaticImageData } from "next/image";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface ParallaxHeroProps {
   backgroundImage: StaticImageData;
@@ -15,6 +16,7 @@ export default function ParallaxHero({
   const sectionRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   const onScroll = useCallback(() => {
     const section = sectionRef.current;
@@ -25,20 +27,26 @@ export default function ParallaxHero({
     const scrollY = window.scrollY;
     const sectionHeight = section.offsetHeight;
 
-    // Only apply effect while the hero is in view
     if (scrollY > sectionHeight) return;
 
-    const progress = scrollY / sectionHeight; // 0 → 1
+    const progress = scrollY / sectionHeight;
 
-    // Background moves at 50% scroll speed (parallax)
     bg.style.transform = `translateY(${scrollY * 0.5}px)`;
-
-    // Content moves up slightly faster and fades out
     content.style.transform = `translateY(${scrollY * 0.15}px)`;
     content.style.opacity = `${1 - progress * 1.2}`;
   }, []);
 
   useEffect(() => {
+    if (isMobile) {
+      // Reset any transforms on mobile
+      if (bgRef.current) bgRef.current.style.transform = "";
+      if (contentRef.current) {
+        contentRef.current.style.transform = "";
+        contentRef.current.style.opacity = "";
+      }
+      return;
+    }
+
     let rafId: number;
 
     function handleScroll() {
@@ -52,7 +60,7 @@ export default function ParallaxHero({
       window.removeEventListener("scroll", handleScroll);
       cancelAnimationFrame(rafId);
     };
-  }, [onScroll]);
+  }, [onScroll, isMobile]);
 
   return (
     <section
