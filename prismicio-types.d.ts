@@ -28,7 +28,8 @@ type PickContentRelationshipFieldData<
       TSubRelationship["customtypes"],
       TLang
     >;
-  } & { // Group
+  } & {
+    // Group
     [TGroup in Extract<
       TRelationship["fields"][number],
       | prismic.CustomTypeModelFetchGroupLevel1
@@ -40,7 +41,8 @@ type PickContentRelationshipFieldData<
           PickContentRelationshipFieldData<TGroup, TGroupData, TLang>
         >
       : never;
-  } & { // Other fields
+  } & {
+    // Other fields
     [TFieldKey in Extract<
       TRelationship["fields"][number],
       string
@@ -149,7 +151,88 @@ export type BlogPostDocument<Lang extends string = string> =
     Lang
   >;
 
-export type AllDocumentTypes = BlogPostDocument;
+/**
+ * Content for Interview documents
+ */
+interface InterviewDocumentData {
+  /**
+   * Name field in *Interview*
+   *
+   * - **Field Type**: Text
+   * - **API ID Path**: interview.name
+   * - **Tab**: Main
+   */
+  name: prismic.KeyTextField;
+
+  /**
+   * Lead field in *Interview*
+   *
+   * - **Field Type**: Rich Text
+   * - **API ID Path**: interview.lead
+   * - **Tab**: Main
+   */
+  lead: prismic.RichTextField;
+
+  /**
+   * Body field in *Interview*
+   *
+   * - **Field Type**: Rich Text
+   * - **API ID Path**: interview.body
+   * - **Tab**: Main
+   */
+  body: prismic.RichTextField;
+
+  /**
+   * Publish Date field in *Interview*
+   *
+   * - **Field Type**: Date
+   * - **API ID Path**: interview.publish_date
+   * - **Tab**: Main
+   */
+  publish_date: prismic.DateField;
+
+  /**
+   * Thumbnail Image field in *Interview*
+   *
+   * - **Field Type**: Image
+   * - **API ID Path**: interview.image_url
+   * - **Tab**: Main
+   */
+  image_url: prismic.ImageField<never>;
+
+  /**
+   * Video URL field in *Interview*
+   *
+   * - **Field Type**: Link
+   * - **API ID Path**: interview.video_url
+   * - **Tab**: Main
+   */
+  video_url: prismic.LinkField<
+    string,
+    string,
+    unknown,
+    prismic.FieldState,
+    never
+  >;
+}
+
+/**
+ * Interview document from Prismic
+ *
+ * - **API ID**: `interview`
+ * - **Repeatable**: `true`
+ * - **Documentation**: https://prismic.io/docs/content-modeling
+ *
+ * @typeParam Lang - Language API ID of the document.
+ */
+export type InterviewDocument<Lang extends string = string> =
+  prismic.PrismicDocumentWithUID<
+    Simplify<InterviewDocumentData>,
+    "interview",
+    Lang
+  >;
+
+export type AllDocumentTypes = BlogPostDocument | InterviewDocument;
 
 declare module "@prismicio/client" {
   interface CreateClient {
@@ -171,6 +254,12 @@ declare module "@prismicio/client" {
   }
 
   namespace Content {
-    export type { BlogPostDocument, BlogPostDocumentData, AllDocumentTypes };
+    export type {
+      BlogPostDocument,
+      BlogPostDocumentData,
+      InterviewDocument,
+      InterviewDocumentData,
+      AllDocumentTypes,
+    };
   }
 }

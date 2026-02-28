@@ -1,26 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
+import type { Content } from "@prismicio/client";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
-const ITEMS = [
-  { id: 1, color: "#c4956a" },
-  { id: 2, color: "#8a7d6b" },
-  { id: 3, color: "#6b8a7d" },
-  { id: 4, color: "#917d6b" },
-  { id: 5, color: "#6b7d8a" },
-  { id: 6, color: "#8a6b7d" },
-  { id: 7, color: "#7d8a6b" },
-  { id: 8, color: "#6b8a80" },
-  { id: 9, color: "#9a8b6a" },
-  { id: 10, color: "#6a7b9a" },
-];
+type InterviewItem = {
+  id: string;
+  uid: string;
+  imageUrl: string;
+  alt: string;
+};
 
 const ITEM_W = 350;
 const ITEM_H = ITEM_W;
 const GAP = 24;
 const STRIDE = ITEM_W + GAP;
-const N = ITEMS.length;
 
 // Curve: exponential — flat/high on left, steeply descending on right
 const CURVE_MAX = 130; // overall curve intensity (px)
@@ -32,38 +28,66 @@ const STRAIGHT_Y = CURVE_MAX * (Math.exp(-0.85) - 1); // ≈ -74px above center
 const SECTION_VH = 170; // total scroll height of section
 const ENTRY_END = 0.5; // fraction of scroll where entry animation completes
 
-export default function WorkSection() {
+type Props = {
+  interviews: Content.InterviewDocument[];
+};
+
+export default function WorkSection({ interviews }: Props) {
   const isMobile = useIsMobile();
 
+  const items: InterviewItem[] = interviews
+    .filter((i) => i.data.image_url?.url)
+    .map((i) => ({
+      id: i.id,
+      uid: i.uid,
+      imageUrl: i.data.image_url.url!,
+      alt: i.data.image_url.alt ?? "",
+    }));
+
   if (isMobile) {
-    return <MobileCarousel />;
+    return <MobileCarousel items={items} />;
   }
 
-  return <DesktopCarousel />;
+  return <DesktopCarousel items={items} />;
 }
 
 /* ─── Mobile: horizontal scroll-snap carousel ─── */
 
 const MOBILE_ITEM_SIZE = 280;
+const CLICK_THRESHOLD = 5; // px — below this drag distance = click
 
-function MobileCarousel() {
+function MobileCarousel({ items }: { items: InterviewItem[] }) {
+  const params = useParams();
+  const locale = Array.isArray(params.locale)
+    ? params.locale[0]
+    : params.locale;
+
   return (
     <section id="work" className="flex h-screen flex-col justify-center">
       <div
         className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-[calc(50vw-140px)] py-8"
         style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
       >
-        {ITEMS.map((item) => (
-          <div
+        {items.map((item) => (
+          <a
             key={item.id}
-            className="shrink-0 snap-center"
+            href={`/${locale}/interviews/${item.uid}`}
+            className="relative shrink-0 snap-center overflow-hidden"
             style={{
               width: MOBILE_ITEM_SIZE,
               height: MOBILE_ITEM_SIZE,
               borderRadius: 6,
-              backgroundColor: item.color,
+              display: "block",
             }}
-          />
+          >
+            <Image
+              src={item.imageUrl}
+              alt={item.alt}
+              fill
+              sizes={`${MOBILE_ITEM_SIZE}px`}
+              className="object-cover"
+            />
+          </a>
         ))}
       </div>
     </section>
@@ -72,14 +96,20 @@ function MobileCarousel() {
 
 /* ─── Desktop: curve scroll animation with drag ─── */
 
-function DesktopCarousel() {
+function DesktopCarousel({ items }: { items: InterviewItem[] }) {
+  const params = useParams();
+  const locale = Array.isArray(params.locale)
+    ? params.locale[0]
+    : params.locale;
+  const router = useRouter();
+
   const sectionRef = useRef<HTMLElement>(null);
   const [scrollProg, setScrollProg] = useState(0);
   const offsetRef = useRef(0);
   const [offset, setOffset] = useState(0);
   const [vw, setVw] = useState(1440);
 
-  const drag = useRef({ on: false, x: 0, v: 0, t: 0 });
+  const drag = useRef({ on: false, x: 0, v: 0, t: 0, startX: 0 });
   const rafRef = useRef(0);
 
   // Track viewport width
@@ -116,7 +146,13 @@ function DesktopCarousel() {
   // Pointer drag
   const onDown = useCallback((e: React.PointerEvent) => {
     cancelAnimationFrame(rafRef.current);
-    drag.current = { on: true, x: e.clientX, v: 0, t: performance.now() };
+    drag.current = {
+      on: true,
+      x: e.clientX,
+      v: 0,
+      t: performance.now(),
+      startX: e.clientX,
+    };
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }, []);
 
@@ -132,20 +168,39 @@ function DesktopCarousel() {
     setOffset(offsetRef.current);
   }, []);
 
-  const onUp = useCallback(() => {
-    const d = drag.current;
-    if (!d.on) return;
-    d.on = false;
-    let v = d.v;
-    const momentum = () => {
-      v *= 0.93;
-      if (Math.abs(v) < 0.4) return;
-      offsetRef.current += v;
-      setOffset(offsetRef.current);
+  const onUp = useCallback(
+    (e: React.PointerEvent) => {
+      const d = drag.current;
+      if (!d.on) return;
+      d.on = false;
+
+      const totalDrag = Math.abs(e.clientX - d.startX);
+      if (totalDrag < CLICK_THRESHOLD) {
+        // Treat as click — find which item is under the pointer
+        const N = items.length;
+        if (N > 0) {
+          const currentCx = vw / 2;
+          const slot = Math.round(
+            (e.clientX - currentCx - offsetRef.current) / STRIDE,
+          );
+          const item = items[((slot % N) + N) % N];
+          router.push(`/${locale}/interviews/${item.uid}`);
+        }
+        return;
+      }
+
+      let v = d.v;
+      const momentum = () => {
+        v *= 0.93;
+        if (Math.abs(v) < 0.4) return;
+        offsetRef.current += v;
+        setOffset(offsetRef.current);
+        rafRef.current = requestAnimationFrame(momentum);
+      };
       rafRef.current = requestAnimationFrame(momentum);
-    };
-    rafRef.current = requestAnimationFrame(momentum);
-  }, []);
+    },
+    [items, locale, router, vw],
+  );
 
   // Horizontal wheel scroll
   useEffect(() => {
@@ -181,55 +236,69 @@ function DesktopCarousel() {
         onPointerDown={onDown}
         onPointerMove={onMove}
         onPointerUp={onUp}
-        onPointerCancel={onUp}
+        onPointerCancel={(e) => {
+          drag.current.on = false;
+          void e;
+        }}
         style={{ touchAction: "pan-y" }}
       >
-        {slots.map((slot) => {
-          const item = ITEMS[((slot % N) + N) % N];
+        {items.length > 0 &&
+          slots.map((slot) => {
+            const N = items.length;
+            const item = items[((slot % N) + N) % N];
 
-          // X center of this item on screen
-          const itemCx = cx + slot * STRIDE + offset;
-          const dist = itemCx - cx;
+            // X center of this item on screen
+            const itemCx = cx + slot * STRIDE + offset;
+            const dist = itemCx - cx;
 
-          // Exponential curve: left items sit high, right items descend steeply.
-          // As the curve straightens (curveP → 1), items settle at STRAIGHT_Y
-          // instead of y=0 — so the left side stays elevated rather than dipping back.
-          const curveFull = CURVE_MAX * (Math.exp(dist / CURVE_SPAN) - 1);
-          const curveY =
-            (curve / CURVE_MAX) * curveFull +
-            (1 - curve / CURVE_MAX) * STRAIGHT_Y;
+            // Exponential curve: left items sit high, right items descend steeply.
+            // As the curve straightens (curveP → 1), items settle at STRAIGHT_Y
+            // instead of y=0 — so the left side stays elevated rather than dipping back.
+            const curveFull = CURVE_MAX * (Math.exp(dist / CURVE_SPAN) - 1);
+            const curveY =
+              (curve / CURVE_MAX) * curveFull +
+              (1 - curve / CURVE_MAX) * STRAIGHT_Y;
 
-          // Entry stagger: leftmost items (negative dist) enter first
-          // Map dist from [-vw/2 .. +vw] → staggerT [0 .. 1]
-          const staggerT = Math.max(0, Math.min(1, (dist + vw * 0.5) / vw));
-          const delay = staggerT * 0.58;
-          const rawP =
-            delay >= 1
-              ? 0
-              : Math.max(0, Math.min(1, (entryRaw - delay) / (1 - delay)));
-          const itemEntry = rawP;
+            // Entry stagger: leftmost items (negative dist) enter first
+            // Map dist from [-vw/2 .. +vw] → staggerT [0 .. 1]
+            const staggerT = Math.max(0, Math.min(1, (dist + vw * 0.5) / vw));
+            const delay = staggerT * 0.58;
+            const rawP =
+              delay >= 1
+                ? 0
+                : Math.max(0, Math.min(1, (entryRaw - delay) / (1 - delay)));
+            const itemEntry = rawP;
 
-          const entryY = (1 - itemEntry) * 130;
-          const opacity = itemEntry;
+            const entryY = (1 - itemEntry) * 130;
+            const opacity = itemEntry;
 
-          return (
-            <div
-              key={slot}
-              style={{
-                position: "absolute",
-                left: itemCx - ITEM_W / 2,
-                top: `calc(50% - ${ITEM_H / 2}px + ${curveY + entryY}px)`,
-                width: ITEM_W,
-                height: ITEM_H,
-                borderRadius: 6,
-                backgroundColor: item.color,
-                opacity,
-                willChange: "transform, opacity",
-                pointerEvents: "none",
-              }}
-            />
-          );
-        })}
+            return (
+              <div
+                key={slot}
+                style={{
+                  position: "absolute",
+                  left: itemCx - ITEM_W / 2,
+                  top: `calc(50% - ${ITEM_H / 2}px + ${curveY + entryY}px)`,
+                  width: ITEM_W,
+                  height: ITEM_H,
+                  borderRadius: 6,
+                  overflow: "hidden",
+                  opacity,
+                  willChange: "transform, opacity",
+                  pointerEvents: "none",
+                }}
+              >
+                <Image
+                  src={item.imageUrl}
+                  alt={item.alt}
+                  fill
+                  sizes={`${ITEM_W}px`}
+                  className="object-cover"
+                  draggable={false}
+                />
+              </div>
+            );
+          })}
       </div>
     </section>
   );

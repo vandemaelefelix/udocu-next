@@ -1,6 +1,6 @@
 {
-  "id": "blog_post",
-  "label": "Blog Post",
+  "id": "interview",
+  "label": "Interview",
   "repeatable": true,
   "status": true,
   "format": "custom",
@@ -12,11 +12,18 @@
           "label": "UID"
         }
       },
-      "title": {
+      "name": {
+        "type": "Text",
+        "config": {
+          "label": "Name",
+          "placeholder": "Interviewee name"
+        }
+      },
+      "lead": {
         "type": "StructuredText",
         "config": {
-          "label": "Title",
-          "single": "heading1",
+          "label": "Lead",
+          "single": "paragraph",
           "allowTargetBlank": false
         }
       },
@@ -35,11 +42,11 @@
           "label": "Publish Date"
         }
       },
-      "image": {
+      "image_url": {
         "type": "Image",
         "config": {
-          "label": "Image",
-          "constraint": {},
+          "label": "Thumbnail Image",
+          "constraint": { "width": 1000, "height": 1000 },
           "thumbnails": []
         }
       },

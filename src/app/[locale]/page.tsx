@@ -1,4 +1,4 @@
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import backgroundHero from "@/assets/images/background-hero.png";
 import UdocuLogo from "@/components/UdocuLogo";
 import ParallaxHero from "@/components/ParallaxHero";
@@ -9,9 +9,19 @@ import WorkSection from "@/components/WorkSection";
 import ContactSection from "@/components/ContactSection";
 import SocialDock from "@/components/SocialDock";
 import { ScrollColorProvider } from "@/context/ScrollColorContext";
+import { createClient } from "@/prismicio";
+import type { Content } from "@prismicio/client";
 
-export default function HomePage() {
-  const t = useTranslations("home");
+export default async function HomePage() {
+  const t = await getTranslations("home");
+  const client = createClient();
+  const interviews = await client.getAllByType<Content.InterviewDocument>(
+    "interview",
+    {
+      lang: "*",
+      orderings: [{ field: "my.interview.publish_date", direction: "desc" }],
+    },
+  );
 
   return (
     <ScrollColorProvider>
@@ -31,7 +41,7 @@ export default function HomePage() {
           <AboutSection />
           <SocialDock />
           <div className="md:-mt-[95vh]">
-            <WorkSection />
+            <WorkSection interviews={interviews} />
           </div>
           <ContactSection />
         </ScrollBackground>
