@@ -85,17 +85,6 @@ interface BlogPostDocumentData {
   title: prismic.RichTextField;
 
   /**
-   * Lead field in *Blog Post*
-   *
-   * - **Field Type**: Rich Text
-   * - **Placeholder**: *None*
-   * - **API ID Path**: blog_post.lead
-   * - **Tab**: Main
-   * - **Documentation**: https://prismic.io/docs/fields/rich-text
-   */
-  lead: prismic.RichTextField;
-
-  /**
    * Body field in *Blog Post*
    *
    * - **Field Type**: Rich Text
@@ -118,15 +107,25 @@ interface BlogPostDocumentData {
   publish_date: prismic.DateField;
 
   /**
-   * Media URL field in *Blog Post*
+   * Image field in *Blog Post*
+   *
+   * - **Field Type**: Image
+   * - **Placeholder**: *None*
+   * - **API ID Path**: blog_post.image
+   * - **Tab**: Main
+   */
+  image: prismic.ImageField<never>;
+
+  /**
+   * Video URL field in *Blog Post*
    *
    * - **Field Type**: Link
    * - **Placeholder**: *None*
-   * - **API ID Path**: blog_post.media_url
+   * - **API ID Path**: blog_post.video_url
    * - **Tab**: Main
    * - **Documentation**: https://prismic.io/docs/fields/link
    */
-  media_url: prismic.LinkField<
+  video_url: prismic.LinkField<
     string,
     string,
     unknown,

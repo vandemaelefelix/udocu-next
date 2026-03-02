@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import * as prismic from "@prismicio/client";
 import { PrismicRichText } from "@prismicio/react";
+import { PrismicNextImage } from "@prismicio/next";
 import { createClient, localeMap } from "@/prismicio";
 import type { Content } from "@prismicio/client";
 
@@ -35,7 +36,6 @@ export async function generateMetadata({
 
     return {
       title: prismic.asText(page.data.title),
-      description: prismic.asText(page.data.lead),
     };
   } catch {
     return {};
@@ -59,9 +59,9 @@ export default async function BlogPostPage({
     notFound();
   }
 
-  const mediaUrl =
-    page.data.media_url.link_type === "Web"
-      ? (page.data.media_url as prismic.FilledLinkToWebField).url
+  const videoUrl =
+    page.data.video_url.link_type === "Web"
+      ? (page.data.video_url as prismic.FilledLinkToWebField).url
       : null;
 
   return (
@@ -79,21 +79,21 @@ export default async function BlogPostPage({
           </time>
         )}
 
-        <div>
-          <PrismicRichText field={page.data.lead} />
-        </div>
+        {page.data.image?.url && (
+          <PrismicNextImage field={page.data.image} alt="" />
+        )}
 
         <div>
           <PrismicRichText field={page.data.body} />
         </div>
 
-        {mediaUrl && (
+        {videoUrl && (
           <div>
-            {mediaUrl.match(/\.(mp4|webm|ogg)$/) ? (
-              <video src={mediaUrl} controls />
+            {videoUrl.match(/\.(mp4|webm|ogg)$/) ? (
+              <video src={videoUrl} controls />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={mediaUrl} alt="" />
+              <img src={videoUrl} alt="" />
             )}
           </div>
         )}

@@ -11,6 +11,7 @@ import {
 } from "motion/react";
 import Image from "next/image";
 import { useCallback, useEffect, useRef } from "react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 type Props = {
   interviews: Content.InterviewDocument[];
@@ -52,6 +53,7 @@ export default function WorkSection({ interviews }: Props) {
   const locale = useLocale();
   const t = useTranslations();
   const items = filteredInterviews(interviews);
+  const isMobile = useIsMobile();
 
   const displayedItems = items.map((item) => ({
     href: `/${locale}/interviews/${item.uid}`,
@@ -61,6 +63,128 @@ export default function WorkSection({ interviews }: Props) {
   const itemCount = displayedItems.length;
   const setWidth = itemCount * STEP; // width of one full set of items
 
+  if (itemCount === 0) return null;
+
+  if (isMobile) {
+    return <MobileWorkSection displayedItems={displayedItems} t={t} />;
+  }
+
+  // Desktop carousel (with scroll animations)
+  return (
+    <DesktopWorkSection
+      displayedItems={displayedItems}
+      itemCount={itemCount}
+      setWidth={setWidth}
+      t={t}
+    />
+  );
+}
+
+const MOBILE_ITEM_SIZE = 280;
+const MOBILE_GAP = 24; // gap-6
+const MOBILE_STEP = MOBILE_ITEM_SIZE + MOBILE_GAP;
+const MOBILE_COPIES = 10;
+const MOBILE_MIDDLE_COPY = 5;
+
+const MobileWorkSection = ({
+  displayedItems,
+  t,
+}: {
+  displayedItems: { id: string; href: string; imageUrl: string; alt: string }[];
+  t: (key: string) => string;
+}) => {
+  const itemCount = displayedItems.length;
+  const setWidth = itemCount * MOBILE_STEP;
+
+  const repeatedItems = Array.from({ length: MOBILE_COPIES }, (_, copyIdx) =>
+    displayedItems.map((item) => ({
+      ...item,
+      key: `${item.id}-${copyIdx}`,
+    })),
+  ).flat();
+
+  // Start in the middle copy so there's equal buffer on both sides
+  const x = useMotionValue(-MOBILE_MIDDLE_COPY * setWidth);
+
+  const normalizeX = useCallback(
+    (val: number) => {
+      if (setWidth === 0) return val;
+      const mod = ((-val % setWidth) + setWidth) % setWidth;
+      return -(mod + MOBILE_MIDDLE_COPY * setWidth);
+    },
+    [setWidth],
+  );
+
+  return (
+    <section id="work" className="h-screen overflow-x-clip">
+      <div className="h-full flex flex-col items-start justify-center">
+        <h1 className="font-posterman font-black text-[48px] leading-12 mb-8 text-center px-4">
+          {t("work.title")}
+        </h1>
+        <div className="w-full overflow-hidden">
+          <motion.div
+            className="flex gap-6 cursor-grab pl-4 w-max"
+            drag="x"
+            dragElastic={0}
+            dragConstraints={{
+              left: -(MOBILE_COPIES - 1) * setWidth,
+              right: 0,
+            }}
+            dragTransition={{
+              power: 0.3,
+              timeConstant: 250,
+              // Snap to the nearest item from wherever the spring lands —
+              // no normalization here so the spring never animates backwards
+              modifyTarget: (target) =>
+                Math.round(target / MOBILE_STEP) * MOBILE_STEP,
+            }}
+            whileDrag={{ cursor: "grabbing" }}
+            style={{ x }}
+            onDragTransitionEnd={() => {
+              // Silently teleport to the equivalent position in the middle copy
+              // range — visually identical since content repeats every setWidth
+              x.set(normalizeX(x.get()));
+            }}
+          >
+            {repeatedItems.map((item) => (
+              <a
+                key={item.key}
+                href={item.href}
+                className="shrink-0 no-underline"
+              >
+                <div
+                  className="rounded-lg overflow-hidden bg-gray-100"
+                  style={{ width: MOBILE_ITEM_SIZE, height: MOBILE_ITEM_SIZE }}
+                >
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.alt}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    width={MOBILE_ITEM_SIZE}
+                    height={MOBILE_ITEM_SIZE}
+                  />
+                </div>
+              </a>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const DesktopWorkSection = ({
+  displayedItems,
+  itemCount,
+  setWidth,
+  t,
+}: {
+  displayedItems: { id: string; href: string; imageUrl: string; alt: string }[];
+  itemCount: number;
+  setWidth: number;
+  t: (key: string) => string;
+}) => {
   // Repeat items for seamless infinite scrolling
   const repeatedItems = Array.from({ length: COPIES }, (_, copyIdx) =>
     displayedItems.map((item, i) => ({
@@ -122,18 +246,16 @@ export default function WorkSection({ interviews }: Props) {
     return clamp((progress - start) / (end - start), 0, 1);
   });
 
-  if (itemCount === 0) return null;
-
   return (
     <section
       ref={sectionRef}
       id="work"
-      className="flex min-h-[100vh] flex-col overflow-x-clip"
+      className="flex min-h-screen flex-col overflow-x-clip"
     >
       {/* Sticky wrapper: measures width, does NOT clip overflow */}
       <div ref={wrapperRef} className="sticky top-2/5 z-10">
         <motion.h1
-          className="absolute top-0 left-4 pb-4 translate-y-[-100%] font-posterman font-black text-[74px] leading-22 tracking-normal"
+          className="absolute top-0 left-4 pb-4 -translate-y-full font-posterman font-black text-[74px] leading-22 tracking-normal"
           style={{
             opacity: titleOpacity,
           }}
@@ -165,7 +287,7 @@ export default function WorkSection({ interviews }: Props) {
       </div>
     </section>
   );
-}
+};
 
 const CarouselItem = ({
   item,
