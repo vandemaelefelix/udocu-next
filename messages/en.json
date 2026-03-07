@@ -28,7 +28,9 @@
     "date": "12 February 2026"
   },
   "work": {
-    "title": "Work"
+    "title": "Work",
+    "previous": "Previous",
+    "next": "Next"
   },
   "contact": {
     "title": "Contact",

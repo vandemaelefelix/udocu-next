@@ -4,13 +4,17 @@ import { useLocale, useTranslations } from "next-intl";
 import type { Content } from "@prismicio/client";
 import {
   motion,
+  animate as motionAnimate,
   useMotionValue,
   useScroll,
+  useSpring,
+  useMotionValueEvent,
+  useAnimate,
   useTransform,
-  MotionValue,
+  type MotionValue,
 } from "motion/react";
 import Image from "next/image";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 type Props = {
@@ -28,8 +32,9 @@ const ITEM_SIZE = {
 const STEP = ITEM_SIZE.px + GAP; // width of one item slot
 const COPIES = 6; // number of repeated sets for infinite illusion
 
-const STAGGER = 0.0; // scroll progress offset between each item
-const ANIM_DURATION = 0.6; // scroll progress range each item animates over
+const SCROLL_THRESHOLD = 0.35; // scroll progress at which the animation triggers
+const ITEM_STAGGER = 0.06; // delay between each item's animation (seconds)
+const ANIM_DURATION_SEC = 0.6; // duration of each item's animation (seconds)
 
 const filteredInterviews = (interviews: Content.InterviewDocument[]) =>
   interviews
@@ -40,14 +45,6 @@ const filteredInterviews = (interviews: Content.InterviewDocument[]) =>
       imageUrl: i.data.image_url.url!,
       alt: i.data.image_url.alt ?? "",
     }));
-
-function circOutEasing(t: number): number {
-  return Math.sqrt(1 - Math.pow(t - 1, 2));
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
-}
 
 export default function WorkSection({ interviews }: Props) {
   const locale = useLocale();
@@ -233,36 +230,80 @@ const DesktopWorkSection = ({
   }, [x, normalizeX]);
 
   const sectionRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
+  const { scrollYProgress, scrollY } = useScroll({
     target: sectionRef,
-    offset: ["start center", "end start"],
+    offset: ["start end", "end start"],
   });
 
-  // the title should appear together with the first item, so it has the same stagger and duration but no translateY, just opacity
-  const titleOpacity = useTransform(scrollYProgress, (progress: number) => {
-    const start = 0 * STAGGER;
-    const end = Math.min(1, start + ANIM_DURATION);
-    if (end <= start) return 1;
-    return clamp((progress - start) / (end - start), 0, 1);
+  // The difference between actual scroll and a smoothed version gives instant
+  // displacement while scrolling, that naturally settles back to 0
+  const smoothScrollY = useSpring(scrollY, { damping: 50, stiffness: 200 });
+  const scrollDelta = useTransform(
+    [scrollY, smoothScrollY],
+    ([raw, smooth]: number[]) => raw - smooth,
+  );
+
+  // Disable inertia during programmatic scroll (nav clicks)
+  useEffect(() => {
+    let scrollIdleTimer: ReturnType<typeof setTimeout> | null = null;
+    let isProgrammatic = false;
+
+    function syncSpring() {
+      if (!isProgrammatic) return;
+      smoothScrollY.jump(scrollY.get());
+    }
+
+    function onProgrammaticScroll() {
+      isProgrammatic = true;
+      smoothScrollY.jump(scrollY.get());
+      window.addEventListener("scroll", syncSpring, { passive: true });
+    }
+
+    function onScrollIdle() {
+      if (!isProgrammatic) return;
+      if (scrollIdleTimer) clearTimeout(scrollIdleTimer);
+      scrollIdleTimer = setTimeout(() => {
+        isProgrammatic = false;
+        window.removeEventListener("scroll", syncSpring);
+      }, 600);
+    }
+
+    window.addEventListener("programmatic-scroll", onProgrammaticScroll);
+    window.addEventListener("scroll", onScrollIdle, { passive: true });
+
+    return () => {
+      window.removeEventListener("programmatic-scroll", onProgrammaticScroll);
+      window.removeEventListener("scroll", onScrollIdle);
+      window.removeEventListener("scroll", syncSpring);
+      if (scrollIdleTimer) clearTimeout(scrollIdleTimer);
+    };
+  }, [scrollY, smoothScrollY]);
+
+  // Track whether items should be visible based on scroll threshold
+  const [isVisible, setIsVisible] = useState(false);
+
+  useMotionValueEvent(scrollYProgress, "change", (progress) => {
+    if (progress >= SCROLL_THRESHOLD && !isVisible) {
+      setIsVisible(true);
+    }
   });
 
   return (
     <section
       ref={sectionRef}
       id="work"
-      className="flex min-h-screen flex-col overflow-x-clip"
+      className="flex h-screen flex-col items-start justify-center overflow-clip"
     >
-      {/* Sticky wrapper: measures width, does NOT clip overflow */}
-      <div ref={wrapperRef} className="sticky top-2/5 z-10">
+      <div ref={wrapperRef}>
         <motion.h1
-          className="absolute top-0 left-4 pb-4 -translate-y-full font-posterman font-black text-[74px] leading-22 tracking-normal"
-          style={{
-            opacity: titleOpacity,
-          }}
+          className="pl-4 pb-4 font-posterman font-black text-[74px] leading-22 tracking-normal mb-4"
+          animate={{ opacity: isVisible ? 1 : undefined }}
+          initial={{ opacity: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
         >
           {t("work.title")}
         </motion.h1>
-        {/* Draggable row: no overflow constraint so Y-translated items show */}
+        {/* Draggable row */}
         <motion.div
           className="flex gap-6 cursor-grab w-max"
           drag="x"
@@ -280,58 +321,143 @@ const DesktopWorkSection = ({
               flexIndex={item.flexIndex}
               item={item}
               x={x}
-              scrollYProgress={scrollYProgress}
+              isVisible={isVisible}
+              scrollDelta={scrollDelta}
             />
           ))}
         </motion.div>
+        <div className="flex gap-4 pl-4 pt-6">
+          <button
+            type="button"
+            aria-label={t("work.previous")}
+            className="p-2 transition-opacity hover:opacity-50"
+            onClick={() => {
+              const target = x.get() + STEP * 3;
+              motionAnimate(x, target, {
+                duration: 1.2,
+                ease: [0.4, 0, 0.1, 1],
+              }).then(() => x.set(normalizeX(x.get())));
+            }}
+          >
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 32 32"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M20 6L10 16L20 26"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          <button
+            type="button"
+            aria-label={t("work.next")}
+            className="p-2 transition-opacity hover:opacity-50"
+            onClick={() => {
+              const target = x.get() - STEP * 3;
+              motionAnimate(x, target, {
+                duration: 1.2,
+                ease: [0.4, 0, 0.1, 1],
+              }).then(() => x.set(normalizeX(x.get())));
+            }}
+          >
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 32 32"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 6L22 16L12 26"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
     </section>
   );
 };
 
+const INERTIA_SCALE = 0.06; // how much scroll delta maps to Y per index
+
 const CarouselItem = ({
   item,
   flexIndex,
   x,
-  scrollYProgress,
+  isVisible,
+  scrollDelta,
 }: {
   item: { id: string; href: string; imageUrl: string; alt: string };
   flexIndex: number;
   x: MotionValue<number>;
-  scrollYProgress: MotionValue<number>;
+  isVisible: boolean;
+  scrollDelta: MotionValue<number>;
 }) => {
-  // Compute visual index: leftmost visible item = 0, next = 1, etc.
-  // Items off-screen left (vi < 0) are clamped to 0 so they're already
-  // fully "entered" and don't visibly appear at the viewport edge.
-  const y = useTransform([scrollYProgress, x], ([progress, xVal]: number[]) => {
-    const screenPos = flexIndex * STEP + xVal;
-    const vi = clamp(Math.round(screenPos / STEP), 0, 20);
-    const initialY = vi * 150;
-    const start = vi * STAGGER;
-    const end = Math.min(1, start + ANIM_DURATION);
-    if (end <= start) return initialY;
-    const t = clamp((progress - start) / (end - start), 0, 1);
-    return initialY * (1 - circOutEasing(t));
+  const [scope, animate] = useAnimate();
+
+  // Compute the visual index (position on screen) to determine stagger delay
+  const getVisualIndex = useCallback(() => {
+    const screenPos = flexIndex * STEP + x.get();
+    return Math.round(screenPos / STEP);
+  }, [flexIndex, x]);
+
+  // Direct Y offset from scroll delta — no extra springs, instant response
+  const inertiaY = useTransform(scrollDelta, (d) => {
+    const vi = getVisualIndex();
+    return d * vi * INERTIA_SCALE;
   });
 
-  const opacity = useTransform(
-    [scrollYProgress, x],
-    ([progress, xVal]: number[]) => {
-      const screenPos = flexIndex * STEP + xVal;
-      const vi = clamp(Math.round(screenPos / STEP), 0, 20);
-      const start = vi * STAGGER;
-      const end = Math.min(1, start + ANIM_DURATION);
-      if (end <= start) return 1;
-      return clamp((progress - start) / (end - start), 0, 1);
-    },
+  // Combine entrance Y animation + inertia offset
+  const entranceY = useMotionValue(0);
+
+  // Enter animation only — no exit
+  useEffect(() => {
+    if (!isVisible) return;
+    const vi = getVisualIndex();
+    const delay = vi * ITEM_STAGGER;
+    const entryY = vi * 150;
+
+    entranceY.set(entryY);
+    animate(entranceY, 0, {
+      duration: ANIM_DURATION_SEC,
+      delay,
+      ease: [0.0, 0.55, 0.45, 1],
+    });
+    animate(
+      scope.current,
+      { opacity: 1 },
+      {
+        duration: ANIM_DURATION_SEC,
+        delay,
+        ease: [0.0, 0.55, 0.45, 1],
+      },
+    );
+  }, [isVisible, animate, scope, entranceY, getVisualIndex]);
+
+  const combinedY = useTransform(
+    [entranceY, inertiaY],
+    ([entry, inertia]: number[]) => entry + inertia,
   );
 
   return (
     <a href={item.href} className="no-underline">
       <motion.div
+        ref={scope}
         data-carousel-item
         className={`shrink-0 rounded-lg overflow-hidden bg-gray-100 ${ITEM_SIZE.className}`}
-        style={{ y, opacity }}
+        style={{ y: combinedY }}
+        initial={{ opacity: 0 }}
       >
         <Image
           src={item.imageUrl}

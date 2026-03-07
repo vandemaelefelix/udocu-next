@@ -1,0 +1,204 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import * as prismic from "@prismicio/client";
+import { PrismicNextImage } from "@prismicio/next";
+import { motion, useInView } from "motion/react";
+import type { Content } from "@prismicio/client";
+
+function formatDate(dateStr: string, locale: string) {
+  return new Date(dateStr).toLocaleDateString(
+    locale === "nl" ? "nl-NL" : "en-US",
+    {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    },
+  );
+}
+
+function PostCard({
+  post,
+  locale,
+  featured = false,
+  staggerDelay,
+}: {
+  post: Content.BlogPostDocument;
+  locale: string;
+  featured?: boolean;
+  staggerDelay: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px 0px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 24 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+      transition={{
+        duration: 0.4,
+        ease: [0.25, 0.1, 0.25, 1],
+        delay: staggerDelay,
+      }}
+      className="break-inside-avoid"
+    >
+      <Link href={`/${locale}/blog/${post.uid}`} className="group mb-8 block">
+        {post.data.image?.url && (
+          <div className="overflow-hidden">
+            <PrismicNextImage
+              field={post.data.image}
+              className="w-full object-cover transition-opacity duration-300 group-hover:opacity-90"
+            />
+          </div>
+        )}
+        <div
+          className="pt-2 pb-2"
+          style={
+            featured ? { backgroundColor: "var(--color-red-light)" } : undefined
+          }
+        >
+          <div className={featured ? "px-5 py-4 md:px-6" : ""}>
+            {post.data.publish_date && (
+              <p
+                className="mb-1 font-helvetica text-xs font-light"
+                style={{
+                  color: featured ? "var(--color-red-dark)" : "white",
+                }}
+              >
+                {formatDate(post.data.publish_date, locale)}
+              </p>
+            )}
+            <h3
+              className="font-bold"
+              style={
+                featured
+                  ? {
+                      fontFamily: "var(--font-garamond)",
+                      fontSize: "38px",
+                      lineHeight: "43px",
+                      letterSpacing: "0%",
+                      color: "var(--color-red-dark)",
+                    }
+                  : {
+                      fontFamily: "var(--font-garamond)",
+                      fontSize: "38px",
+                      lineHeight: "43px",
+                      letterSpacing: "0%",
+                      color: "white",
+                    }
+              }
+            >
+              {prismic.asText(post.data.title)}
+            </h3>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
+
+interface BlogGridProps {
+  initialPosts: Content.BlogPostDocument[];
+  locale: string;
+  totalPages: number;
+}
+
+interface PostWithBatchIndex {
+  post: Content.BlogPostDocument;
+  /** Index within its batch, used to calculate stagger delay */
+  batchIndex: number;
+}
+
+export default function BlogGrid({
+  initialPosts,
+  locale,
+  totalPages,
+}: BlogGridProps) {
+  const [items, setItems] = useState<PostWithBatchIndex[]>(
+    initialPosts.map((post, i) => ({ post, batchIndex: i })),
+  );
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(totalPages > 1);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const loadMore = useCallback(async () => {
+    if (loading || !hasMore) return;
+
+    setLoading(true);
+    const nextPage = page + 1;
+
+    try {
+      const res = await fetch(
+        `/api/blog?page=${nextPage}&locale=${encodeURIComponent(locale)}`,
+      );
+      const data = await res.json();
+
+      const newItems: PostWithBatchIndex[] = data.results.map(
+        (post: Content.BlogPostDocument, i: number) => ({
+          post,
+          batchIndex: i,
+        }),
+      );
+
+      setItems((prev) => [...prev, ...newItems]);
+      setPage(nextPage);
+      setHasMore(nextPage < data.totalPages);
+    } catch (error) {
+      console.error("Failed to load more posts:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [loading, hasMore, page, locale]);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [loadMore]);
+
+  return (
+    <>
+      <div className="columns-2 gap-8 px-2 pb-16 md:columns-4 md:px-4">
+        {items.length === 0 && (
+          <p className="p-8 text-white/60">No posts yet.</p>
+        )}
+
+        {items.map(({ post, batchIndex }, i) => (
+          <PostCard
+            key={`${post.id}-${i}`}
+            post={post}
+            locale={locale}
+            featured={i === 0}
+            staggerDelay={batchIndex * 0.07}
+          />
+        ))}
+      </div>
+
+      {hasMore && (
+        <div ref={sentinelRef} className="flex justify-center py-8">
+          {loading && (
+            <div
+              className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white"
+              role="status"
+              aria-label="Loading more posts"
+            />
+          )}
+        </div>
+      )}
+    </>
+  );
+}

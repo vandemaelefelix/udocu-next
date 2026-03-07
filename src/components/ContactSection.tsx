@@ -4,6 +4,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { motion, useScroll, useTransform } from "motion/react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import contactImage from "@/assets/images/contact-image.jpg";
 import {
   FacebookIcon,
@@ -14,13 +15,22 @@ import {
 export default function ContactSection() {
   const t = useTranslations("contact");
   const sectionRef = useRef<HTMLElement>(null);
+  const isMobile = useIsMobile();
 
-  const { scrollYProgress } = useScroll({
+  // Entrance phase: image fades in and pans up as section enters the viewport
+  const { scrollYProgress: scrollProgressEntrance } = useScroll({
     target: sectionRef,
-    offset: ["start end", "end end"],
+    offset: ["0.3 1", "0 0"],
   });
 
-  const imageOpacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  // Entrance: fade in from 0 → 1
+  const entranceOpacity = useTransform(scrollProgressEntrance, [0, 1], [0, 1]);
+
+  // Entrance parallax: image pans upward into position
+  const entranceY = useTransform(scrollProgressEntrance, [0, 1], [-15, 0]);
+
+  // Combined Y: output as percentage
+  const imageY = useTransform(() => `${entranceY.get()}%`);
 
   return (
     <section
@@ -31,15 +41,20 @@ export default function ContactSection() {
       {/* Left: image with text overlay */}
       <motion.div
         className="relative h-[45vh] w-full overflow-hidden md:h-auto md:w-3/5"
-        style={{ opacity: imageOpacity }}
+        style={{ opacity: isMobile ? 1 : entranceOpacity }}
       >
-        <Image
-          src={contactImage}
-          alt="Contact"
-          fill
-          className="object-cover object-center"
-          sizes="(max-width: 767px) 100vw, 60vw"
-        />
+        <motion.div
+          style={{ y: isMobile ? 0 : imageY }}
+          className="absolute inset-[-10%]"
+        >
+          <Image
+            src={contactImage}
+            alt="Contact"
+            fill
+            className="object-cover object-center"
+            sizes="(max-width: 767px) 100vw, 60vw"
+          />
+        </motion.div>
         {/* "LET'S TALK" overlay */}
         <div className="absolute inset-0 flex flex-col justify-end px-6 pb-8 md:px-8 md:pb-12">
           <p

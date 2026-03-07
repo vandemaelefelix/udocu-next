@@ -22,6 +22,7 @@ export default function StickyNav() {
       const href = e.currentTarget.getAttribute("href");
       if (href) {
         const target = document.querySelector(href);
+        window.dispatchEvent(new Event("programmatic-scroll"));
         target?.scrollIntoView({ behavior: "smooth" });
       }
     },
@@ -53,6 +54,9 @@ export default function StickyNav() {
                 <a
                   href={`#${item}`}
                   className="transition-opacity hover:opacity-70"
+                  onClick={() =>
+                    window.dispatchEvent(new Event("programmatic-scroll"))
+                  }
                 >
                   {t(item)}
                 </a>

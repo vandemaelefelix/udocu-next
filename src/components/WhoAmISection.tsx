@@ -80,7 +80,7 @@ export default function WhoAmISection() {
             {t("bio")}
           </p>
 
-          <div className="mt-8 flex flex-col gap-16">
+          <div className="mt-8 flex flex-col gap-4 md:gap-16">
             <Link
               href={`/${locale}/who-am-i`}
               className="group inline-flex items-center gap-2 font-helvetica text-[16px] font-medium uppercase leading-5 transition-opacity hover:opacity-70"

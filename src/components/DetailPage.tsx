@@ -5,9 +5,11 @@ import type { ReactNode } from "react";
 interface DetailPageProps {
   backHref: string;
   colorScheme: string;
-  image: StaticImageData;
-  imageAlt: string;
+  image?: StaticImageData;
+  imageAlt?: string;
   imageClassName?: string;
+  /** Optional custom media element (e.g. a video) that replaces the cover image */
+  media?: ReactNode;
   date: string;
   title: ReactNode;
   children: ReactNode;
@@ -17,8 +19,9 @@ export default function DetailPage({
   backHref,
   colorScheme,
   image,
-  imageAlt,
+  imageAlt = "",
   imageClassName = "object-cover object-center",
+  media,
   date,
   title,
   children,
@@ -27,17 +30,20 @@ export default function DetailPage({
     <main className={`min-h-screen ${colorScheme}`}>
       <DetailNav backHref={backHref} />
 
-      {/* Cover image */}
+      {/* Cover media */}
       <div className="mx-auto max-w-5xl px-8">
         <div className="relative aspect-video w-full overflow-hidden">
-          <Image
-            src={image}
-            alt={imageAlt}
-            fill
-            className={imageClassName}
-            sizes="100vw"
-            priority
-          />
+          {media ??
+            (image && (
+              <Image
+                src={image}
+                alt={imageAlt}
+                fill
+                className={imageClassName}
+                sizes="100vw"
+                priority
+              />
+            ))}
         </div>
       </div>
 

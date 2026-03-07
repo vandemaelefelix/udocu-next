@@ -28,7 +28,9 @@
     "date": "12 Februari 2026"
   },
   "work": {
-    "title": "Werk"
+    "title": "Werk",
+    "previous": "Vorige",
+    "next": "Volgende"
   },
   "contact": {
     "title": "Contact",
