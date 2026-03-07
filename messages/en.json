@@ -4,12 +4,28 @@
     "tagline": "So as not to forget who you were"
   },
   "about": {
-    "title": "About",
+    "titlePrefix": "What is",
+    "titleSuffix": "UDOCU?",
     "paragraph1": "Udocu is a creative studio dedicated to preserving personal and cultural heritage through documentary storytelling.",
     "paragraph2": "We believe every life carries stories worth remembering. Our work captures the voices, images, and moments that define who we are — before they fade.",
     "paragraph3": "Through film, photography, and digital archives, we create lasting records that connect generations and communities.",
     "paragraph4": "Whether it's a family history, an oral tradition, or a cultural practice on the verge of being forgotten — we document it, so as not to forget.",
-    "contactLink": "CONTACT"
+    "contactLink": "CONTACT",
+    "readMoreLink": "READ MORE",
+    "date": "12 February 2026",
+    "detailIntro": "What is Udocu?",
+    "detailParagraph1": "As a seasoned journalist I have often captured people's stories, in words and images. And over the years I realised that the interview concept is too good to reserve only for famous people. I conduct an in-depth interview with you about who you are now, who you were, and who you want to become. About your life, family, friends, your passions, your health, your world, your loves, doubts, worries and fears… I film with small cameras and deliver a time capsule, or an external hard drive that will prove more valuable year after year for yourself and perhaps also for your loved ones.",
+    "detailParagraph2": "Because today you give the answers to the questions that you or your loved ones will surely ask later. Because often those questions only arise for your loved ones when you are no longer there or when you have forgotten the answers. Know too that you can never trust your memory. It does not record moments the way a camera does. Only your mood that day can colour a memory. So don't always believe your own head. Udocu is a unique gift to yourself and to the people who will one day want to know who you were.",
+    "detailParagraph3": "Imagine if you could have heard your parents or grandparents talk when they were still in their twenties or early thirties. What did they dream of then? How did they see the world? How did they view their past and their future? Imagine if the friend who died far too young, whom you lost far too soon, could have been heard talking about what you experienced together? Wouldn't it be a great comfort if they could still be there in that way? What if you are suddenly no longer here — what will your loved ones still know about you?",
+    "detailParagraph4": "The result is yours alone. You do with it what you wish. An interview with your 21-year-old self can be shown to your son or daughter of 21 in 40 years' time. If you are 50 and still in full bloom, you will sound different than when 30 years later you want to pass on to those who come after you who you were. Every moment is a good moment to hold on to something of yourself. That is why you should also consider having something of yourself recorded at 30, 37, 41, 46, 53, 60, 67, 75, 83 and 95."
+  },
+  "whoAmI": {
+    "title": "Who Am I",
+    "bio": "I am Kurt Vandemaele, born on 8 March 1963 in Kortrijk. At sixteen I was already writing for regional weeklies, at eighteen I was on the editorial staff of a daily newspaper. Soon after I was heard on free radio stations in Kortrijk and Ghent, and I regularly contributed to Radio 2 West-Vlaanderen and later Oost-Vlaanderen… At 24 I became a permanent contributor to Humo, and I would stay there for 24 years.",
+    "readMoreLink": "READ MORE",
+    "contactLink": "CONTACT",
+    "imageAlt": "Kurt Vandemaele",
+    "date": "12 February 2026"
   },
   "work": {
     "title": "Work"
@@ -28,9 +44,11 @@
   "nav": {
     "home": "Home",
     "about": "About",
+    "who-am-i": "Who Am I",
     "work": "Work",
     "contact": "Contact",
-    "blog": "Blog"
+    "blog": "Blog",
+    "back": "Back"
   },
   "metadata": {
     "title": "udocu",

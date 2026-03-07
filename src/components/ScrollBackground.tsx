@@ -15,10 +15,10 @@ const HERO_STOP: ColorStop = {
 };
 
 const COLOR_STOPS: ColorStop[] = [
-  { bg: [62, 2, 2], text: [196, 181, 253] }, // #3E0202 / red-light
-  { bg: [45, 95, 99], text: [197, 232, 230] }, // blue-dark / blue-light
-  { bg: [92, 40, 0], text: [218, 85, 28] }, // contact-bg / orange-light
-  { bg: [104, 97, 33], text: [174, 212, 115] }, // green-dark / green-light
+  { bg: [62, 2, 2], text: [196, 181, 253] }, // About: red-dark / red-light
+  { bg: [104, 97, 33], text: [174, 212, 115] }, // WhoAmI: green-dark / green-light
+  { bg: [45, 95, 99], text: [197, 232, 230] }, // Work: blue-dark / blue-light
+  { bg: [92, 40, 0], text: [218, 85, 28] }, // Contact: contact-bg / orange-light
 ];
 
 function lerp(a: number, b: number, t: number): number {
@@ -82,12 +82,27 @@ export default function ScrollBackground({
       return;
     }
 
-    // Build section midpoints relative to the wrapper
-    const midpoints: number[] = [];
-    sections.forEach((section) => {
+    // Build transition boundaries for each section.
+    // For each section we compute the anchor point used for color interpolation.
+    // By default this is the section's midpoint. For WhoAmI (index 1) we place
+    // the anchor so the color is fully resolved BEFORE its top reaches the
+    // viewport top. The section sits inside a -75vh margin wrapper, so its DOM
+    // top is already pulled up. We set the anchor well before that top edge
+    // so the compressed smooth-step finishes in time.
+    const transitionTargets: number[] = [];
+    sections.forEach((section, i) => {
       const rect = section.getBoundingClientRect();
-      const midY = rect.top - wrapperTop + rect.height / 2;
-      midpoints.push(midY);
+      if (i === 1) {
+        // The section top in wrapper-space (already accounts for -75vh margin).
+        // We add half a viewport so the compressed smooth-step (which fires in
+        // the last 35% of the zone) finishes right as the section top reaches
+        // the viewport top.
+        const sectionTopInWrapper = rect.top - wrapperTop;
+        transitionTargets.push(sectionTopInWrapper + viewportMiddle);
+      } else {
+        const midY = rect.top - wrapperTop + rect.height / 2;
+        transitionTargets.push(midY);
+      }
     });
 
     // Current scroll position within the wrapper (where viewport middle sits)
@@ -100,17 +115,22 @@ export default function ScrollBackground({
     let index = 0;
     let t = 0;
 
-    if (scrollPos <= midpoints[0]) {
+    if (scrollPos <= transitionTargets[0]) {
       index = 0;
       t = 0;
-    } else if (scrollPos >= midpoints[maxIndex - 1]) {
+    } else if (scrollPos >= transitionTargets[maxIndex - 1]) {
       index = maxIndex - 2;
       t = 1;
     } else {
       for (let i = 0; i < maxIndex - 1; i++) {
-        if (scrollPos >= midpoints[i] && scrollPos < midpoints[i + 1]) {
+        if (
+          scrollPos >= transitionTargets[i] &&
+          scrollPos < transitionTargets[i + 1]
+        ) {
           index = i;
-          t = (scrollPos - midpoints[i]) / (midpoints[i + 1] - midpoints[i]);
+          t =
+            (scrollPos - transitionTargets[i]) /
+            (transitionTargets[i + 1] - transitionTargets[i]);
           break;
         }
       }

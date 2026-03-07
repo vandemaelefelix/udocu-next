@@ -5,7 +5,7 @@ export const repositoryName = process.env.NEXT_PUBLIC_PRISMIC_REPOSITORY ?? "";
 
 export const localeMap: Record<string, string> = {
   en: "en-us",
-  nl: "nl-nl",
+  nl: "nl-be",
 };
 
 export function createClient() {

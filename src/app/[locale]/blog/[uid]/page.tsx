@@ -30,7 +30,7 @@ export async function generateMetadata({
       "blog_post",
       uid,
       {
-        lang: localeMap[locale] ?? "en-us",
+        lang: localeMap[locale] ?? "nl-be",
       },
     );
 
@@ -53,7 +53,7 @@ export default async function BlogPostPage({
   let page: Content.BlogPostDocument;
   try {
     page = await client.getByUID<Content.BlogPostDocument>("blog_post", uid, {
-      lang: localeMap[locale] ?? "en-us",
+      lang: localeMap[locale] ?? "nl-be",
     });
   } catch {
     notFound();

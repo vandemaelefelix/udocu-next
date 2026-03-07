@@ -33,7 +33,7 @@ export async function generateMetadata({
         "interview",
         uid,
         {
-          lang: localeMap[locale] ?? "en-us",
+          lang: localeMap[locale] ?? "nl-be",
         },
       );
     } catch {
@@ -66,7 +66,7 @@ export default async function InterviewPage({
   let page: Content.InterviewDocument;
   try {
     page = await client.getByUID<Content.InterviewDocument>("interview", uid, {
-      lang: localeMap[locale] ?? "en-us",
+      lang: localeMap[locale] ?? "nl-be",
     });
   } catch {
     // Fall back to any language if not available in requested locale

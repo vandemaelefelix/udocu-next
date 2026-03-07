@@ -4,12 +4,28 @@
     "tagline": "Om niet te vergeten wie u was"
   },
   "about": {
-    "title": "Over ons",
+    "titlePrefix": "Wat is",
+    "titleSuffix": "UDOCU?",
     "paragraph1": "Udocu is een creatieve studio die zich toelegt op het bewaren van persoonlijk en cultureel erfgoed door middel van documentaire verhalen.",
     "paragraph2": "Wij geloven dat elk leven verhalen draagt die het waard zijn om te onthouden. Ons werk legt de stemmen, beelden en momenten vast die bepalen wie we zijn — voordat ze vervagen.",
     "paragraph3": "Door middel van film, fotografie en digitale archieven creëren we blijvende documenten die generaties en gemeenschappen verbinden.",
     "paragraph4": "Of het nu gaat om een familiegeschiedenis, een orale traditie of een culturele praktijk die dreigt te worden vergeten — wij documenteren het, om niet te vergeten.",
-    "contactLink": "CONTACT"
+    "contactLink": "CONTACT",
+    "readMoreLink": "LEES MEER",
+    "date": "12 Februari 2026",
+    "detailIntro": "Wat is Udocu?",
+    "detailParagraph1": "Ik heb als doorgewinterd journalist vaak het verhaal van mensen ingeblikt, in woord en beeld. En met de jaren besefte ik dat het interview-concept te goed is om het alleen aan bekende mensen te besteden. Ik neem een diepte-interview van jou af over wie jij nu bent, wie je was, en wie je wil worden. Over je leven, familie, vrienden, je passies, je gezondheid, je wereld, je liefdes, twijfels, zorgen en angsten… Ik film met kleine cameraatjes en lever je een tijdscapsule af, of een externe harde schijf die jaar na jaar waardevoller zal blijken voor jezelf en misschien ook voor je naasten.",
+    "detailParagraph2": "Want vandaag geef je de antwoorden op de vragen die jij of jouw geliefden je later vast zullen stellen. Want vaak komen die vragen pas bij je naasten op wanneer je er niet meer bent of je de antwoorden vergeten bent. Weet ook dat je je geheugen nooit kan vertrouwen. Het slaat de momenten niet op zoals een camera dat doet. Alleen nog maar je stemming van die dag kan een herinnering kleuren. Geloof dus niet altijd je eigen hoofd. Udocu is een uniek geschenk aan jezelf én aan de mensen die ooit zullen willen weten wie jij was.",
+    "detailParagraph3": "Stel je eens voor dat je je ouders of je grootouders had kunnen horen praten toen ze nog twintigers of prille dertigers waren. Waar droomden ze toen van? Hoe keken zij toen naar de wereld? Hoe zagen ze hun verleden en hun toekomst? Stel dat je de vriendin die veel te jong gestorven is en die je veel te vroeg verloren bent, had kunnen horen praten over wat je samen hebt meegemaakt? Zou het geen grote troost zijn, mochten zij er op die manier nog een beetje zijn? Stel dat jij er plots niet meer bent, wat zullen je geliefden nog van je weten?",
+    "detailParagraph4": "Het resultaat is alleen voor jou. Jij doet ermee wat je wil. Een interview met je 21-jarige zelf kan je binnen 40 jaar aan je zoon of dochter van 21 laten zien. Als je 50 bent en nog in volle bloei, zal je anders klinken dan wanneer je 30 jaar later wil meegeven aan wie na je komt wie je was. Ieder moment is een goed moment om iets van jezelf vast te houden. Daarom moet je overwegen om ook op je 30, 37, 41, 46, 53, 60, 67, 75, 83 en 95 iets van jezelf te laten vastleggen."
+  },
+  "whoAmI": {
+    "title": "Wie ben ik",
+    "bio": "Ik ben Kurt Vandemaele, geboren op 8 maart 1963 in Kortrijk. Op mijn zestiende schreef ik al voor regionale weekbladen, op mijn achttiende was ik medewerker van de regionale redactie van een dagblad. Even later was ik te horen op vrije radio's in Kortrijk en Gent en even later leverde ik ook regelmatig bijdragen voor Radio 2 West-Vlaanderen en dan ook Oost-Vlaanderen… En op mijn 24 werd ik vaste medewerker voor Humo en dat zou ik 24 jaar blijven.",
+    "readMoreLink": "LEES MEER",
+    "contactLink": "CONTACT",
+    "imageAlt": "Kurt Vandemaele",
+    "date": "12 Februari 2026"
   },
   "work": {
     "title": "Werk"
@@ -28,9 +44,11 @@
   "nav": {
     "home": "Home",
     "about": "Over ons",
+    "who-am-i": "Wie ben ik",
     "work": "Werk",
     "contact": "Contact",
-    "blog": "Blog"
+    "blog": "Blog",
+    "back": "Back"
   },
   "metadata": {
     "title": "udocu",

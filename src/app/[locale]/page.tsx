@@ -5,6 +5,7 @@ import ParallaxHero from "@/components/ParallaxHero";
 import ScrollBackground from "@/components/ScrollBackground";
 import StickyNav from "@/components/StickyNav";
 import AboutSection from "@/components/AboutSection";
+import WhoAmISection from "@/components/WhoAmISection";
 import WorkSection from "@/components/WorkSection";
 import ContactSection from "@/components/ContactSection";
 import SocialDock from "@/components/SocialDock";
@@ -40,10 +41,12 @@ export default async function HomePage() {
         <ScrollBackground>
           <AboutSection />
 
-          {/* TODO: Add this back, this is so it would overlap with the about section */}
-          <div className="md:-mt-96">
-            <WorkSection interviews={interviews} />
+          <div className="md:-mt-[50vh]">
+            <WhoAmISection />
           </div>
+
+          <WorkSection interviews={interviews} />
+
           <div className="h-96"></div>
           <ContactSection />
 

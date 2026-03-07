@@ -1,15 +1,17 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import Link from "next/link";
 import UdocuLogo from "@/components/UdocuLogo";
 import { useScrollColor } from "@/context/ScrollColorContext";
 
-const NAV_ITEMS = ["about", "work", "contact", "blog"] as const;
+const NAV_ITEMS = ["about", "who-am-i", "work", "contact", "blog"] as const;
 
 export default function StickyNav() {
   const t = useTranslations("nav");
   const [menuOpen, setMenuOpen] = useState(false);
+  const locale = useLocale();
   const { bgColor, textColor } = useScrollColor();
 
   const handleNavClick = useCallback(
@@ -36,16 +38,27 @@ export default function StickyNav() {
 
         {/* Desktop nav */}
         <ul className="hidden gap-8 font-helvetica text-xs font-medium uppercase tracking-widest md:flex">
-          {NAV_ITEMS.map((item) => (
-            <li key={item}>
-              <a
-                href={`#${item}`}
-                className="transition-opacity hover:opacity-70"
-              >
-                {t(item)}
-              </a>
-            </li>
-          ))}
+          {NAV_ITEMS.map((item) =>
+            item === "blog" ? (
+              <li key={item}>
+                <Link
+                  href={`/${locale}/blog`}
+                  className="transition-opacity hover:opacity-70"
+                >
+                  {t(item)}
+                </Link>
+              </li>
+            ) : (
+              <li key={item}>
+                <a
+                  href={`#${item}`}
+                  className="transition-opacity hover:opacity-70"
+                >
+                  {t(item)}
+                </a>
+              </li>
+            ),
+          )}
         </ul>
 
         {/* Mobile hamburger button */}
@@ -78,17 +91,29 @@ export default function StickyNav() {
         style={{ backgroundColor: bgColor, color: textColor }}
       >
         <ul className="flex flex-col items-center gap-10 font-helvetica text-2xl font-medium uppercase tracking-widest">
-          {NAV_ITEMS.map((item) => (
-            <li key={item}>
-              <a
-                href={`#${item}`}
-                className="transition-opacity hover:opacity-70"
-                onClick={handleNavClick}
-              >
-                {t(item)}
-              </a>
-            </li>
-          ))}
+          {NAV_ITEMS.map((item) =>
+            item === "blog" ? (
+              <li key={item}>
+                <Link
+                  href={`/${locale}/blog`}
+                  className="transition-opacity hover:opacity-70"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {t(item)}
+                </Link>
+              </li>
+            ) : (
+              <li key={item}>
+                <a
+                  href={`#${item}`}
+                  className="transition-opacity hover:opacity-70"
+                  onClick={handleNavClick}
+                >
+                  {t(item)}
+                </a>
+              </li>
+            ),
+          )}
         </ul>
       </div>
     </div>

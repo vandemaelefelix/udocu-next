@@ -96,14 +96,14 @@ export default async function BlogPage() {
   const posts = await client.getAllByType<Content.BlogPostDocument>(
     "blog_post",
     {
-      lang: localeMap[locale] ?? "en-us",
+      lang: localeMap[locale] ?? "nl-be",
       orderings: [{ field: "my.blog_post.publish_date", direction: "desc" }],
     },
   );
 
   const [featured, ...rest] = [...posts, ...posts, ...posts];
 
-  const NAV_ITEMS = ["about", "work", "contact", "blog"] as const;
+  const NAV_ITEMS = ["about", "who-am-i", "work", "contact", "blog"] as const;
 
   return (
     <main
