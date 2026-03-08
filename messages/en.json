@@ -22,6 +22,11 @@
   "whoAmI": {
     "title": "Who Am I",
     "bio": "I am Kurt Vandemaele, born on 8 March 1963 in Kortrijk. At sixteen I was already writing for regional weeklies, at eighteen I was on the editorial staff of a daily newspaper. Soon after I was heard on free radio stations in Kortrijk and Ghent, and I regularly contributed to Radio 2 West-Vlaanderen and later Oost-Vlaanderen… At 24 I became a permanent contributor to Humo, and I would stay there for 24 years.",
+    "detailParagraph1": "I am Kurt Vandemaele, born on 8 March 1963 in Kortrijk. At sixteen I was already writing for regional weeklies, at eighteen I was on the editorial staff of a daily newspaper. Soon after I was heard on free radio stations in Kortrijk and Ghent, and I regularly contributed to Radio 2 West-Vlaanderen and later Oost-Vlaanderen… At 24 I became a permanent contributor to Humo, and I would stay there for 24 years.",
+    "detailParagraph2": "Meanwhile I became the father of three children and husband to one woman. And that has not changed. I watched my father become demented quite young and die far too early. Several of his family members were struck by the same illness. At the end of his far too short life it came to light that my father had long kept his personal story hidden. With the best intentions. He was a good person. And my mother too had long concealed certain aspects of her history. With the best intentions. She was a good person. The culture of silence they were a product of, very much coloured by Catholicism, created a distorted history. They were not who we thought they were. And neither were we. Because their history is also part of ours.",
+    "detailParagraph3": "That is how the idea matured to record much more of our past. I have made it a habit to interview my loved ones. And I leave my own experiences and thoughts behind in unopened letters. My children decide for themselves when to open them.",
+    "detailParagraph4": "And meanwhile I kept growing as a journalist. I went to work for television, for radio, kept writing for dailies, weeklies and monthlies at home and abroad. And more and more I became interested in the stories of my fellow human beings. I found it more fascinating to listen to those who had nothing to sell me, who did not want to appear with a big photo in the newspapers or magazines, who did not want to be in the news.",
+    "detailParagraph5": "Udocu is a project I have long dreamed of. If I had waited any longer, it would probably never have happened. Now is my moment, now is your moment.",
     "readMoreLink": "READ MORE",
     "contactLink": "CONTACT",
     "imageAlt": "Kurt Vandemaele",
@@ -38,10 +43,13 @@
     "email": "Kurtvandemaele@udocu.be",
     "phone": "+32 475 73 11 56",
     "addressLine1": "André Devaerelaan 20",
-    "addressLine2": "8500 Kortrijk"
+    "addressLine2": "8500 Kortrijk",
+    "overlay": "LET'S\nTALK"
   },
   "blog": {
-    "title": "Blog"
+    "title": "Blog",
+    "noPosts": "No posts yet.",
+    "loadingMore": "Loading more posts"
   },
   "nav": {
     "home": "Home",
@@ -50,7 +58,9 @@
     "work": "Work",
     "contact": "Contact",
     "blog": "Blog",
-    "back": "Back"
+    "back": "Back",
+    "closeMenu": "Close menu",
+    "openMenu": "Open menu"
   },
   "metadata": {
     "title": "udocu",

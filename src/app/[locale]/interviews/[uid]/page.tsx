@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import * as prismic from "@prismicio/client";
 import { PrismicRichText } from "@prismicio/react";
+import { getTranslations } from "next-intl/server";
 import { createClient, localeMap } from "@/prismicio";
 import type { Content } from "@prismicio/client";
 
@@ -61,6 +62,7 @@ export default async function InterviewPage({
   params: Promise<Params>;
 }) {
   const { locale, uid } = await params;
+  const t = await getTranslations("nav");
   const client = createClient();
 
   let page: Content.InterviewDocument;
@@ -94,7 +96,7 @@ export default async function InterviewPage({
         href={`/${locale}/#work`}
         className="mb-10 inline-block font-sans text-sm uppercase tracking-widest opacity-60 transition-opacity hover:opacity-100"
       >
-        ← Back
+        ← {t("back")}
       </Link>
 
       <article className="mx-auto max-w-3xl">

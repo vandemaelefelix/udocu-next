@@ -20,8 +20,13 @@
     "detailParagraph4": "Het resultaat is alleen voor jou. Jij doet ermee wat je wil. Een interview met je 21-jarige zelf kan je binnen 40 jaar aan je zoon of dochter van 21 laten zien. Als je 50 bent en nog in volle bloei, zal je anders klinken dan wanneer je 30 jaar later wil meegeven aan wie na je komt wie je was. Ieder moment is een goed moment om iets van jezelf vast te houden. Daarom moet je overwegen om ook op je 30, 37, 41, 46, 53, 60, 67, 75, 83 en 95 iets van jezelf te laten vastleggen."
   },
   "whoAmI": {
-    "title": "Wie ben ik",
+    "title": "Wie ben ik?",
     "bio": "Ik ben Kurt Vandemaele, geboren op 8 maart 1963 in Kortrijk. Op mijn zestiende schreef ik al voor regionale weekbladen, op mijn achttiende was ik medewerker van de regionale redactie van een dagblad. Even later was ik te horen op vrije radio's in Kortrijk en Gent en even later leverde ik ook regelmatig bijdragen voor Radio 2 West-Vlaanderen en dan ook Oost-Vlaanderen… En op mijn 24 werd ik vaste medewerker voor Humo en dat zou ik 24 jaar blijven.",
+    "detailParagraph1": "Ik ben Kurt Vandemaele, geboren op 8 maart 1963 in Kortrijk. Op mijn zestiende schreef ik al voor regionale weekbladen, op mijn achttiende was ik medewerker van de regionale redactie van een dagblad. Even later was ik te horen op vrije radio's in Kortrijk en Gent en even later leverde ik ook regelmatig bijdragen voor Radio 2 West-Vlaanderen en dan ook Oost-Vlaanderen… En op mijn 24 werd ik vaste medewerker voor Humo en dat zou ik 24 jaar blijven.",
+    "detailParagraph2": "Intussen was ik vader van drie kinderen en man van één vrouw. En dat is nog niet anders. Ik zag mijn vader vrij jong dement worden en op veel te jonge leeftijd sterven. Verschillende van zijn familieleden werden door dezelfde ziekte getroffen. Aan het eind van zijn veel te korte leven kwam aan het licht dat mijn vader zijn persoonlijke verhaal lang verborgen had gehouden. Met de beste intenties. Hij was een goed mens. En ook mijn moeder bleek lang bepaalde aspecten uit haar geschiedenis verborgen te hebben. Met de beste intenties. Zij was een goed mens. De zwijgcultuur waarvan zij een product waren, heel erg gekleurd door het katholicisme, zorgde voor een vertekende geschiedenis. Zij waren niet wie we dachten dat ze waren. En wij ook niet. Want hun geschiedenis is ook deel van de onze.",
+    "detailParagraph3": "Zo rijpte het idee om veel meer van ons verleden vast te leggen. Ik heb de gewoonte om mijn geliefden te interviewen. En ik laat mijn eigen ervaringen en gedachten in ongeopende brieven achter. Mijn kinderen bepalen zelf wanneer ze die openmaken.",
+    "detailParagraph4": "En intussen bleef ik groeien als journalist. Ik ging voor de tv werken, voor de radio, bleef schrijven voor dag-, week- en maandbladen in binnen-en buitenland. En meer en meer geraakte ik geïnteresseerd in het verhaal van mijn medemensen. Ik vond het boeiender te luisteren naar zij die me niets te verkopen hadden, die niet met een grote foto in de kranten of de boekjes wilden staan, die niet in het nieuws wilden komen.",
+    "detailParagraph5": "Udocu is een project waar ik al lang van droom. Als ik nog langer wachtte, zou het er wellicht nooit van komen. Nu is het mijn moment, nu is het jouw moment.",
     "readMoreLink": "LEES MEER",
     "contactLink": "CONTACT",
     "imageAlt": "Kurt Vandemaele",
@@ -38,10 +43,13 @@
     "email": "Kurtvandemaele@udocu.be",
     "phone": "+32 475 73 11 56",
     "addressLine1": "André Devaerelaan 20",
-    "addressLine2": "8500 Kortrijk"
+    "addressLine2": "8500 Kortrijk",
+    "overlay": "Let's\ntalk"
   },
   "blog": {
-    "title": "Blog"
+    "title": "Blog",
+    "noPosts": "Nog geen berichten.",
+    "loadingMore": "Meer berichten laden"
   },
   "nav": {
     "home": "Home",
@@ -50,7 +58,9 @@
     "work": "Werk",
     "contact": "Contact",
     "blog": "Blog",
-    "back": "Back"
+    "back": "Terug",
+    "closeMenu": "Menu sluiten",
+    "openMenu": "Menu openen"
   },
   "metadata": {
     "title": "udocu",

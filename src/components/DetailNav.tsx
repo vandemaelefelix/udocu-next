@@ -31,7 +31,7 @@ export default function DetailNav({
     <header className="sticky top-0 z-50">
       {/* Top bar: logo left, nav links right */}
       <nav className="flex items-center justify-between px-8 py-6">
-        <Link href="/" aria-label="Home">
+        <Link href={`/${locale}`} aria-label={t("home")}>
           <UdocuLogo className="h-6 w-auto max-w-24 md:h-10 md:max-w-48" />
         </Link>
 
@@ -56,7 +56,7 @@ export default function DetailNav({
           type="button"
           className="relative z-[60] flex h-8 w-8 flex-col items-center justify-center gap-1.5 md:hidden"
           onClick={() => setMenuOpen((prev) => !prev)}
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-label={menuOpen ? t("closeMenu") : t("openMenu")}
           aria-expanded={menuOpen}
         >
           <span

@@ -14,7 +14,11 @@ export default function WhoAmIPage() {
       date={t("date")}
       title={<span className="font-serif font-semibold">{t("title")}</span>}
     >
-      <p>{t("bio")}</p>
+      <p>{t("detailParagraph1")}</p>
+      <p>{t("detailParagraph2")}</p>
+      <p>{t("detailParagraph3")}</p>
+      <p>{t("detailParagraph4")}</p>
+      <p>{t("detailParagraph5")}</p>
     </DetailPage>
   );
 }

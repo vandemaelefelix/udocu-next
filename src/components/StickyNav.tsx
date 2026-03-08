@@ -35,7 +35,9 @@ export default function StickyNav() {
         className="flex items-center justify-between px-8 py-6"
         style={{ color: textColor }}
       >
-        <UdocuLogo className="h-6 w-auto max-w-24 md:h-10 md:max-w-48" />
+        <Link href={`/${locale}`} aria-label={t("home")}>
+          <UdocuLogo className="h-6 w-auto max-w-24 md:h-10 md:max-w-48" />
+        </Link>
 
         {/* Desktop nav */}
         <ul className="hidden gap-8 font-helvetica text-xs font-medium uppercase tracking-widest md:flex">

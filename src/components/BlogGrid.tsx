@@ -5,6 +5,7 @@ import Link from "next/link";
 import * as prismic from "@prismicio/client";
 import { PrismicNextImage } from "@prismicio/next";
 import { motion, useInView } from "motion/react";
+import { useTranslations } from "next-intl";
 import type { Content } from "@prismicio/client";
 
 function formatDate(dateStr: string, locale: string) {
@@ -108,6 +109,7 @@ export default function BlogGrid({
   locale,
   totalPages,
 }: BlogGridProps) {
+  const t = useTranslations("blog");
   const [items, setItems] = useState<PostWithBatchIndex[]>(
     initialPosts.map((post, i) => ({ post, batchIndex: i })),
   );
@@ -166,7 +168,7 @@ export default function BlogGrid({
     <>
       <div className="columns-1 gap-8 px-6 pb-16 md:columns-4 md:px-4">
         {items.length === 0 && (
-          <p className="p-8 text-red-light/60">No posts yet.</p>
+          <p className="p-8 text-red-light/60">{t("noPosts")}</p>
         )}
 
         {items.map(({ post, batchIndex }, i) => (
@@ -186,7 +188,7 @@ export default function BlogGrid({
             <div
               className="h-6 w-6 animate-spin rounded-full border-2 border-red-light/30 border-t-red-light"
               role="status"
-              aria-label="Loading more posts"
+              aria-label={t("loadingMore")}
             />
           )}
         </div>

@@ -57,18 +57,20 @@ export default function ContactSection() {
         </motion.div>
         {/* "LET'S TALK" overlay */}
         <div className="absolute inset-0 flex flex-col justify-end px-6 pb-8 md:px-8 md:pb-12">
-          <p
-            className="font-posterman font-black uppercase leading-none"
-            style={{ fontSize: "clamp(60px, 12vw, 180px)" }}
-          >
-            LET&apos;S
-          </p>
-          <p
-            className="font-posterman font-black uppercase leading-none"
-            style={{ fontSize: "clamp(60px, 12vw, 180px)" }}
-          >
-            TALK
-          </p>
+          {t("overlay")
+            .split("\n")
+            .map((line, i) => (
+              <p
+                key={i}
+                className={`font-posterman font-black uppercase text-orange-dark${i > 0 ? " ml-16 md:ml-48" : ""}`}
+                style={{
+                  fontSize: "clamp(100px, 25vw, 300px)",
+                  lineHeight: "1",
+                }}
+              >
+                {line}
+              </p>
+            ))}
         </div>
       </motion.div>
 
