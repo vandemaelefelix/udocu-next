@@ -1,8 +1,7 @@
-import { getLocale, getTranslations } from "next-intl/server";
-import Link from "next/link";
+import { getLocale } from "next-intl/server";
 import type { Content } from "@prismicio/client";
 import { createClient, localeMap } from "@/prismicio";
-import UdocuLogo from "@/components/UdocuLogo";
+import DetailNav from "@/components/DetailNav";
 import BlogGrid from "@/components/BlogGrid";
 import {
   FacebookIcon,
@@ -13,7 +12,6 @@ import {
 const PAGE_SIZE = 12;
 
 export default async function BlogPage() {
-  const t = await getTranslations("nav");
   const locale = await getLocale();
   const client = createClient();
 
@@ -27,36 +25,13 @@ export default async function BlogPage() {
     },
   );
 
-  const NAV_ITEMS = ["about", "who-am-i", "work", "contact", "blog"] as const;
-
   return (
     <main
-      className="min-h-screen"
-      style={{ backgroundColor: "var(--color-red-dark)", color: "white" }}
+      className="min-h-screen text-red-light"
+      style={{ backgroundColor: "var(--color-red-dark)" }}
     >
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-6 md:px-8">
-        <Link href={`/${locale}`}>
-          <UdocuLogo
-            color="white"
-            className="h-6 w-auto max-w-24 md:h-10 md:max-w-48"
-          />
-        </Link>
-        <ul className="hidden gap-8 font-helvetica text-xs font-medium uppercase tracking-widest md:flex">
-          {NAV_ITEMS.map((item) => (
-            <li key={item}>
-              <Link
-                href={
-                  item === "blog" ? `/${locale}/blog` : `/${locale}#${item}`
-                }
-                className={`transition-opacity hover:opacity-70 ${item === "blog" ? "underline underline-offset-4" : ""}`}
-              >
-                {t(item)}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <DetailNav backHref={`/${locale}`} activeItem="blog" hideBackLink />
 
       {/* Blog grid with stagger animation + infinite scroll */}
       <BlogGrid
@@ -73,7 +48,7 @@ export default async function BlogPage() {
           rel="noopener noreferrer"
           aria-label="Facebook"
         >
-          <FacebookIcon className="h-5 w-5 text-white transition-opacity hover:opacity-70" />
+          <FacebookIcon className="h-5 w-5 text-red-light transition-opacity hover:opacity-70" />
         </a>
         <a
           href="https://instagram.com"
@@ -81,7 +56,7 @@ export default async function BlogPage() {
           rel="noopener noreferrer"
           aria-label="Instagram"
         >
-          <InstagramIcon className="h-5 w-5 text-white transition-opacity hover:opacity-70" />
+          <InstagramIcon className="h-5 w-5 text-red-light transition-opacity hover:opacity-70" />
         </a>
         <a
           href="https://youtube.com"
@@ -89,7 +64,7 @@ export default async function BlogPage() {
           rel="noopener noreferrer"
           aria-label="YouTube"
         >
-          <YouTubeIcon className="h-5 w-5 text-white transition-opacity hover:opacity-70" />
+          <YouTubeIcon className="h-5 w-5 text-red-light transition-opacity hover:opacity-70" />
         </a>
       </div>
     </main>

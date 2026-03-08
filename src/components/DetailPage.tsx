@@ -27,7 +27,7 @@ export default function DetailPage({
   children,
 }: DetailPageProps) {
   return (
-    <main className={`min-h-screen ${colorScheme}`}>
+    <main className={`min-h-screen ${colorScheme} pb-48`}>
       <DetailNav backHref={backHref} />
 
       {/* Cover media */}
@@ -48,12 +48,12 @@ export default function DetailPage({
       </div>
 
       {/* Date, title & body */}
-      <article className="mx-auto max-w-5xl px-8 py-8 md:py-12">
+      <article className="mx-auto max-w-5xl px-8 pt-8 pb-16 md:pt-12 md:pb-24">
         <p className="mb-6 font-helvetica text-xs uppercase tracking-widest opacity-60">
           {date}
         </p>
 
-        <h1 className="mb-8 text-[40px] leading-12 md:text-[74px] md:leading-[88px]">
+        <h1 className="mb-8 font-serif text-[40px] font-semibold leading-[1] tracking-normal md:text-[72px] md:leading-[72px]">
           {title}
         </h1>
 

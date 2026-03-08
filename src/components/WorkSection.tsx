@@ -53,7 +53,7 @@ export default function WorkSection({ interviews }: Props) {
   const isMobile = useIsMobile();
 
   const displayedItems = items.map((item) => ({
-    href: `/${locale}/interviews/${item.uid}`,
+    href: `/${locale}/work/${item.uid}`,
     ...item,
   }));
 

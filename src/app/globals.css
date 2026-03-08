@@ -9,8 +9,8 @@
   --font-posterman: var(--font-posterman);
 
   /* Theme Pair 1: Orange (Dark background + Light text) */
-  --color-orange-dark: #d97706;
-  --color-orange-light: #da551c;
+  --color-orange-dark: #da551c;
+  --color-orange-light: #5c2a01;
 
   /* Theme Pair 2: Green (Dark background + Light text) */
   --color-green-dark: #686121;
@@ -18,7 +18,7 @@
 
   /* Theme Pair 3: Red/Rose (Dark background + Light text) */
   --color-red-dark: #3e0202;
-  --color-red-light: #c4b5fd;
+  --color-red-light: #b496d6;
 
   /* Theme Pair 4: Blue/Teal (Dark background + Light text) */
   --color-blue-dark: #2d5f63;

@@ -64,31 +64,23 @@ function PostCard({
               <p
                 className="mb-1 font-helvetica text-xs font-light"
                 style={{
-                  color: featured ? "var(--color-red-dark)" : "white",
+                  color: featured
+                    ? "var(--color-red-dark)"
+                    : "var(--color-red-light)",
                 }}
               >
                 {formatDate(post.data.publish_date, locale)}
               </p>
             )}
             <h3
-              className="font-bold"
-              style={
-                featured
-                  ? {
-                      fontFamily: "var(--font-garamond)",
-                      fontSize: "38px",
-                      lineHeight: "43px",
-                      letterSpacing: "0%",
-                      color: "var(--color-red-dark)",
-                    }
-                  : {
-                      fontFamily: "var(--font-garamond)",
-                      fontSize: "38px",
-                      lineHeight: "43px",
-                      letterSpacing: "0%",
-                      color: "white",
-                    }
-              }
+              className="text-[26px] leading-[30px] font-bold md:text-[38px] md:leading-[43px]"
+              style={{
+                fontFamily: "var(--font-garamond)",
+                letterSpacing: "0%",
+                color: featured
+                  ? "var(--color-red-dark)"
+                  : "var(--color-red-light)",
+              }}
             >
               {prismic.asText(post.data.title)}
             </h3>
@@ -172,9 +164,9 @@ export default function BlogGrid({
 
   return (
     <>
-      <div className="columns-2 gap-8 px-2 pb-16 md:columns-4 md:px-4">
+      <div className="columns-1 gap-8 px-6 pb-16 md:columns-4 md:px-4">
         {items.length === 0 && (
-          <p className="p-8 text-white/60">No posts yet.</p>
+          <p className="p-8 text-red-light/60">No posts yet.</p>
         )}
 
         {items.map(({ post, batchIndex }, i) => (
@@ -192,7 +184,7 @@ export default function BlogGrid({
         <div ref={sentinelRef} className="flex justify-center py-8">
           {loading && (
             <div
-              className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white"
+              className="h-6 w-6 animate-spin rounded-full border-2 border-red-light/30 border-t-red-light"
               role="status"
               aria-label="Loading more posts"
             />

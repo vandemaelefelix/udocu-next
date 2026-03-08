@@ -5,6 +5,7 @@ import { PrismicRichText } from "@prismicio/react";
 import { PrismicNextImage } from "@prismicio/next";
 import { createClient, localeMap } from "@/prismicio";
 import type { Content } from "@prismicio/client";
+import DetailPage from "@/components/DetailPage";
 
 type Params = { locale: string; uid: string };
 
@@ -64,40 +65,45 @@ export default async function BlogPostPage({
       ? (page.data.video_url as prismic.FilledLinkToWebField).url
       : null;
 
+  const formattedDate = page.data.publish_date
+    ? new Date(page.data.publish_date).toLocaleDateString(locale, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "";
+
   return (
-    <main>
-      <article>
-        <PrismicRichText field={page.data.title} />
+    <DetailPage
+      backHref={`/${locale}/blog`}
+      colorScheme="bg-red-dark text-red-light"
+      media={
+        page.data.image?.url ? (
+          <PrismicNextImage
+            field={page.data.image}
+            alt=""
+            fill
+            className="object-cover object-center"
+            sizes="100vw"
+            priority
+          />
+        ) : undefined
+      }
+      date={formattedDate}
+      title={prismic.asText(page.data.title)}
+    >
+      <PrismicRichText field={page.data.body} />
 
-        {page.data.publish_date && (
-          <time dateTime={page.data.publish_date}>
-            {new Date(page.data.publish_date).toLocaleDateString(locale, {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </time>
-        )}
-
-        {page.data.image?.url && (
-          <PrismicNextImage field={page.data.image} alt="" />
-        )}
-
-        <div>
-          <PrismicRichText field={page.data.body} />
+      {videoUrl && (
+        <div className="relative mt-8 aspect-video w-full overflow-hidden">
+          {videoUrl.match(/\.(mp4|webm|ogg)$/) ? (
+            <video src={videoUrl} controls className="h-full w-full" />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={videoUrl} alt="" className="h-full w-full object-cover" />
+          )}
         </div>
-
-        {videoUrl && (
-          <div>
-            {videoUrl.match(/\.(mp4|webm|ogg)$/) ? (
-              <video src={videoUrl} controls />
-            ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={videoUrl} alt="" />
-            )}
-          </div>
-        )}
-      </article>
-    </main>
+      )}
+    </DetailPage>
   );
 }
