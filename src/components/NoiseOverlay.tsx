@@ -13,6 +13,7 @@ export default function NoiseOverlay() {
         left: "-50%",
         opacity: 0.1,
         animation: "grain 8s steps(10) infinite",
+        willChange: "transform",
       }}
     />
   );

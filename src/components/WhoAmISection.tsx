@@ -2,8 +2,8 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
+import ArrowLink from "@/components/ArrowLink";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import bioPhoto from "@/assets/images/who-am-i.png";
@@ -81,30 +81,10 @@ export default function WhoAmISection() {
           </p>
 
           <div className="mt-8 flex flex-col gap-4 md:gap-16">
-            <Link
-              href={`/${locale}/who-am-i`}
-              className="group inline-flex items-center gap-2 font-helvetica text-[16px] font-medium uppercase leading-5 transition-opacity hover:opacity-70"
-            >
-              {t("readMoreLink")}{" "}
-              <span
-                aria-hidden="true"
-                className="inline-block transition-transform duration-200 group-hover:translate-x-1"
-              >
-                &rarr;
-              </span>
-            </Link>
-            <a
-              href="#contact"
-              className="group inline-flex items-center gap-2 font-helvetica text-[16px] font-medium uppercase leading-5 transition-opacity hover:opacity-70"
-            >
-              {t("contactLink")}{" "}
-              <span
-                aria-hidden="true"
-                className="inline-block transition-transform duration-200 group-hover:translate-x-1"
-              >
-                &rarr;
-              </span>
-            </a>
+            <ArrowLink href={`/${locale}/who-am-i`}>
+              {t("readMoreLink")}
+            </ArrowLink>
+            <ArrowLink href="#contact">{t("contactLink")}</ArrowLink>
           </div>
         </motion.div>
       </div>

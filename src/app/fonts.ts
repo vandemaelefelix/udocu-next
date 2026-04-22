@@ -6,6 +6,7 @@ import localFont from "next/font/local";
 export const garamond = EB_Garamond({
   variable: "--font-garamond",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const helveticaNeue = localFont({

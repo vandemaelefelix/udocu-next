@@ -8,17 +8,21 @@ interface ColorStop {
   text: [number, number, number];
 }
 
-// Color used when the viewport is over the hero section (before ScrollBackground)
+interface SectionLayout {
+  top: number;
+  height: number;
+}
+
 const HERO_STOP: ColorStop = {
-  bg: [62, 2, 2], // same bg as first section (used for mobile overlay)
-  text: [174, 212, 115], // green-light
+  bg: [62, 2, 2],
+  text: [174, 212, 115],
 };
 
 const COLOR_STOPS: ColorStop[] = [
-  { bg: [62, 2, 2], text: [196, 181, 253] }, // About: red-dark / red-light
-  { bg: [104, 97, 33], text: [174, 212, 115] }, // WhoAmI: green-dark / green-light
-  { bg: [45, 95, 99], text: [197, 232, 230] }, // Work: blue-dark / blue-light
-  { bg: [92, 40, 0], text: [218, 85, 28] }, // Contact: contact-bg / orange-light
+  { bg: [62, 2, 2], text: [196, 181, 253] },
+  { bg: [104, 97, 33], text: [174, 212, 115] },
+  { bg: [45, 95, 99], text: [197, 232, 230] },
+  { bg: [92, 40, 0], text: [218, 85, 28] },
 ];
 
 function lerp(a: number, b: number, t: number): number {
@@ -37,6 +41,26 @@ function interpolateColor(
   return [lerp(c1[0], c2[0], t), lerp(c1[1], c2[1], t), lerp(c1[2], c2[2], t)];
 }
 
+function measureSections(el: HTMLElement): {
+  wrapperOffsetTop: number;
+  sections: SectionLayout[];
+} {
+  const wrapperRect = el.getBoundingClientRect();
+  const wrapperOffsetTop = wrapperRect.top + window.scrollY;
+  const sectionEls = el.querySelectorAll<HTMLElement>(
+    ":scope > section, :scope > * > section",
+  );
+  const sections: SectionLayout[] = [];
+  sectionEls.forEach((section) => {
+    const rect = section.getBoundingClientRect();
+    sections.push({
+      top: rect.top + window.scrollY - wrapperOffsetTop,
+      height: rect.height,
+    });
+  });
+  return { wrapperOffsetTop, sections };
+}
+
 export default function ScrollBackground({
   children,
 }: {
@@ -44,17 +68,28 @@ export default function ScrollBackground({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const { bgColor, textColor, setColors } = useScrollColor();
+  const cacheRef = useRef<{
+    wrapperOffsetTop: number;
+    sections: SectionLayout[];
+  } | null>(null);
+
+  const recalculate = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    cacheRef.current = measureSections(el);
+  }, []);
 
   const onScroll = useCallback(() => {
     const el = ref.current;
     if (!el) return;
 
-    const sections = el.querySelectorAll<HTMLElement>(
-      ":scope > section, :scope > * > section",
-    );
+    if (!cacheRef.current) {
+      cacheRef.current = measureSections(el);
+    }
+
+    const { wrapperOffsetTop, sections } = cacheRef.current;
     const sectionCount = sections.length;
 
-    // If only one section (or none), stay on the first color stop
     if (sectionCount <= 1) {
       setColors(
         rgbToString(...COLOR_STOPS[0].bg),
@@ -63,13 +98,12 @@ export default function ScrollBackground({
       return;
     }
 
-    const wrapperTop = el.getBoundingClientRect().top;
+    const scrollY = window.scrollY;
     const viewportMiddle = window.innerHeight / 2;
+    const wrapperTop = wrapperOffsetTop - scrollY;
 
-    // While the viewport is still over the hero (before ScrollBackground),
-    // interpolate from hero colors to the first section using the same smooth-step.
     if (wrapperTop > 0) {
-      const heroProgress = Math.min(1, window.scrollY / window.innerHeight);
+      const heroProgress = Math.min(1, scrollY / window.innerHeight);
       const compressed = Math.max(0, Math.min(1, (heroProgress - 0.65) / 0.25));
       const smooth = compressed * compressed * (3 - 2 * compressed);
       const bg = interpolateColor(HERO_STOP.bg, COLOR_STOPS[0].bg, smooth);
@@ -82,36 +116,19 @@ export default function ScrollBackground({
       return;
     }
 
-    // Build transition boundaries for each section.
-    // For each section we compute the anchor point used for color interpolation.
-    // By default this is the section's midpoint. For WhoAmI (index 1) we place
-    // the anchor so the color is fully resolved BEFORE its top reaches the
-    // viewport top. The section sits inside a -75vh margin wrapper, so its DOM
-    // top is already pulled up. We set the anchor well before that top edge
-    // so the compressed smooth-step finishes in time.
     const transitionTargets: number[] = [];
     sections.forEach((section, i) => {
-      const rect = section.getBoundingClientRect();
       if (i === 1) {
-        // The section top in wrapper-space (already accounts for -75vh margin).
-        // We add half a viewport so the compressed smooth-step (which fires in
-        // the last 35% of the zone) finishes right as the section top reaches
-        // the viewport top.
-        const sectionTopInWrapper = rect.top - wrapperTop;
-        transitionTargets.push(sectionTopInWrapper + viewportMiddle);
+        transitionTargets.push(section.top + viewportMiddle);
       } else {
-        const midY = rect.top - wrapperTop + rect.height / 2;
-        transitionTargets.push(midY);
+        transitionTargets.push(section.top + section.height / 2);
       }
     });
 
-    // Current scroll position within the wrapper (where viewport middle sits)
     const scrollPos = viewportMiddle - wrapperTop;
 
-    // Clamp to available color stops
     const maxIndex = Math.min(sectionCount, COLOR_STOPS.length);
 
-    // Find which two sections we're between
     let index = 0;
     let t = 0;
 
@@ -136,10 +153,7 @@ export default function ScrollBackground({
       }
     }
 
-    // Compress the transition into a narrow band around the boundary
-    // so the color change happens faster instead of spanning the full distance
     const compressed = Math.max(0, Math.min(1, (t - 0.65) / 0.25));
-    // Smooth-step for a natural ease
     const smooth = compressed * compressed * (3 - 2 * compressed);
 
     const bg = interpolateColor(
@@ -163,14 +177,32 @@ export default function ScrollBackground({
       rafId = requestAnimationFrame(onScroll);
     }
 
+    recalculate();
+
+    const observer = new ResizeObserver(() => {
+      recalculate();
+    });
+
+    const el = ref.current;
+    if (el) {
+      observer.observe(el);
+      const sectionEls = el.querySelectorAll<HTMLElement>(
+        ":scope > section, :scope > * > section",
+      );
+      sectionEls.forEach((section) => observer.observe(section));
+    }
+
     window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", recalculate);
     handleScroll();
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", recalculate);
+      observer.disconnect();
       cancelAnimationFrame(rafId);
     };
-  }, [onScroll]);
+  }, [onScroll, recalculate]);
 
   return (
     <div

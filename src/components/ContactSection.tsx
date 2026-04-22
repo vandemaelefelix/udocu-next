@@ -6,11 +6,7 @@ import { useTranslations } from "next-intl";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import contactImage from "@/assets/images/contact-image.jpg";
-import {
-  FacebookIcon,
-  InstagramIcon,
-  YouTubeIcon,
-} from "@/components/SocialIcons";
+import SocialLinks from "@/components/SocialLinks";
 
 export default function ContactSection() {
   const t = useTranslations("contact");
@@ -105,35 +101,7 @@ export default function ContactSection() {
             <p>{t("addressLine1")}</p>
             <p>{t("addressLine2")}</p>
           </div>
-          <div className="mt-6 flex items-center gap-4">
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Facebook"
-              className="transition-opacity hover:opacity-70"
-            >
-              <FacebookIcon width={28} height={28} />
-            </a>
-            <a
-              href="https://instagram.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Instagram"
-              className="transition-opacity hover:opacity-70"
-            >
-              <InstagramIcon width={28} height={28} />
-            </a>
-            <a
-              href="https://youtube.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="YouTube"
-              className="transition-opacity hover:opacity-70"
-            >
-              <YouTubeIcon width={28} height={28} />
-            </a>
-          </div>
+          <SocialLinks className="mt-6 flex items-center gap-4" iconSize={28} />
         </div>
       </div>
     </section>

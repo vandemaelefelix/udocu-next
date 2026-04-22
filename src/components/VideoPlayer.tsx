@@ -8,6 +8,7 @@ import {
   type ReactNode,
   type MouseEvent as ReactMouseEvent,
 } from "react";
+import VolumeIcon from "@/components/icons/VolumeIcon";
 
 interface VideoPlayerProps {
   /** The <video> or <AdvancedVideo> element to render */
@@ -266,35 +267,7 @@ export default function VideoPlayer({
           aria-label={isMuted ? "Unmute" : "Mute"}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-current transition-colors hover:bg-white/10"
         >
-          {isMuted ? (
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-5 w-5"
-            >
-              <path d="M11 5L6 9H2v6h4l5 4V5z" />
-              <line x1="23" y1="9" x2="17" y2="15" />
-              <line x1="17" y1="9" x2="23" y2="15" />
-            </svg>
-          ) : (
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-5 w-5"
-            >
-              <path d="M11 5L6 9H2v6h4l5 4V5z" />
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-            </svg>
-          )}
+          <VolumeIcon muted={isMuted} className="h-5 w-5" />
         </button>
 
         {/* Progress bar */}

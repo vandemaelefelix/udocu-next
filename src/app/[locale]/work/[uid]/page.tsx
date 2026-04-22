@@ -4,42 +4,16 @@ import * as prismic from "@prismicio/client";
 import { PrismicRichText } from "@prismicio/react";
 import { createClient, localeMap } from "@/prismicio";
 import type { Content } from "@prismicio/client";
-import Link from "next/link";
+import { formatDate } from "@/utils/formatDate";
+import ArrowLink from "@/components/ArrowLink";
 import { getTranslations } from "next-intl/server";
 import DetailNav from "@/components/DetailNav";
 import CloudinaryVideo from "@/components/CloudinaryVideo";
 import VideoPlayer from "@/components/VideoPlayer";
-import {
-  FacebookIcon,
-  InstagramIcon,
-  YouTubeIcon,
-} from "@/components/SocialIcons";
+import SocialLinks from "@/components/SocialLinks";
+import { getColorPair } from "@/utils/colors";
 
 type Params = { locale: string; uid: string };
-
-/**
- * Theme color pairs — one is chosen per work item based on a hash of the UID
- * so the colour is deterministic but feels random.
- */
-const COLOR_PAIRS = [
-  { bg: "bg-contact-bg", text: "text-orange-light" },
-  { bg: "bg-green-dark", text: "text-green-light" },
-  { bg: "bg-red-dark", text: "text-red-light" },
-  { bg: "bg-blue-dark", text: "text-blue-light" },
-] as const;
-
-function hashString(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0; // Convert to 32-bit integer
-  }
-  return Math.abs(hash);
-}
-
-function getColorPair(uid: string) {
-  return COLOR_PAIRS[hashString(uid) % COLOR_PAIRS.length];
-}
 
 // ─── Static params ──────────────────────────────────────────────────
 export async function generateStaticParams() {
@@ -73,9 +47,17 @@ export async function generateMetadata({
       );
     }
 
+    const title = page.data.name ?? undefined;
+    const description = prismic.asText(page.data.lead) ?? undefined;
+    const images = page.data.image_url?.url
+      ? [{ url: page.data.image_url.url }]
+      : [];
+
     return {
-      title: page.data.name ?? undefined,
-      description: prismic.asText(page.data.lead),
+      title,
+      description,
+      openGraph: { title, description, images },
+      twitter: { card: "summary_large_image", title, description, images },
     };
   } catch {
     return {};
@@ -112,11 +94,7 @@ export default async function WorkDetailPage({
   const t = await getTranslations("nav");
 
   const formattedDate = page.data.publish_date
-    ? new Date(page.data.publish_date).toLocaleDateString(locale, {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
+    ? formatDate(page.data.publish_date, locale)
     : null;
 
   return (
@@ -172,18 +150,13 @@ export default async function WorkDetailPage({
 
           {/* Back link — desktop only, below text */}
           <div className="hidden md:block">
-            <Link
+            <ArrowLink
               href={`/${locale}/#work`}
-              className="group inline-flex items-center gap-2 font-helvetica text-[16px] font-medium uppercase leading-5 tracking-widest transition-opacity hover:opacity-70"
+              direction="back"
+              className="font-helvetica text-[16px] font-medium uppercase leading-5 tracking-widest transition-opacity hover:opacity-70"
             >
-              <span
-                aria-hidden="true"
-                className="inline-block transition-transform duration-200 group-hover:-translate-x-1"
-              >
-                &larr;
-              </span>
               {t("back")}
-            </Link>
+            </ArrowLink>
           </div>
         </div>
 
@@ -198,32 +171,7 @@ export default async function WorkDetailPage({
       </div>
 
       {/* ── Social icons (desktop) ── */}
-      <div className="absolute right-8 bottom-6 hidden gap-4 md:flex">
-        <a
-          href="https://facebook.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Facebook"
-        >
-          <FacebookIcon className="h-5 w-5 transition-opacity hover:opacity-70" />
-        </a>
-        <a
-          href="https://instagram.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Instagram"
-        >
-          <InstagramIcon className="h-5 w-5 transition-opacity hover:opacity-70" />
-        </a>
-        <a
-          href="https://youtube.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="YouTube"
-        >
-          <YouTubeIcon className="h-5 w-5 transition-opacity hover:opacity-70" />
-        </a>
-      </div>
+      <SocialLinks className="absolute right-8 bottom-6 hidden gap-4 md:flex" />
     </main>
   );
 }

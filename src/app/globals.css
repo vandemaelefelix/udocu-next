@@ -1,9 +1,6 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Base colors */
-  --color-primary: #2563eb;
-  --color-secondary: #64748b;
   --font-serif: var(--font-garamond);
   --font-helvetica: var(--font-helvetica-neue);
   --font-posterman: var(--font-posterman);
