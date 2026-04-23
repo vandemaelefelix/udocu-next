@@ -64,6 +64,26 @@
   },
   "metadata": {
     "title": "udocu",
-    "description": "So as not to forget who you were"
+    "description": "So as not to forget who you were",
+    "homeTitle": "So As Not to Forget Who You Were",
+    "homeDescription": "Udocu is a creative studio by Kurt Vandemaele dedicated to preserving personal and cultural heritage through documentary storytelling, film, photography, and digital archives.",
+    "aboutTitle": "What is UDOCU?",
+    "aboutDescription": "Learn about Udocu, a creative studio that preserves personal and cultural heritage through in-depth interviews, documentary film, and digital archives.",
+    "whoAmITitle": "Who Am I — Kurt Vandemaele",
+    "whoAmIDescription": "Meet Kurt Vandemaele, seasoned journalist and founder of Udocu. Discover his story and passion for preserving personal histories.",
+    "blogTitle": "Blog",
+    "blogDescription": "Stories, insights, and reflections on documentary storytelling, personal heritage, and the art of preserving memories.",
+    "workTitle": "Work",
+    "workDescription": "Explore the documentary work and interviews by udocu — capturing the voices, images, and moments that define who we are.",
+    "contactTitle": "Contact",
+    "contactDescription": "Get in touch with Kurt Vandemaele at udocu. Based in Kortrijk, Belgium."
+  },
+  "notFound": {
+    "heading": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back to homepage"
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content"
   }
 }

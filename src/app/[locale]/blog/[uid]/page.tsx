@@ -7,17 +7,18 @@ import { PrismicNextImage } from "@prismicio/next";
 import { createClient, localeMap } from "@/prismicio";
 import type { Content } from "@prismicio/client";
 import { formatDate } from "@/utils/formatDate";
+import { getAlternates, SITE_URL } from "@/lib/seo";
 import DetailPage from "@/components/DetailPage";
 
 type Params = { locale: string; uid: string };
 
 export async function generateStaticParams() {
   const client = createClient();
-  const documents = await client.getAllByType("blog_post");
+  const documents = await client.getAllByType("blog_post", { lang: "*" });
 
-  return documents.map((doc) => ({
-    uid: doc.uid,
-  }));
+  return documents.flatMap((doc) =>
+    ["en", "nl"].map((locale) => ({ locale, uid: doc.uid })),
+  );
 }
 
 export async function generateMetadata({
@@ -38,12 +39,23 @@ export async function generateMetadata({
     );
 
     const title = prismic.asText(page.data.title) ?? undefined;
+    const description =
+      prismic.asText(page.data.body)?.slice(0, 160) ?? undefined;
     const images = page.data.image?.url ? [{ url: page.data.image.url }] : [];
 
     return {
       title,
-      openGraph: { title, images },
-      twitter: { card: "summary_large_image", title, images },
+      description,
+      openGraph: {
+        title,
+        description,
+        images,
+        type: "article",
+        publishedTime: page.data.publish_date ?? undefined,
+        authors: ["Kurt Vandemaele"],
+      },
+      twitter: { card: "summary_large_image", title, description, images },
+      alternates: getAlternates(locale, `blog/${uid}`),
     };
   } catch {
     return {};
@@ -76,42 +88,100 @@ export default async function BlogPostPage({
     ? formatDate(page.data.publish_date, locale)
     : "";
 
-  return (
-    <DetailPage
-      backHref={`/${locale}/blog`}
-      colorScheme="bg-red-dark text-red-light"
-      media={
-        page.data.image?.url ? (
-          <PrismicNextImage
-            field={page.data.image}
-            alt=""
-            fill
-            className="object-cover object-center"
-            sizes="100vw"
-            priority
-          />
-        ) : undefined
-      }
-      date={formattedDate}
-      title={prismic.asText(page.data.title)}
-    >
-      <PrismicRichText field={page.data.body} />
+  const title = prismic.asText(page.data.title);
 
-      {videoUrl && (
-        <div className="relative mt-8 aspect-video w-full overflow-hidden">
-          {videoUrl.match(/\.(mp4|webm|ogg)$/) ? (
-            <video src={videoUrl} controls className="h-full w-full" />
-          ) : (
-            <Image
-              src={videoUrl}
-              alt=""
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: title,
+    image: page.data.image?.url ?? undefined,
+    datePublished: page.data.publish_date ?? undefined,
+    author: {
+      "@type": "Person",
+      name: "Kurt Vandemaele",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "udocu",
+      url: SITE_URL,
+    },
+    mainEntityOfPage: `${SITE_URL}/${locale}/blog/${uid}`,
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: `${SITE_URL}/${locale}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Blog",
+        item: `${SITE_URL}/${locale}/blog`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: title,
+      },
+    ],
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <DetailPage
+        backHref={`/${locale}/blog`}
+        colorScheme="bg-red-dark text-red-light"
+        media={
+          page.data.image?.url ? (
+            <PrismicNextImage
+              field={page.data.image}
               fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 800px"
+              className="object-cover object-center"
+              sizes="100vw"
+              priority
             />
-          )}
-        </div>
-      )}
-    </DetailPage>
+          ) : undefined
+        }
+        date={formattedDate}
+        title={title}
+      >
+        <PrismicRichText field={page.data.body} />
+
+        {videoUrl && (
+          <div className="relative mt-8 aspect-video w-full overflow-hidden">
+            {videoUrl.match(/\.(mp4|webm|ogg)$/) ? (
+              <video
+                src={videoUrl}
+                controls
+                className="h-full w-full"
+                title={title ?? undefined}
+              />
+            ) : (
+              <Image
+                src={videoUrl}
+                alt={title ?? "Blog post media"}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 800px"
+              />
+            )}
+          </div>
+        )}
+      </DetailPage>
+    </>
   );
 }

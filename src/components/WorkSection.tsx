@@ -115,9 +115,9 @@ const MobileWorkSection = ({
   return (
     <section id="work" className="h-screen overflow-x-clip">
       <div className="h-full flex flex-col items-start justify-center">
-        <h1 className="font-posterman font-black text-[48px] leading-12 mb-8 text-center px-4">
+        <h2 className="font-posterman font-black text-[48px] leading-12 mb-8 text-center px-4">
           {t("work.title")}
-        </h1>
+        </h2>
         <div className="w-full overflow-hidden">
           <motion.div
             className="flex gap-6 cursor-grab pl-4 w-max"
@@ -295,14 +295,14 @@ const DesktopWorkSection = ({
       className="flex h-screen flex-col items-start justify-center overflow-clip"
     >
       <div ref={wrapperRef}>
-        <motion.h1
+        <motion.h2
           className="pl-4 pb-4 font-posterman font-black text-[74px] leading-22 tracking-normal mb-4"
           animate={{ opacity: isVisible ? 1 : undefined }}
           initial={{ opacity: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
         >
           {t("work.title")}
-        </motion.h1>
+        </motion.h2>
         {/* Draggable row */}
         <motion.div
           className="flex gap-6 cursor-grab w-max"

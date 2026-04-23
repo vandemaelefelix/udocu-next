@@ -5,6 +5,7 @@ import { PrismicRichText } from "@prismicio/react";
 import { createClient, localeMap } from "@/prismicio";
 import type { Content } from "@prismicio/client";
 import { formatDate } from "@/utils/formatDate";
+import { getAlternates, SITE_URL } from "@/lib/seo";
 import ArrowLink from "@/components/ArrowLink";
 import { getTranslations } from "next-intl/server";
 import DetailNav from "@/components/DetailNav";
@@ -15,14 +16,15 @@ import { getColorPair } from "@/utils/colors";
 
 type Params = { locale: string; uid: string };
 
-// ─── Static params ──────────────────────────────────────────────────
 export async function generateStaticParams() {
   const client = createClient();
-  const documents = await client.getAllByType("interview");
-  return documents.map((doc) => ({ uid: doc.uid }));
+  const documents = await client.getAllByType("interview", { lang: "*" });
+
+  return documents.flatMap((doc) =>
+    ["en", "nl"].map((locale) => ({ locale, uid: doc.uid })),
+  );
 }
 
-// ─── Metadata ───────────────────────────────────────────────────────
 export async function generateMetadata({
   params,
 }: {
@@ -58,13 +60,13 @@ export async function generateMetadata({
       description,
       openGraph: { title, description, images },
       twitter: { card: "summary_large_image", title, description, images },
+      alternates: getAlternates(locale, `work/${uid}`),
     };
   } catch {
     return {};
   }
 }
 
-// ─── Page ───────────────────────────────────────────────────────────
 export default async function WorkDetailPage({
   params,
 }: {
@@ -97,11 +99,39 @@ export default async function WorkDetailPage({
     ? formatDate(page.data.publish_date, locale)
     : null;
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: `${SITE_URL}/${locale}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Work",
+        item: `${SITE_URL}/${locale}/work`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: page.data.name,
+      },
+    ],
+  };
+
   return (
     <main
       className={`relative flex min-h-screen flex-col md:h-screen md:overflow-hidden ${colors.bg} ${colors.text}`}
     >
-      {/* ── Nav ── */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+
       <div className="shrink-0">
         <DetailNav
           backHref={`/${locale}/#work`}
@@ -110,16 +140,12 @@ export default async function WorkDetailPage({
         />
       </div>
 
-      {/* ── Content: two-column layout, vertically centered on desktop ── */}
       <div className="flex flex-1 flex-col px-8 pb-8 md:flex-row md:items-center md:gap-12 md:pb-16 lg:gap-16">
-        {/* Left column — name, description, date, back */}
         <div className="flex flex-col md:w-[38%] md:shrink-0">
-          {/* Name */}
           <h1 className="mb-6 font-posterman text-[48px] font-black uppercase leading-[1.1] md:mb-8 md:text-[72px]">
             {page.data.name}
           </h1>
 
-          {/* Video on mobile only — shown between name and text */}
           <div className="mb-6 md:hidden">
             <div className="relative aspect-video w-full overflow-hidden">
               <VideoPlayer className="h-full w-full">
@@ -128,12 +154,10 @@ export default async function WorkDetailPage({
             </div>
           </div>
 
-          {/* Lead */}
           <div className="mb-4 font-serif text-[20px] font-semibold leading-7 md:text-[24px] md:leading-8">
             <PrismicRichText field={page.data.lead} />
           </div>
 
-          {/* Date */}
           {formattedDate && (
             <time
               dateTime={page.data.publish_date!}
@@ -143,12 +167,10 @@ export default async function WorkDetailPage({
             </time>
           )}
 
-          {/* Body */}
           <div className="mb-8 space-y-4 font-helvetica text-[14px] font-light leading-5 opacity-80 md:text-[15px] md:leading-6">
             <PrismicRichText field={page.data.body} />
           </div>
 
-          {/* Back link — desktop only, below text */}
           <div className="hidden md:block">
             <ArrowLink
               href={`/${locale}/#work`}
@@ -160,7 +182,6 @@ export default async function WorkDetailPage({
           </div>
         </div>
 
-        {/* Right column — video (desktop only) */}
         <div className="hidden flex-1 md:block">
           <div className="relative aspect-video w-full overflow-hidden">
             <VideoPlayer className="h-full w-full">
@@ -170,7 +191,6 @@ export default async function WorkDetailPage({
         </div>
       </div>
 
-      {/* ── Social icons (desktop) ── */}
       <SocialLinks className="absolute right-8 bottom-6 hidden gap-4 md:flex" />
     </main>
   );

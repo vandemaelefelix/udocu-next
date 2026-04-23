@@ -72,7 +72,7 @@ export default function StickyNav() {
           type="button"
           className="relative z-[60] flex h-8 w-8 flex-col items-center justify-center gap-1.5 md:hidden"
           onClick={() => setMenuOpen((prev) => !prev)}
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-label={menuOpen ? t("closeMenu") : t("openMenu")}
           aria-expanded={menuOpen}
         >
           <span
