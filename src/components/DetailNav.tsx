@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import UdocuLogo from "@/components/UdocuLogo";
+import ArrowLink from "@/components/ArrowLink";
 
 interface DetailNavProps {
   backHref: string;
@@ -102,18 +103,13 @@ export default function DetailNav({
         <div
           className={`px-8 ${mobileBackOnly ? "md:hidden" : "hidden md:block"}`}
         >
-          <Link
+          <ArrowLink
             href={backHref}
-            className="group inline-flex items-center gap-2 font-helvetica text-[16px] font-medium uppercase leading-5 tracking-widest transition-opacity hover:opacity-70"
+            direction="back"
+            className="font-helvetica text-[16px] font-medium uppercase leading-5 tracking-widest transition-opacity hover:opacity-70"
           >
-            <span
-              aria-hidden="true"
-              className="inline-block transition-transform duration-200 group-hover:-translate-x-1"
-            >
-              &larr;
-            </span>
             {t("back")}
-          </Link>
+          </ArrowLink>
         </div>
       )}
     </header>

@@ -1,10 +1,12 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import * as prismic from "@prismicio/client";
 import { PrismicRichText } from "@prismicio/react";
 import { PrismicNextImage } from "@prismicio/next";
 import { createClient, localeMap } from "@/prismicio";
 import type { Content } from "@prismicio/client";
+import { formatDate } from "@/utils/formatDate";
 import DetailPage from "@/components/DetailPage";
 
 type Params = { locale: string; uid: string };
@@ -35,8 +37,13 @@ export async function generateMetadata({
       },
     );
 
+    const title = prismic.asText(page.data.title) ?? undefined;
+    const images = page.data.image?.url ? [{ url: page.data.image.url }] : [];
+
     return {
-      title: prismic.asText(page.data.title),
+      title,
+      openGraph: { title, images },
+      twitter: { card: "summary_large_image", title, images },
     };
   } catch {
     return {};
@@ -66,11 +73,7 @@ export default async function BlogPostPage({
       : null;
 
   const formattedDate = page.data.publish_date
-    ? new Date(page.data.publish_date).toLocaleDateString(locale, {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
+    ? formatDate(page.data.publish_date, locale)
     : "";
 
   return (
@@ -99,8 +102,13 @@ export default async function BlogPostPage({
           {videoUrl.match(/\.(mp4|webm|ogg)$/) ? (
             <video src={videoUrl} controls className="h-full w-full" />
           ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={videoUrl} alt="" className="h-full w-full object-cover" />
+            <Image
+              src={videoUrl}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 800px"
+            />
           )}
         </div>
       )}

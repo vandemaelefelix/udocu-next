@@ -8,6 +8,8 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import tvBackground from "@/assets/images/tv-background-image.png";
 import tvFrameOverlay from "@/assets/images/tv-frame-overlay.png";
 import CloudinaryVideo from "@/components/CloudinaryVideo";
+import VolumeIcon from "@/components/icons/VolumeIcon";
+import ArrowLink from "@/components/ArrowLink";
 import Link from "next/link";
 
 export default function AboutSection() {
@@ -75,7 +77,13 @@ export default function AboutSection() {
             }}
           >
             {/* Background image */}
-            <Image src={tvFrameOverlay} alt="" fill className="object-cover" />
+            <Image
+              src={tvFrameOverlay}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="(max-width: 767px) 100vw, 60vw"
+            />
 
             {/* Video in the TV screen cutout */}
             <Link
@@ -120,6 +128,7 @@ export default function AboutSection() {
               alt=""
               fill
               className="pointer-events-none"
+              sizes="(max-width: 767px) 100vw, 60vw"
             />
           </div>
         </motion.div>
@@ -131,37 +140,7 @@ export default function AboutSection() {
           className="absolute bottom-4 right-4 z-20 flex h-9 w-9 items-center cursor-pointer justify-center rounded-full bg-red-dark text-red-light transition-opacity hover:opacity-70"
           aria-label={isMuted ? "Unmute" : "Mute"}
         >
-          {isMuted ? (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-4 w-4"
-            >
-              <path d="M11 5L6 9H2v6h4l5 4V5z" />
-              <line x1="23" y1="9" x2="17" y2="15" />
-              <line x1="17" y1="9" x2="23" y2="15" />
-            </svg>
-          ) : (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-4 w-4"
-            >
-              <path d="M11 5L6 9H2v6h4l5 4V5z" />
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-            </svg>
-          )}
+          <VolumeIcon muted={isMuted} className="h-4 w-4" />
         </button>
       </motion.div>
 
@@ -181,30 +160,8 @@ export default function AboutSection() {
             <p>{t("paragraph4")}</p>
           </div>
           <div className="flex flex-col gap-4 md:gap-16 mt-8">
-            <Link
-              href={`/${locale}/about`}
-              className="group inline-flex items-center gap-2 font-helvetica text-[16px] font-medium uppercase leading-5 transition-opacity hover:opacity-70"
-            >
-              {t("readMoreLink")}{" "}
-              <span
-                aria-hidden="true"
-                className="inline-block transition-transform duration-200 group-hover:translate-x-1"
-              >
-                &rarr;
-              </span>
-            </Link>
-            <a
-              href="#contact"
-              className="group inline-flex items-center gap-2 font-helvetica text-[16px] font-medium uppercase leading-5 transition-opacity hover:opacity-70"
-            >
-              {t("contactLink")}{" "}
-              <span
-                aria-hidden="true"
-                className="inline-block transition-transform duration-200 group-hover:translate-x-1"
-              >
-                &rarr;
-              </span>
-            </a>
+            <ArrowLink href={`/${locale}/about`}>{t("readMoreLink")}</ArrowLink>
+            <ArrowLink href="#contact">{t("contactLink")}</ArrowLink>
           </div>
         </div>
       </div>

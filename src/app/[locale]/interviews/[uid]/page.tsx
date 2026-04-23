@@ -7,6 +7,7 @@ import { PrismicRichText } from "@prismicio/react";
 import { getTranslations } from "next-intl/server";
 import { createClient, localeMap } from "@/prismicio";
 import type { Content } from "@prismicio/client";
+import { formatDate } from "@/utils/formatDate";
 
 type Params = { locale: string; uid: string };
 
@@ -47,9 +48,17 @@ export async function generateMetadata({
       );
     }
 
+    const title = page.data.name ?? undefined;
+    const description = prismic.asText(page.data.lead) ?? undefined;
+    const images = page.data.image_url?.url
+      ? [{ url: page.data.image_url.url }]
+      : [];
+
     return {
-      title: page.data.name ?? undefined,
-      description: prismic.asText(page.data.lead),
+      title,
+      description,
+      openGraph: { title, description, images },
+      twitter: { card: "summary_large_image", title, description, images },
     };
   } catch {
     return {};
@@ -121,11 +130,7 @@ export default async function InterviewPage({
             dateTime={page.data.publish_date}
             className="mb-6 block font-sans text-sm uppercase tracking-widest opacity-60"
           >
-            {new Date(page.data.publish_date).toLocaleDateString(locale, {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
+            {formatDate(page.data.publish_date, locale)}
           </time>
         )}
 

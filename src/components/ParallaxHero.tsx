@@ -38,6 +38,7 @@ export default function ParallaxHero({
             alt="background hero"
             fill
             className="object-cover"
+            sizes="100vw"
             priority
           />
         </div>
@@ -57,6 +58,7 @@ export default function ParallaxHero({
           alt="background hero"
           fill
           className="object-cover"
+          sizes="100vw"
           priority
         />
       </motion.div>

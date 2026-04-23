@@ -7,17 +7,7 @@ import { PrismicNextImage } from "@prismicio/next";
 import { motion, useInView } from "motion/react";
 import { useTranslations } from "next-intl";
 import type { Content } from "@prismicio/client";
-
-function formatDate(dateStr: string, locale: string) {
-  return new Date(dateStr).toLocaleDateString(
-    locale === "nl" ? "nl-NL" : "en-US",
-    {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    },
-  );
-}
+import { formatDate } from "@/utils/formatDate";
 
 function PostCard({
   post,
