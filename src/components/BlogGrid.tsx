@@ -172,17 +172,19 @@ export default function BlogGrid({
         ))}
       </div>
 
-      {hasMore && (
-        <div ref={sentinelRef} className="flex justify-center py-8">
-          {loading && (
-            <div
-              className="h-6 w-6 animate-spin rounded-full border-2 border-red-light/30 border-t-red-light"
-              role="status"
-              aria-label={t("loadingMore")}
-            />
-          )}
-        </div>
-      )}
+      <div aria-live="polite" aria-atomic="true">
+        {hasMore && (
+          <div ref={sentinelRef} className="flex justify-center py-8">
+            {loading && (
+              <div
+                className="h-6 w-6 animate-spin rounded-full border-2 border-red-light/30 border-t-red-light"
+                role="status"
+                aria-label={t("loadingMore")}
+              />
+            )}
+          </div>
+        )}
+      </div>
     </>
   );
 }

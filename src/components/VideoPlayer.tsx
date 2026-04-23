@@ -207,6 +207,7 @@ export default function VideoPlayer({
           }}
         >
           <svg
+            aria-hidden="true"
             viewBox="0 0 100 100"
             className="h-24 w-24 drop-shadow-lg md:h-32 md:w-32"
           >
@@ -240,17 +241,23 @@ export default function VideoPlayer({
             togglePlay();
           }}
           aria-label={isPlaying ? "Pause" : "Play"}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-current transition-colors hover:bg-white/10"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-current transition-colors hover:bg-white/10 focus-visible:bg-white/10 focus-visible:outline-none"
         >
           {isPlaying ? (
             /* Pause icon */
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="currentColor"
+            >
               <rect x="6" y="4" width="4" height="16" rx="1" />
               <rect x="14" y="4" width="4" height="16" rx="1" />
             </svg>
           ) : (
             /* Play icon */
             <svg
+              aria-hidden="true"
               viewBox="0 0 24 24"
               className="h-5 w-5 translate-x-[1px]"
               fill="currentColor"
@@ -265,7 +272,7 @@ export default function VideoPlayer({
           type="button"
           onClick={toggleMute}
           aria-label={isMuted ? "Unmute" : "Mute"}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-current transition-colors hover:bg-white/10"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-current transition-colors hover:bg-white/10 focus-visible:bg-white/10 focus-visible:outline-none"
         >
           <VolumeIcon muted={isMuted} className="h-5 w-5" />
         </button>

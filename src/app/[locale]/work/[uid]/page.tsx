@@ -125,6 +125,7 @@ export default async function WorkDetailPage({
 
   return (
     <main
+      id="main-content"
       className={`relative flex min-h-screen flex-col md:h-screen md:overflow-hidden ${colors.bg} ${colors.text}`}
     >
       <script

@@ -125,7 +125,10 @@ export default async function InterviewPage({
   };
 
   return (
-    <main className="min-h-screen bg-black px-6 py-12 text-white md:px-16">
+    <main
+      id="main-content"
+      className="min-h-screen bg-black px-6 py-12 text-white md:px-16"
+    >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}

@@ -330,7 +330,7 @@ const DesktopWorkSection = ({
           <button
             type="button"
             aria-label={t("work.previous")}
-            className="p-2 transition-opacity hover:opacity-50"
+            className="p-2 transition-opacity hover:opacity-50 focus-visible:opacity-50 focus-visible:outline-none"
             onClick={() => {
               const target = x.get() + STEP * 3;
               motionAnimate(x, target, {
@@ -340,6 +340,7 @@ const DesktopWorkSection = ({
             }}
           >
             <svg
+              aria-hidden="true"
               width="32"
               height="32"
               viewBox="0 0 32 32"
@@ -358,7 +359,7 @@ const DesktopWorkSection = ({
           <button
             type="button"
             aria-label={t("work.next")}
-            className="p-2 transition-opacity hover:opacity-50"
+            className="p-2 transition-opacity hover:opacity-50 focus-visible:opacity-50 focus-visible:outline-none"
             onClick={() => {
               const target = x.get() - STEP * 3;
               motionAnimate(x, target, {
@@ -368,6 +369,7 @@ const DesktopWorkSection = ({
             }}
           >
             <svg
+              aria-hidden="true"
               width="32"
               height="32"
               viewBox="0 0 32 32"

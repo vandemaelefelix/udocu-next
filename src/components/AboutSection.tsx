@@ -99,6 +99,7 @@ export default function AboutSection() {
               <CloudinaryVideo className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
               {/* CRT screen effect overlay */}
               <div
+                aria-hidden="true"
                 className="pointer-events-none absolute inset-0"
                 style={{
                   background:
@@ -106,6 +107,7 @@ export default function AboutSection() {
                 }}
               />
               <div
+                aria-hidden="true"
                 className="pointer-events-none absolute inset-0"
                 style={{
                   background:
@@ -113,6 +115,7 @@ export default function AboutSection() {
                 }}
               />
               <div
+                aria-hidden="true"
                 className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-10"
                 style={{
                   background:

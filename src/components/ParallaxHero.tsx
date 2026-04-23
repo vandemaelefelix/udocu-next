@@ -35,7 +35,8 @@ export default function ParallaxHero({
         <div className="absolute inset-0">
           <Image
             src={backgroundImage}
-            alt="background hero"
+            alt=""
+            aria-hidden="true"
             fill
             className="object-cover"
             sizes="100vw"

@@ -57,7 +57,11 @@ export default async function HomePage({
 
         <ParallaxHero backgroundImage={backgroundHero}>
           <div className="w-[90vw] md:w-auto">
-            <UdocuLogo className="w-full" color="var(--color-green-light)" />
+            <UdocuLogo
+              aria-hidden="true"
+              className="w-full"
+              color="var(--color-green-light)"
+            />
             <h1 className="user-select-none mt-4 font-serif text-4xl font-bold leading-tight tracking-[0.019em] text-green-light md:whitespace-nowrap md:text-[80px] md:leading-24">
               {t("tagline")}
             </h1>
