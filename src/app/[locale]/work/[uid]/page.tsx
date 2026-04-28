@@ -9,8 +9,7 @@ import { getAlternates, SITE_URL } from "@/lib/seo";
 import ArrowLink from "@/components/ArrowLink";
 import { getTranslations } from "next-intl/server";
 import DetailNav from "@/components/DetailNav";
-import CloudinaryVideo from "@/components/CloudinaryVideo";
-import VideoPlayer from "@/components/VideoPlayer";
+import YouTubeEmbed from "@/components/YouTubeEmbed";
 import SocialLinks from "@/components/SocialLinks";
 import { getColorPair } from "@/utils/colors";
 
@@ -92,6 +91,11 @@ export default async function WorkDetailPage({
     }
   }
 
+  const videoUrl =
+    page.data.video_url.link_type === "Web"
+      ? (page.data.video_url as prismic.FilledLinkToWebField).url
+      : null;
+
   const colors = getColorPair(uid);
   const t = await getTranslations("nav");
 
@@ -147,13 +151,16 @@ export default async function WorkDetailPage({
             {page.data.name}
           </h1>
 
-          <div className="mb-6 md:hidden">
-            <div className="relative aspect-video w-full overflow-hidden">
-              <VideoPlayer className="h-full w-full">
-                <CloudinaryVideo className="h-full w-full object-cover" />
-              </VideoPlayer>
+          {videoUrl && (
+            <div className="mb-6 md:hidden">
+              <div className="relative aspect-video w-full overflow-hidden">
+                <YouTubeEmbed
+                  url={videoUrl}
+                  title={page.data.name ?? undefined}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="mb-4 font-serif text-[20px] font-semibold leading-7 md:text-[24px] md:leading-8">
             <PrismicRichText field={page.data.lead} />
@@ -183,13 +190,16 @@ export default async function WorkDetailPage({
           </div>
         </div>
 
-        <div className="hidden flex-1 md:block">
-          <div className="relative aspect-video w-full overflow-hidden">
-            <VideoPlayer className="h-full w-full">
-              <CloudinaryVideo className="h-full w-full object-cover" />
-            </VideoPlayer>
+        {videoUrl && (
+          <div className="hidden flex-1 md:block">
+            <div className="relative aspect-video w-full overflow-hidden">
+              <YouTubeEmbed
+                url={videoUrl}
+                title={page.data.name ?? undefined}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <SocialLinks className="absolute right-8 bottom-6 hidden gap-4 md:flex" />

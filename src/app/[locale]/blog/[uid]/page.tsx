@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import * as prismic from "@prismicio/client";
 import { PrismicRichText } from "@prismicio/react";
 import { PrismicNextImage } from "@prismicio/next";
@@ -9,6 +8,7 @@ import type { Content } from "@prismicio/client";
 import { formatDate } from "@/utils/formatDate";
 import { getAlternates, SITE_URL } from "@/lib/seo";
 import DetailPage from "@/components/DetailPage";
+import YouTubeEmbed from "@/components/YouTubeEmbed";
 
 type Params = { locale: string; uid: string };
 
@@ -146,7 +146,9 @@ export default async function BlogPostPage({
         backHref={`/${locale}/blog`}
         colorScheme="bg-red-dark text-red-light"
         media={
-          page.data.image?.url ? (
+          videoUrl ? (
+            <YouTubeEmbed url={videoUrl} title={title ?? undefined} />
+          ) : page.data.image?.url ? (
             <PrismicNextImage
               field={page.data.image}
               fill
@@ -160,27 +162,6 @@ export default async function BlogPostPage({
         title={title}
       >
         <PrismicRichText field={page.data.body} />
-
-        {videoUrl && (
-          <div className="relative mt-8 aspect-video w-full overflow-hidden">
-            {videoUrl.match(/\.(mp4|webm|ogg)$/) ? (
-              <video
-                src={videoUrl}
-                controls
-                className="h-full w-full"
-                title={title ?? undefined}
-              />
-            ) : (
-              <Image
-                src={videoUrl}
-                alt={title ?? "Blog post media"}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 800px"
-              />
-            )}
-          </div>
-        )}
       </DetailPage>
     </>
   );

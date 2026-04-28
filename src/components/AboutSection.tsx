@@ -150,7 +150,7 @@ export default function AboutSection() {
       {/* Text content */}
       <div className="flex w-full flex-col px-6 py-12 md:h-screen md:w-2/5 md:px-12 md:py-24">
         <div className="md:mt-auto md:max-w-93">
-          <h2 className="mb-10 whitespace-nowrap text-[40px] leading-12 md:text-[74px] md:leading-[88px]">
+          <h2 className="mb-10 whitespace-nowrap text-[40px] leading-12 md:text-[74px] md:leading-22">
             <span className="font-serif font-semibold">{t("titlePrefix")}</span>{" "}
             <span className="font-posterman font-black">
               {t("titleSuffix")}

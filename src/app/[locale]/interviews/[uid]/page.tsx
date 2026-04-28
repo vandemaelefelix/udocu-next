@@ -9,6 +9,7 @@ import { createClient, localeMap } from "@/prismicio";
 import type { Content } from "@prismicio/client";
 import { formatDate } from "@/utils/formatDate";
 import { getAlternates, SITE_URL } from "@/lib/seo";
+import YouTubeEmbed from "@/components/YouTubeEmbed";
 
 type Params = { locale: string; uid: string };
 
@@ -142,7 +143,11 @@ export default async function InterviewPage({
       </Link>
 
       <article className="mx-auto max-w-3xl">
-        {page.data.image_url?.url && (
+        {videoUrl ? (
+          <div className="relative mb-10 aspect-video w-full overflow-hidden rounded">
+            <YouTubeEmbed url={videoUrl} title={page.data.name ?? undefined} />
+          </div>
+        ) : page.data.image_url?.url ? (
           <div className="relative mb-10 aspect-square w-full max-w-sm overflow-hidden rounded">
             <Image
               src={page.data.image_url.url}
@@ -152,7 +157,7 @@ export default async function InterviewPage({
               className="object-cover"
             />
           </div>
-        )}
+        ) : null}
 
         <h1 className="mb-4 font-serif text-4xl font-bold md:text-6xl">
           {page.data.name}
@@ -174,17 +179,6 @@ export default async function InterviewPage({
         <div className="prose prose-invert prose-lg max-w-none font-serif leading-relaxed">
           <PrismicRichText field={page.data.body} />
         </div>
-
-        {videoUrl && (
-          <div className="mt-10">
-            <video
-              src={videoUrl}
-              controls
-              className="w-full rounded"
-              title={page.data.name ?? undefined}
-            />
-          </div>
-        )}
       </article>
     </main>
   );

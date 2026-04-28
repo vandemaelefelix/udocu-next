@@ -46,7 +46,8 @@
       "video_url": {
         "type": "Link",
         "config": {
-          "label": "Video URL",
+          "label": "YouTube URL",
+          "placeholder": "https://www.youtube.com/watch?v=...",
           "allowTargetBlank": false,
           "select": "web"
         }
