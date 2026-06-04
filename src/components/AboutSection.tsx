@@ -156,8 +156,6 @@ export default function AboutSection() {
           <div className="space-y-6 font-serif text-[18px] font-normal leading-5.5 md:text-[20px]">
             <p>{t("paragraph1")}</p>
             <p>{t("paragraph2")}</p>
-            <p>{t("paragraph3")}</p>
-            <p>{t("paragraph4")}</p>
           </div>
           <div className="flex flex-col gap-4 md:gap-16 mt-8">
             <ArrowLink href={`/${locale}/about`}>{t("readMoreLink")}</ArrowLink>

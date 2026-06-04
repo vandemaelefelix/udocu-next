@@ -26,7 +26,6 @@ export default function AboutPage() {
       <p>{t("detailParagraph1")}</p>
       <p>{t("detailParagraph2")}</p>
       <p>{t("detailParagraph3")}</p>
-      <p>{t("detailParagraph4")}</p>
     </DetailPage>
   );
 }
