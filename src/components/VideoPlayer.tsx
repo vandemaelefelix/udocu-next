@@ -10,6 +10,20 @@ import {
 } from "react";
 import VolumeIcon from "@/components/icons/VolumeIcon";
 
+// Vendor-prefixed Fullscreen API members that the DOM lib types don't cover.
+// Safari (desktop) uses the `webkit` prefix; iOS only exposes fullscreen on
+// the <video> element itself via `webkitEnterFullscreen`.
+interface FullscreenElement extends HTMLElement {
+  webkitRequestFullscreen?: () => void;
+}
+interface FullscreenVideo extends HTMLVideoElement {
+  webkitEnterFullscreen?: () => void;
+}
+interface FullscreenDocument extends Document {
+  webkitFullscreenElement?: Element | null;
+  webkitExitFullscreen?: () => void;
+}
+
 interface VideoPlayerProps {
   /** The <video> or <AdvancedVideo> element to render */
   children: ReactNode;
@@ -39,6 +53,7 @@ export default function VideoPlayer({
   const [progress, setProgress] = useState(0);
   const [showControls, setShowControls] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const hideTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -90,6 +105,65 @@ export default function VideoPlayer({
     },
     [getVideo],
   );
+
+  // ─── fullscreen ───────────────────────────────────────────────────
+  const toggleFullscreen = useCallback(
+    (e: ReactMouseEvent) => {
+      e.stopPropagation();
+      const container = containerRef.current as FullscreenElement | null;
+      const doc = document as FullscreenDocument;
+      const active =
+        doc.fullscreenElement ?? doc.webkitFullscreenElement ?? null;
+
+      // Already fullscreen → exit.
+      if (active) {
+        if (doc.exitFullscreen) doc.exitFullscreen();
+        else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
+        return;
+      }
+
+      // Prefer fullscreening the whole player so our custom controls stay
+      // visible (desktop browsers + Android Chrome).
+      if (container?.requestFullscreen) {
+        container.requestFullscreen().catch(() => {});
+      } else if (container?.webkitRequestFullscreen) {
+        container.webkitRequestFullscreen();
+      } else {
+        // iOS Safari: only the <video> element can go fullscreen — this opens
+        // the native player, which brings its own controls.
+        const v = getVideo() as FullscreenVideo | null;
+        v?.webkitEnterFullscreen?.();
+      }
+    },
+    [getVideo],
+  );
+
+  // Keep the button in sync with the real fullscreen state, including exits
+  // triggered by Esc, the system back gesture, or iOS' own native UI.
+  useEffect(() => {
+    const doc = document as FullscreenDocument;
+    const sync = () => {
+      const active =
+        doc.fullscreenElement ?? doc.webkitFullscreenElement ?? null;
+      setIsFullscreen(active === containerRef.current);
+    };
+    document.addEventListener("fullscreenchange", sync);
+    document.addEventListener("webkitfullscreenchange", sync);
+
+    // iOS native video fullscreen fires its own events on the element.
+    const v = getVideo();
+    const onBegin = () => setIsFullscreen(true);
+    const onEnd = () => setIsFullscreen(false);
+    v?.addEventListener("webkitbeginfullscreen", onBegin);
+    v?.addEventListener("webkitendfullscreen", onEnd);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", sync);
+      document.removeEventListener("webkitfullscreenchange", sync);
+      v?.removeEventListener("webkitbeginfullscreen", onBegin);
+      v?.removeEventListener("webkitendfullscreen", onEnd);
+    };
+  }, [getVideo]);
 
   // ─── progress tracking ────────────────────────────────────────────
   useEffect(() => {
@@ -187,7 +261,9 @@ export default function VideoPlayer({
   return (
     <div
       ref={containerRef}
-      className={`relative cursor-pointer select-none overflow-hidden ${className}`}
+      className={`relative cursor-pointer select-none overflow-hidden ${
+        isFullscreen ? "bg-black [&_video]:object-contain" : ""
+      } ${className}`}
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
       onClick={togglePlay}
@@ -291,6 +367,48 @@ export default function VideoPlayer({
             style={{ left: `${progress * 100}%` }}
           />
         </div>
+
+        {/* Fullscreen toggle */}
+        <button
+          type="button"
+          onClick={toggleFullscreen}
+          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-current transition-colors hover:bg-white/10"
+        >
+          {isFullscreen ? (
+            /* Minimize / exit icon */
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M8 3v3a2 2 0 0 1-2 2H3" />
+              <path d="M21 8h-3a2 2 0 0 1-2-2V3" />
+              <path d="M3 16h3a2 2 0 0 1 2 2v3" />
+              <path d="M16 21v-3a2 2 0 0 1 2-2h3" />
+            </svg>
+          ) : (
+            /* Maximize / enter icon */
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+              <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+              <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+              <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+            </svg>
+          )}
+        </button>
       </div>
     </div>
   );
