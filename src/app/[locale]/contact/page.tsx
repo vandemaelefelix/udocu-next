@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { getAlternates } from "@/lib/seo";
+import ContactSection from "@/components/ContactSection";
 
 type Params = { locale: string };
 
@@ -21,11 +21,9 @@ export async function generateMetadata({
 }
 
 export default function ContactPage() {
-  const t = useTranslations("contact");
-
   return (
     <main id="main-content">
-      <h1>{t("title")}</h1>
+      <ContactSection />
     </main>
   );
 }

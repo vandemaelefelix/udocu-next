@@ -39,12 +39,16 @@
   },
   "contact": {
     "title": "Contact",
+    "intro": "Stuur gerust een bericht — via mail, telefoon of post. Ik lees alles wat in mijn inbox belandt zelf.",
+    "emailLabel": "E-mail",
+    "phoneLabel": "Telefoon",
+    "addressLabel": "Adres",
     "name": "Kurt Vandemaele",
     "email": "Kurtvandemaele@udocu.be",
     "phone": "+32 475 73 11 56",
     "addressLine1": "André Devaerelaan 20",
     "addressLine2": "8500 Kortrijk",
-    "overlay": "Let's\ntalk"
+    "overlay": "LET'S\nTALK"
   },
   "blog": {
     "title": "Blog",
@@ -81,6 +85,12 @@
   "notFound": {
     "heading": "Pagina niet gevonden",
     "description": "De pagina die u zoekt bestaat niet of is verplaatst.",
+    "backHome": "Terug naar de homepagina"
+  },
+  "error": {
+    "heading": "Er ging iets mis",
+    "description": "Er is een onverwachte fout opgetreden. Probeer het opnieuw.",
+    "retry": "Probeer opnieuw",
     "backHome": "Terug naar de homepagina"
   },
   "a11y": {
