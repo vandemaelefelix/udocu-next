@@ -47,28 +47,39 @@ export default function ParallaxHero({
     }
   }, [prefersReducedMotion]);
 
-  const background = backgroundVideo ? (
-    <video
-      ref={videoRef}
-      src={backgroundVideo}
-      autoPlay
-      loop
-      muted
-      playsInline
-      poster={backgroundVideoPoster}
-      className="absolute inset-0 h-full w-full object-cover pointer-events-none"
-    />
-  ) : backgroundImage ? (
-    <Image
-      src={backgroundImage}
-      alt=""
-      aria-hidden="true"
-      fill
-      className="object-cover"
-      sizes="100vw"
-      priority
-    />
-  ) : null;
+  const background =
+    backgroundVideo && !isMobile ? (
+      <video
+        ref={videoRef}
+        src={backgroundVideo}
+        autoPlay
+        loop
+        muted
+        playsInline
+        poster={backgroundVideoPoster}
+        className="absolute inset-0 h-full w-full object-cover pointer-events-none"
+      />
+    ) : backgroundVideoPoster && isMobile ? (
+      <Image
+        src={backgroundVideoPoster}
+        alt=""
+        aria-hidden="true"
+        fill
+        className="object-cover"
+        sizes="100vw"
+        priority
+      />
+    ) : backgroundImage ? (
+      <Image
+        src={backgroundImage}
+        alt=""
+        aria-hidden="true"
+        fill
+        className="object-cover"
+        sizes="100vw"
+        priority
+      />
+    ) : null;
 
   if (isMobile) {
     return (
