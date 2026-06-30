@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getAlternates } from "@/lib/seo";
-import backgroundHero from "@/assets/images/background-hero.png";
 import UdocuLogo from "@/components/UdocuLogo";
 import ParallaxHero from "@/components/ParallaxHero";
 import ScrollBackground from "@/components/ScrollBackground";
@@ -55,7 +54,10 @@ export default async function HomePage({
       <main id="main-content">
         <StickyNav />
 
-        <ParallaxHero backgroundImage={backgroundHero}>
+        <ParallaxHero
+          backgroundVideo="/videos/hero-video.mp4"
+          backgroundVideoPoster="/videos/hero-poster.jpg"
+        >
           <div className="w-[90vw] md:w-auto">
             <UdocuLogo
               aria-hidden="true"
