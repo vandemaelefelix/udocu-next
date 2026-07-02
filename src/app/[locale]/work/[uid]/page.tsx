@@ -127,6 +127,23 @@ export default async function WorkDetailPage({
     ],
   };
 
+  const videoJsonLd = videoUrl
+    ? {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        name: page.data.name,
+        description: prismic.asText(page.data.lead) ?? undefined,
+        thumbnailUrl: page.data.image_url?.url ?? undefined,
+        embedUrl: videoUrl,
+        uploadDate: page.data.publish_date ?? undefined,
+        publisher: {
+          "@type": "Organization",
+          name: "udocu",
+          url: SITE_URL,
+        },
+      }
+    : null;
+
   return (
     <main
       id="main-content"
@@ -136,6 +153,13 @@ export default async function WorkDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
+
+      {videoJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(videoJsonLd) }}
+        />
+      )}
 
       <div className="shrink-0">
         <DetailNav

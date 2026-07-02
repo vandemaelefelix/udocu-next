@@ -11,6 +11,7 @@ import WorkSection from "@/components/WorkSection";
 import ContactSection from "@/components/ContactSection";
 import SocialDock from "@/components/SocialDock";
 import { ScrollColorProvider } from "@/context/ScrollColorContext";
+import ThemeColorSync from "@/components/ThemeColorSync";
 import MagneticScroll from "@/components/MagneticScroll";
 import { createClient } from "@/prismicio";
 import type { Content } from "@prismicio/client";
@@ -50,6 +51,7 @@ export default async function HomePage({
 
   return (
     <ScrollColorProvider>
+      <ThemeColorSync />
       <MagneticScroll />
       <main id="main-content">
         <StickyNav />

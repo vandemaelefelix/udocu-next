@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -7,6 +7,10 @@ import { garamond, helveticaNeue, posterman } from "../fonts";
 import { SITE_URL } from "@/lib/seo";
 import NoiseOverlay from "@/components/NoiseOverlay";
 import "../globals.css";
+
+export const viewport: Viewport = {
+  themeColor: "rgb(62, 2, 2)",
+};
 
 export async function generateMetadata({
   params,
@@ -96,9 +100,10 @@ export default async function LocaleLayout({
             founder: {
               "@type": "Person",
               name: "Kurt Vandemaele",
+              url: `${SITE_URL}/nl/who-am-i`,
               jobTitle: "Journalist & Founder",
               description:
-                "Veteran journalist with 24 years at Humo magazine, specializing in personal documentary interviews and heritage preservation.",
+                "Veteran journalist with 40 years of experience, including 24 years at Humo magazine. Founder of udocu, specialising in personal documentary interviews and heritage preservation.",
             },
             contactPoint: {
               "@type": "ContactPoint",

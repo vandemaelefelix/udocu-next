@@ -94,11 +94,13 @@ export default async function BlogPostPage({
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: title,
+    description: prismic.asText(page.data.body)?.slice(0, 200) ?? undefined,
     image: page.data.image?.url ?? undefined,
     datePublished: page.data.publish_date ?? undefined,
     author: {
       "@type": "Person",
       name: "Kurt Vandemaele",
+      url: `${SITE_URL}/${locale}/who-am-i`,
     },
     publisher: {
       "@type": "Organization",
