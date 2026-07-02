@@ -14,52 +14,72 @@ export default function WhoAmISection() {
   const sectionRef = useRef<HTMLElement>(null);
   const isMobile = useIsMobile();
 
-  // Text parallax: text slides up as section enters viewport
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start center", "start start"],
-  });
-
-  // Entrance phase: image fades in and pans up as section enters the viewport
+  // Entrance scroll range: section top enters viewport bottom → section top at viewport top
+  // WhoAmI visual top at y=2250: tracks scrollY 1350 → 2250
   const { scrollYProgress: scrollProgressEntrance } = useScroll({
     target: sectionRef,
-    offset: ["0.3 1", "0 0"],
+    offset: ["0 1", "0 0"],
   });
 
-  // Scroll-through phase: parallax + fade-out while sticky (like AboutSection)
+  // Scroll-through: tracks scrollY 2250 → 2700 (section pinned then scrolls away)
   const { scrollYProgress: scrollProgressThrough } = useScroll({
     target: sectionRef,
     offset: ["start start", "end end"],
   });
 
-  // Entrance: fade in from 0 → 1 (complete at ~67% of entrance)
-  const entranceOpacity = useTransform(scrollProgressEntrance, [0, 1], [0, 1]);
+  // Text parallax: slides up as section approaches
+  const { scrollYProgress: scrollProgressText } = useScroll({
+    target: sectionRef,
+    offset: ["start center", "start start"],
+  });
 
-  // Scroll-through: fade out from 1 → 0 as you scroll past
+  // Portrait entrance: full scroll range — portrait fades in as WhoAmI physically
+  // slides up into the viewport. TV is fading simultaneously on the opposite side,
+  // creating the bilateral crossfade feel.
+  const portraitEntranceRaw = useTransform(
+    scrollProgressEntrance,
+    [0, 1],
+    [0, 1],
+  );
+  const portraitEntranceOpacity = useTransform(portraitEntranceRaw, (t) =>
+    t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+  );
+
+  // Portrait scroll-through: fades out as section scrolls away
   const scrollThroughOpacity = useTransform(
     scrollProgressThrough,
     [0, 1],
     [1, 0],
   );
 
-  // Combined opacity: multiply entrance × scroll-through
+  // Portrait combined opacity: entrance × scroll-through
   const imageOpacity = useTransform(
-    () => entranceOpacity.get() * scrollThroughOpacity.get(),
+    () => portraitEntranceOpacity.get() * scrollThroughOpacity.get(),
   );
 
-  // Entrance parallax: image pans upward into position
-  const entranceY = useTransform(scrollProgressEntrance, [0, 1], [-15, 0]);
+  // Portrait entrance scale: starts slightly zoomed in, settles to 100% as portrait appears
+  const portraitEntranceScale = useTransform(portraitEntranceRaw, (t) => {
+    const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    return 1.05 - 0.05 * eased; // 1.05 → 1.0
+  });
 
-  // Scroll-through parallax: subtle continued pan (like AboutSection's 5% → -5%)
+  // Portrait entrance parallax: subtle upward pan
+  const entranceY = useTransform(scrollProgressEntrance, [0, 1], [-20, 0]);
+
+  // Portrait scroll-through parallax
   const scrollThroughY = useTransform(scrollProgressThrough, [0, 1], [5, -5]);
 
-  // Combined Y: sum both parallax values, output as percentage
+  // Combined portrait Y
   const imageY = useTransform(
     () => `${entranceY.get() + scrollThroughY.get()}%`,
   );
 
-  // Parallax: text moves up faster than natural scroll
-  const textY = useTransform(scrollYProgress, [0, 1], [80, 0]);
+  // Text parallax (positions text before it becomes visible)
+  const textY = useTransform(scrollProgressText, [0, 1], [80, 0]);
+  // Text appears in the final third of WhoAmI's entrance — when TV is nearly gone.
+  // Uses scrollProgressEntrance (0→1 as scrollY 1350→2250) so text and portrait
+  // share the same scroll reference, keeping both sides synchronized.
+  const textOpacity = useTransform(scrollProgressEntrance, [0.7, 1], [0, 1]);
 
   return (
     <section
@@ -67,8 +87,11 @@ export default function WhoAmISection() {
       id="who-am-i"
       className="flex min-h-screen flex-col md:min-h-[150vh] md:flex-row"
     >
-      {/* Left: title + bio + links pushed to bottom */}
-      <div className="flex w-full flex-col px-6 py-12 md:h-screen md:w-2/5 md:px-12 md:py-16 ">
+      {/* Left: title + bio + links — fades in as WhoAmI scrolls into view */}
+      <motion.div
+        className="flex w-full flex-col px-6 py-12 md:h-screen md:w-2/5 md:px-12 md:py-16"
+        style={{ opacity: isMobile ? 1 : textOpacity }}
+      >
         <motion.div
           style={{ y: isMobile ? 0 : textY }}
           className="md:mt-auto md:max-w-93"
@@ -87,15 +110,18 @@ export default function WhoAmISection() {
             <ArrowLink href="#contact">{t("contactLink")}</ArrowLink>
           </div>
         </motion.div>
-      </div>
+      </motion.div>
 
-      {/* Right: sticky full-height photo — mirrors AboutSection's image */}
+      {/* Right: sticky portrait — cross-dissolves with About TV on opposite column */}
       <motion.div
         className="relative order-first h-[50vh] w-full shrink-0 overflow-hidden md:sticky md:top-0 md:order-last md:h-screen md:w-3/5 md:self-start"
         style={{ opacity: isMobile ? 1 : imageOpacity }}
       >
         <motion.div
-          style={{ y: isMobile ? 0 : imageY }}
+          style={{
+            y: isMobile ? 0 : imageY,
+            scale: isMobile ? 1 : portraitEntranceScale,
+          }}
           className="absolute inset-[-10%]"
         >
           <Image

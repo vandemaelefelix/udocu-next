@@ -73,7 +73,7 @@ export default async function HomePage({
         <ScrollBackground>
           <AboutSection />
 
-          <div className="md:-mt-[50vh]">
+          <div className="md:-mt-[100vh]">
             <WhoAmISection />
           </div>
           <div className="md:-mt-[25vh]">

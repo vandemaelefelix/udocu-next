@@ -1,11 +1,9 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
-import { motion, useScroll, useTransform } from "motion/react";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import tvBackground from "@/assets/images/tv-background-image.png";
 import tvFrameOverlay from "@/assets/images/tv-frame-overlay.png";
 import CloudinaryVideo from "@/components/CloudinaryVideo";
 import VolumeIcon from "@/components/icons/VolumeIcon";
@@ -16,6 +14,8 @@ export default function AboutSection() {
   const t = useTranslations("about");
   const locale = useLocale();
   const sectionRef = useRef<HTMLElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const [isMuted, setIsMuted] = useState(true);
@@ -28,30 +28,79 @@ export default function AboutSection() {
     }
   }, []);
 
-  // Scroll animation for the opacity of the image
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end end"],
-  });
+  // Direct scroll listener — bypasses Framer Motion's scroll tracking which
+  // miscalculates the range when named offsets ("start start") are used
+  // inside a positioned ancestor (ScrollBackground's relative div).
+  useEffect(() => {
+    const section = sectionRef.current;
+    const sticky = stickyRef.current;
+    const inner = innerRef.current;
+    if (!section || !sticky) return;
 
-  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
+    if (isMobile) {
+      sticky.style.opacity = "1";
+      if (inner) inner.style.transform = "scale(1.6)";
+      return;
+    }
 
-  // Parallax: image pans upward inside the sticky container as you scroll
-  const imageY = useTransform(scrollYProgress, [0, 1], ["5%", "-5%"]);
+    let rafId: number;
+
+    function update() {
+      const vp = window.innerHeight;
+      const rect = section!.getBoundingClientRect();
+      const scrollRange = section!.offsetHeight - vp;
+      if (scrollRange <= 0) return;
+      // progress: 0 when section top = viewport top → 1 when section bottom = viewport bottom
+      const progress = Math.max(0, Math.min(1, -rect.top / scrollRange));
+      // TV holds at 100% while user reads About content, then crossfades with WhoAmI.
+      // WhoAmI enters the viewport when About progress=0.333 (scrollY≈1350).
+      // Starting the TV fade exactly there creates a simultaneous bilateral crossfade:
+      // TV fades 100%→0% while portrait simultaneously builds 0%→100%, both over 900px.
+      const holdEnd = 0.333; // scrollY≈1350: TV at 100%, WhoAmI just entering viewport
+      const fadeEnd = 0.7; // scrollY≈1845: TV at 0%, portrait still building (58%)
+      const rawT = Math.max(
+        0,
+        Math.min(1, (progress - holdEnd) / (fadeEnd - holdEnd)),
+      );
+      const tEased =
+        rawT < 0.5
+          ? 4 * rawT * rawT * rawT
+          : 1 - Math.pow(-2 * rawT + 2, 3) / 2;
+      const opacity = 1 - tEased;
+      sticky!.style.opacity = String(opacity);
+      if (inner) {
+        const y = 5 - progress * 10; // 5% → -5% parallax pan
+        const scale = 1.6 - 0.05 * tEased; // 1.6 → 1.55: subtle pull-back as TV exits
+        inner!.style.transform = `translateY(${y}%) scale(${scale})`;
+      }
+    }
+
+    function onScroll() {
+      rafId = requestAnimationFrame(update);
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    update();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(rafId);
+    };
+  }, [isMobile]);
 
   return (
     <section
       ref={sectionRef}
       id="about"
-      className={`flex min-h-screen flex-col text-red-light md:min-h-[150vh] md:flex-row`}
+      className={`flex min-h-screen flex-col text-red-light md:min-h-[250vh] md:flex-row`}
     >
       {/* Image with video playing inside the TV */}
-      <motion.div
+      <div
+        ref={stickyRef}
         className="relative h-[50vh] w-full shrink-0 overflow-hidden md:sticky md:top-0 md:z-10 md:h-screen md:w-3/5 md:self-start"
-        style={{ opacity: isMobile ? 1 : opacity }}
       >
-        <motion.div
-          style={{ y: isMobile ? 0 : imageY, scale: 1.6 }}
+        <div
+          ref={innerRef}
+          style={{ transform: "scale(1.6)" }}
           className="absolute inset-[-10%] origin-center overflow-hidden"
         >
           {/*
@@ -134,7 +183,7 @@ export default function AboutSection() {
               sizes="(max-width: 767px) 100vw, 60vw"
             />
           </div>
-        </motion.div>
+        </div>
 
         {/* Mute toggle at the bottom of the image */}
         <button
@@ -145,7 +194,7 @@ export default function AboutSection() {
         >
           <VolumeIcon muted={isMuted} className="h-4 w-4" />
         </button>
-      </motion.div>
+      </div>
 
       {/* Text content */}
       <div className="flex w-full flex-col px-6 py-12 md:h-screen md:w-2/5 md:px-12 md:py-24">
