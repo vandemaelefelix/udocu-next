@@ -1,5 +1,6 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import backgroundHero from "@/assets/images/background-hero.png";
+import { getAlternates } from "@/lib/seo";
 import UdocuLogo from "@/components/UdocuLogo";
 import ParallaxHero from "@/components/ParallaxHero";
 import ScrollBackground from "@/components/ScrollBackground";
@@ -14,8 +15,30 @@ import MagneticScroll from "@/components/MagneticScroll";
 import { createClient } from "@/prismicio";
 import type { Content } from "@prismicio/client";
 
-export default async function HomePage() {
-  const t = await getTranslations("home");
+type Params = { locale: string };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata" });
+
+  return {
+    title: t("homeTitle"),
+    description: t("homeDescription"),
+    alternates: getAlternates(locale),
+  };
+}
+
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "home" });
   const client = createClient();
   const interviews = await client.getAllByType<Content.InterviewDocument>(
     "interview",
@@ -28,15 +51,22 @@ export default async function HomePage() {
   return (
     <ScrollColorProvider>
       <MagneticScroll />
-      <main>
+      <main id="main-content">
         <StickyNav />
 
-        <ParallaxHero backgroundImage={backgroundHero}>
+        <ParallaxHero
+          backgroundVideo="/videos/hero-video.mp4"
+          backgroundVideoPoster="/videos/hero-poster.jpg"
+        >
           <div className="w-[90vw] md:w-auto">
-            <UdocuLogo className="w-full" color="var(--color-green-light)" />
-            <p className="user-select-none mt-4 font-serif text-4xl font-bold leading-tight tracking-[0.019em] text-green-light md:whitespace-nowrap md:text-[80px] md:leading-24">
+            <UdocuLogo
+              aria-hidden="true"
+              className="w-full"
+              color="var(--color-green-light)"
+            />
+            <h1 className="user-select-none mt-4 font-serif text-4xl font-bold leading-tight tracking-[0.019em] text-green-light md:whitespace-nowrap md:text-[80px] md:leading-24">
               {t("tagline")}
-            </p>
+            </h1>
           </div>
         </ParallaxHero>
 
@@ -50,7 +80,6 @@ export default async function HomePage() {
             <WorkSection interviews={interviews} />
           </div>
 
-          {/* <div className="h-96"></div> */}
           <ContactSection />
 
           <SocialDock />

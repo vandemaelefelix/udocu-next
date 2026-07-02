@@ -83,7 +83,7 @@ export default function ContactSection() {
             <p>
               <a
                 href={`mailto:${t("email")}`}
-                className="transition-opacity hover:opacity-70"
+                className="transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
               >
                 {t("email")}
               </a>
@@ -91,7 +91,7 @@ export default function ContactSection() {
             <p>
               <a
                 href={`tel:${t("phone").replace(/\s/g, "")}`}
-                className="transition-opacity hover:opacity-70"
+                className="transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
               >
                 {t("phone")}
               </a>

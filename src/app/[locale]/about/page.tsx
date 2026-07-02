@@ -1,7 +1,27 @@
+import type { Metadata } from "next";
 import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
+import { getAlternates } from "@/lib/seo";
 import DetailPage from "@/components/DetailPage";
 import CloudinaryVideo from "@/components/CloudinaryVideo";
 import VideoPlayer from "@/components/VideoPlayer";
+
+type Params = { locale: string };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata" });
+
+  return {
+    title: t("aboutTitle"),
+    description: t("aboutDescription"),
+    alternates: getAlternates(locale, "about"),
+  };
+}
 
 export default function AboutPage() {
   const t = useTranslations("about");

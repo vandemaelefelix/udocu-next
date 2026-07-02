@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import UdocuLogo from "@/components/UdocuLogo";
@@ -29,14 +29,30 @@ export default function StickyNav() {
     [menuOpen],
   );
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen]);
+
   return (
     <div className="fixed top-0 left-0 right-0 z-50 h-0">
       <nav
         className="flex items-center justify-between px-8 py-6"
         style={{ color: textColor }}
       >
-        <Link href={`/${locale}`} aria-label={t("home")}>
-          <UdocuLogo className="h-6 w-auto max-w-24 md:h-10 md:max-w-48" />
+        <Link
+          href={`/${locale}`}
+          aria-label={t("home")}
+          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded"
+        >
+          <UdocuLogo
+            aria-hidden="true"
+            className="h-6 w-auto max-w-24 md:h-10 md:max-w-48"
+          />
         </Link>
 
         {/* Desktop nav */}
@@ -46,7 +62,7 @@ export default function StickyNav() {
               <li key={item}>
                 <Link
                   href={`/${locale}/blog`}
-                  className="transition-opacity hover:opacity-70"
+                  className="transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
                 >
                   {t(item)}
                 </Link>
@@ -55,7 +71,7 @@ export default function StickyNav() {
               <li key={item}>
                 <a
                   href={`#${item}`}
-                  className="transition-opacity hover:opacity-70"
+                  className="transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
                   onClick={() =>
                     window.dispatchEvent(new Event("programmatic-scroll"))
                   }
@@ -70,9 +86,9 @@ export default function StickyNav() {
         {/* Mobile hamburger button */}
         <button
           type="button"
-          className="relative z-[60] flex h-8 w-8 flex-col items-center justify-center gap-1.5 md:hidden"
+          className="relative z-[60] flex h-8 w-8 flex-col items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded md:hidden"
           onClick={() => setMenuOpen((prev) => !prev)}
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-label={menuOpen ? t("closeMenu") : t("openMenu")}
           aria-expanded={menuOpen}
         >
           <span
@@ -89,6 +105,9 @@ export default function StickyNav() {
 
       {/* Mobile full-screen overlay */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("openMenu")}
         className={`fixed inset-0 z-50 flex flex-col items-center justify-center transition-opacity duration-300 md:hidden ${
           menuOpen
             ? "pointer-events-auto opacity-100"
@@ -102,7 +121,8 @@ export default function StickyNav() {
               <li key={item}>
                 <Link
                   href={`/${locale}/blog`}
-                  className="transition-opacity hover:opacity-70"
+                  tabIndex={menuOpen ? 0 : -1}
+                  className="transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
                   onClick={() => setMenuOpen(false)}
                 >
                   {t(item)}
@@ -112,7 +132,8 @@ export default function StickyNav() {
               <li key={item}>
                 <a
                   href={`#${item}`}
-                  className="transition-opacity hover:opacity-70"
+                  tabIndex={menuOpen ? 0 : -1}
+                  className="transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
                   onClick={handleNavClick}
                 >
                   {t(item)}

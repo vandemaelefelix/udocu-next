@@ -27,7 +27,7 @@ export default function DetailPage({
   children,
 }: DetailPageProps) {
   return (
-    <main className={`min-h-screen ${colorScheme} pb-48`}>
+    <main id="main-content" className={`min-h-screen ${colorScheme} pb-48`}>
       <DetailNav backHref={backHref} />
 
       {/* Cover media */}

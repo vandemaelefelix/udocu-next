@@ -33,12 +33,16 @@
   },
   "contact": {
     "title": "Contact",
+    "intro": "Stuur gerust een bericht — via mail, telefoon of post. Ik lees alles wat in mijn inbox belandt zelf.",
+    "emailLabel": "E-mail",
+    "phoneLabel": "Telefoon",
+    "addressLabel": "Adres",
     "name": "Kurt Vandemaele",
     "email": "Kurtvandemaele@udocu.be",
     "phone": "+32 475 73 11 56",
     "addressLine1": "André Devaerelaan 20",
     "addressLine2": "8500 Kortrijk",
-    "overlay": "Let's\ntalk"
+    "overlay": "LET'S\nTALK"
   },
   "blog": {
     "title": "Blog",
@@ -58,6 +62,32 @@
   },
   "metadata": {
     "title": "udocu",
-    "description": "Om niet te vergeten wie u was"
+    "description": "Om niet te vergeten wie u was",
+    "homeTitle": "Om Niet te Vergeten Wie U Was",
+    "homeDescription": "Udocu is een creatieve studio van Kurt Vandemaele die zich toelegt op het bewaren van persoonlijk en cultureel erfgoed door middel van documentaire verhalen, film, fotografie en digitale archieven.",
+    "aboutTitle": "Wat is UDOCU?",
+    "aboutDescription": "Leer meer over Udocu, een creatieve studio die persoonlijk en cultureel erfgoed bewaart door diepte-interviews, documentaire film en digitale archieven.",
+    "whoAmITitle": "Wie Ben Ik — Kurt Vandemaele",
+    "whoAmIDescription": "Maak kennis met Kurt Vandemaele, doorgewinterd journalist en oprichter van Udocu. Ontdek zijn verhaal en passie voor het bewaren van persoonlijke geschiedenissen.",
+    "blogTitle": "Blog",
+    "blogDescription": "Verhalen, inzichten en reflecties over documentaire verhalen, persoonlijk erfgoed en de kunst van het bewaren van herinneringen.",
+    "workTitle": "Werk",
+    "workDescription": "Ontdek het documentaire werk en de interviews van udocu — het vastleggen van de stemmen, beelden en momenten die bepalen wie we zijn.",
+    "contactTitle": "Contact",
+    "contactDescription": "Neem contact op met Kurt Vandemaele bij udocu. Gevestigd in Kortrijk, België."
+  },
+  "notFound": {
+    "heading": "Pagina niet gevonden",
+    "description": "De pagina die u zoekt bestaat niet of is verplaatst.",
+    "backHome": "Terug naar de homepagina"
+  },
+  "error": {
+    "heading": "Er ging iets mis",
+    "description": "Er is een onverwachte fout opgetreden. Probeer het opnieuw.",
+    "retry": "Probeer opnieuw",
+    "backHome": "Terug naar de homepagina"
+  },
+  "a11y": {
+    "skipToContent": "Ga naar hoofdinhoud"
   }
 }

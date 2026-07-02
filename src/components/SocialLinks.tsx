@@ -36,7 +36,7 @@ export default function SocialLinks({
             target="_blank"
             rel="noopener noreferrer"
             aria-label={platform}
-            className={iconSize ? "transition-opacity hover:opacity-70" : ""}
+            className="transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
           >
             <Icon
               className={iconSize ? undefined : iconClassName}

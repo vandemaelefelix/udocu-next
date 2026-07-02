@@ -3,6 +3,7 @@ import { SVGProps } from "react";
 export function FacebookIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
+      aria-hidden="true"
       viewBox="0 0 24 24"
       fill="currentColor"
       width="24"
@@ -17,6 +18,7 @@ export function FacebookIcon(props: SVGProps<SVGSVGElement>) {
 export function InstagramIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
+      aria-hidden="true"
       viewBox="0 0 24 24"
       fill="currentColor"
       width="24"
@@ -31,6 +33,7 @@ export function InstagramIcon(props: SVGProps<SVGSVGElement>) {
 export function YouTubeIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
+      aria-hidden="true"
       viewBox="0 0 24 24"
       fill="currentColor"
       width="24"

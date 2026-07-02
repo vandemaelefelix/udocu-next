@@ -3,6 +3,7 @@ import noiseTexture from "@/assets/images/noise.jpg";
 export default function NoiseOverlay() {
   return (
     <div
+      aria-hidden="true"
       className="pointer-events-none fixed z-[9999]"
       style={{
         backgroundImage: `url(${noiseTexture.src})`,
