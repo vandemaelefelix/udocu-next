@@ -9,7 +9,7 @@ import NoiseOverlay from "@/components/NoiseOverlay";
 import "../globals.css";
 
 export const viewport: Viewport = {
-  themeColor: "#686121",
+  themeColor: "rgb(62, 2, 2)",
 };
 
 export async function generateMetadata({

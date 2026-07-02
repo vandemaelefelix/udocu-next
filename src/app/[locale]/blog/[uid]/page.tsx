@@ -100,7 +100,7 @@ export default async function BlogPostPage({
     author: {
       "@type": "Person",
       name: "Kurt Vandemaele",
-      url: `${SITE_URL}/nl/who-am-i`,
+      url: `${SITE_URL}/${locale}/who-am-i`,
     },
     publisher: {
       "@type": "Organization",

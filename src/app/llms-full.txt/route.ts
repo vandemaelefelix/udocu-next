@@ -1,8 +1,9 @@
 import { SITE_URL } from "@/lib/seo";
 
-const today = new Date().toISOString().split("T")[0];
+export function GET() {
+  const today = new Date().toISOString().split("T")[0];
 
-const content = `# udocu — Preserving Personal and Cultural Heritage
+  const content = `# udocu — Preserving Personal and Cultural Heritage
 
 Last-Updated: ${today}
 
@@ -86,7 +87,6 @@ You receive a complete time capsule on an external hard drive containing your pr
 Any age is a good time. Whether you're 21 or 95, every moment captures a unique version of who you are. Kurt recommends considering interviews at multiple life stages: 30, 37, 41, 46, 53, 60, 67, 75, 83, and 95.
 `;
 
-export function GET() {
   return new Response(content, {
     headers: { "Content-Type": "text/plain; charset=utf-8" },
   });
