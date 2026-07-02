@@ -100,9 +100,10 @@ export default async function LocaleLayout({
             founder: {
               "@type": "Person",
               name: "Kurt Vandemaele",
+              url: `${SITE_URL}/nl/who-am-i`,
               jobTitle: "Journalist & Founder",
               description:
-                "Veteran journalist with 24 years at Humo magazine, specializing in personal documentary interviews and heritage preservation.",
+                "Veteran journalist with 40 years of experience, including 24 years at Humo magazine. Founder of udocu, specialising in personal documentary interviews and heritage preservation.",
             },
             contactPoint: {
               "@type": "ContactPoint",

@@ -1,6 +1,10 @@
 import { SITE_URL } from "@/lib/seo";
 
+const today = new Date().toISOString().split("T")[0];
+
 const content = `# udocu — Preserving Personal and Cultural Heritage
+
+Last-Updated: ${today}
 
 > Udocu is a creative studio founded by journalist Kurt Vandemaele, dedicated to preserving personal and cultural heritage through in-depth documentary interviews, film, photography, and digital archives. Based in Kortrijk, Belgium. Website: ${SITE_URL}
 
