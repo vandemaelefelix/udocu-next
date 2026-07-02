@@ -29,6 +29,7 @@ body {
   font-family: var(--font-serif);
   scroll-behavior: initial;
   overscroll-behavior-y: none;
+  background-color: #686121;
 }
 
 .scrollbar-hide {

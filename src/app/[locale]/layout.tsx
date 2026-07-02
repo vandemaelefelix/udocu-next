@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -7,6 +7,10 @@ import { garamond, helveticaNeue, posterman } from "../fonts";
 import { SITE_URL } from "@/lib/seo";
 import NoiseOverlay from "@/components/NoiseOverlay";
 import "../globals.css";
+
+export const viewport: Viewport = {
+  themeColor: "#686121",
+};
 
 export async function generateMetadata({
   params,
