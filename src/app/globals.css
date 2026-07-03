@@ -96,6 +96,40 @@ body {
   }
 }
 
+/* ── Glitch text effect (CRT displacement + chromatic aberration) ────────── */
+
+@keyframes glitch-chroma {
+  0%,
+  100% {
+    text-shadow: none;
+    transform: none;
+  }
+  18% {
+    text-shadow:
+      4px 0 rgba(210, 65, 65, 0.8),
+      -3px 0 rgba(70, 185, 210, 0.65);
+    transform: translateX(-2px);
+  }
+  34% {
+    text-shadow:
+      6px 0 rgba(210, 65, 65, 0.65),
+      -5px 0 rgba(70, 185, 210, 0.5);
+    transform: translateX(-3px);
+  }
+  52% {
+    text-shadow:
+      3px 0 rgba(210, 65, 65, 0.3),
+      -2px 0 rgba(70, 185, 210, 0.25);
+    transform: translateX(-1px);
+  }
+}
+
+.glitch-text:hover {
+  animation: glitch-chroma 480ms ease 1;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+
 .mobile-nav-links li {
   transition:
     opacity 150ms ease,
