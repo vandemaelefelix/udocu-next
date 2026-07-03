@@ -10,7 +10,8 @@
     "slicemachine": "start-slicemachine",
     "tsc": "tsc --noEmit",
     "prepare": "husky",
-    "test:perf": "playwright test --project=performance"
+    "test:perf": "playwright test --project=performance",
+    "lhci": "lhci autorun"
   },
   "dependencies": {
     "@cloudinary/react": "^1.14.4",
@@ -27,6 +28,7 @@
     "react-dom": "19.2.3"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.61.1",
     "@slicemachine/adapter-next": "^0.3.95",
     "@tailwindcss/postcss": "^4",
