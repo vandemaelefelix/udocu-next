@@ -19,6 +19,23 @@ export default function AboutSection() {
   const isMobile = useIsMobile();
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const [isMuted, setIsMuted] = useState(true);
+  const [isVideoVisible, setIsVideoVisible] = useState(false);
+
+  useEffect(() => {
+    const el = videoContainerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVideoVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" }, // start loading 200px before it enters view
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const toggleMute = useCallback(() => {
     const videoEl = videoContainerRef.current?.querySelector("video");
@@ -145,7 +162,11 @@ export default function AboutSection() {
                 height: "15.5%",
               }}
             >
-              <CloudinaryVideo className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+              {isVideoVisible ? (
+                <CloudinaryVideo className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+              ) : (
+                <div className="absolute inset-0 bg-black" />
+              )}
               {/* CRT screen effect overlay */}
               <div
                 aria-hidden="true"
