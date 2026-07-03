@@ -14,12 +14,14 @@ function PostCard({
   post,
   locale,
   featured = false,
+  priority = false,
   staggerDelay,
   onCardClick,
 }: {
   post: Content.BlogPostDocument;
   locale: string;
   featured?: boolean;
+  priority?: boolean;
   staggerDelay: number;
   onCardClick: () => void;
 }) {
@@ -46,8 +48,18 @@ function PostCard({
         {post.data.image?.url && (
           <div className="overflow-hidden">
             <PrismicNextImage
-              field={post.data.image}
+              field={{
+                ...post.data.image,
+                // Fall back to the post title when no alt is set in Prismic so
+                // the cover image is never announced without a description.
+                alt:
+                  post.data.image.alt ||
+                  prismic.asText(post.data.title) ||
+                  null,
+              }}
               className="w-full object-cover transition-opacity duration-300 group-hover:opacity-90"
+              // Eager-load the first row (above the fold) — the LCP lives here.
+              priority={priority}
             />
           </div>
         )}
@@ -176,6 +188,10 @@ export default function BlogGrid({
             post={post}
             locale={locale}
             featured={i === 0}
+            // Eager-load the cards likely above the fold. In a 4-column masonry
+            // the LCP image's DOM index varies with content, so cover the top
+            // area with margin (trade-off: a few extra eager images on mobile).
+            priority={i < 6}
             staggerDelay={batchIndex * 0.07}
             onCardClick={() =>
               posthog.capture("blog_post_clicked", {

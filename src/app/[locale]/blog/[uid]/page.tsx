@@ -152,7 +152,11 @@ export default async function BlogPostPage({
             <YouTubeEmbed url={videoUrl} title={title ?? undefined} />
           ) : page.data.image?.url ? (
             <PrismicNextImage
-              field={page.data.image}
+              field={{
+                ...page.data.image,
+                // Fall back to the post title when no alt is set in Prismic.
+                alt: page.data.image.alt || title || null,
+              }}
               fill
               className="object-cover object-center"
               sizes="100vw"

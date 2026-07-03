@@ -155,6 +155,7 @@ export default async function InterviewPage({
               fill
               sizes="(max-width: 768px) 100vw, 384px"
               className="object-cover"
+              priority
             />
           </div>
         ) : null}
