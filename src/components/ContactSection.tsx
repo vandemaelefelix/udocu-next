@@ -52,6 +52,7 @@ export default function ContactSection() {
             fill
             className="object-cover object-center"
             sizes="(max-width: 767px) 100vw, 60vw"
+            priority
           />
         </motion.div>
         {/* "LET'S TALK" overlay */}

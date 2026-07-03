@@ -25,6 +25,12 @@
   --color-contact-bg: #5c2800;
 }
 
+/* The document scroll container must be non-static so Motion's `useScroll`
+   ({ target }) can measure scroll offsets accurately (avoids its dev warning). */
+html {
+  position: relative;
+}
+
 body {
   font-family: var(--font-serif);
   scroll-behavior: initial;
