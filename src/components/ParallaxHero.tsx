@@ -77,6 +77,13 @@ export default function ParallaxHero({
         className="relative flex h-screen items-center justify-center overflow-hidden"
       >
         <div className="absolute inset-0">{background}</div>
+        <div
+          className="absolute inset-x-0 top-0 h-32 z-10 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%)",
+          }}
+        />
         <div className="relative z-10 w-fit text-center">{children}</div>
       </section>
     );
@@ -90,6 +97,13 @@ export default function ParallaxHero({
       <motion.div className="absolute inset-0" style={{ y: bgY }}>
         {background}
       </motion.div>
+      <div
+        className="absolute inset-x-0 top-0 h-32 z-10 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%)",
+        }}
+      />
       <motion.div
         className="relative z-10 w-fit text-center"
         style={{ y: contentY, opacity }}

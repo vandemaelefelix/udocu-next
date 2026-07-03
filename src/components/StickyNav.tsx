@@ -63,7 +63,7 @@ export default function StickyNav() {
         </Link>
 
         {/* Desktop nav */}
-        <ul className="hidden gap-8 font-helvetica text-xs font-medium uppercase tracking-widest md:flex">
+        <ul className="hidden gap-8 font-helvetica text-sm font-medium uppercase tracking-widest md:flex">
           {NAV_ITEMS.map((item) =>
             item === "blog" ? (
               <li key={item}>
