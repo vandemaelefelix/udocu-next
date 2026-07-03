@@ -10,7 +10,7 @@ module.exports = {
       ],
       numberOfRuns: 3,
       settings: {
-        // Match real-world conditions — throttled 4G mobile
+        // Desktop preset — no CPU/network throttling
         preset: "desktop",
       },
     },

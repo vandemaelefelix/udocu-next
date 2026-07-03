@@ -13,7 +13,7 @@ export default defineConfig({
       testMatch: "tests/performance/**/*.spec.ts",
       use: {
         ...devices["Desktop Chrome"],
-        // Disable cache for accurate CWV measurements
+        // Enforce CSP as in production; do not bypass security headers
         bypassCSP: false,
       },
     },

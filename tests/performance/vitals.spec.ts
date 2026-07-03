@@ -47,12 +47,20 @@ test.describe("Core Web Vitals — homepage (/nl)", () => {
     const { lcp } = await collectVitals(page);
     expect(
       lcp,
+      "LCP was not observed (0ms) — check page content",
+    ).toBeGreaterThan(0);
+    expect(
+      lcp,
       `LCP was ${lcp}ms (threshold: ${THRESHOLDS.LCP}ms)`,
     ).toBeLessThan(THRESHOLDS.LCP);
   });
 
   test("FCP is within Good threshold (<1.8s)", async ({ page }) => {
     const { fcp } = await collectVitals(page);
+    expect(
+      fcp,
+      "FCP was not observed (0ms) — check page content",
+    ).toBeGreaterThan(0);
     expect(
       fcp,
       `FCP was ${fcp}ms (threshold: ${THRESHOLDS.FCP}ms)`,
