@@ -3,8 +3,6 @@ name: Lighthouse CI
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
   lighthouse:
@@ -23,3 +21,7 @@ jobs:
 
       - name: Run Lighthouse CI
         run: npm run lhci
+        env:
+          # Audits the live production URL (udocu-next.vercel.app by default).
+          # Override LHCI_BASE_URL to test a specific deployment.
+          LHCI_BASE_URL: ${{ vars.LHCI_BASE_URL }}

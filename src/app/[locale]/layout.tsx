@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { preload } from "react-dom";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -86,16 +87,10 @@ export default async function LocaleLayout({
   const messages = await getMessages();
   const t = await getTranslations({ locale, namespace: "a11y" });
 
+  preload("/videos/hero-poster.jpg", { as: "image", fetchPriority: "high" });
+
   return (
     <html lang={locale}>
-      <head>
-        <link
-          rel="preload"
-          as="image"
-          href="/videos/hero-poster.jpg"
-          fetchPriority="high"
-        />
-      </head>
       <body className={`${fontVariables} antialiased`}>
         <a
           href="#main-content"
