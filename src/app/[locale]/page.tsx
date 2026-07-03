@@ -61,7 +61,7 @@ export default async function HomePage({
 
         <ParallaxHero
           backgroundVideo="/videos/hero-video.mp4"
-          backgroundVideoPoster="/videos/hero-poster.jpg"
+          backgroundVideoPoster="/videos/hero-poster.webp"
         >
           <div className="w-[90vw] md:w-auto">
             <UdocuLogo

@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { preload, preconnect } from "react-dom";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -87,11 +86,19 @@ export default async function LocaleLayout({
   const messages = await getMessages();
   const t = await getTranslations({ locale, namespace: "a11y" });
 
-  preload("/videos/hero-poster.jpg", { as: "image", fetchPriority: "high" });
-  preconnect("https://res.cloudinary.com");
-
   return (
     <html lang={locale}>
+      <head>
+        {/* Preload LCP image so browser fetches it at highest priority from the first byte */}
+        <link
+          rel="preload"
+          as="image"
+          href="/videos/hero-poster.webp"
+          fetchPriority="high"
+        />
+        {/* Preconnect to Cloudinary to shave TCP/TLS handshake time off the below-fold video */}
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+      </head>
       <body className={`${fontVariables} antialiased`}>
         <a
           href="#main-content"
