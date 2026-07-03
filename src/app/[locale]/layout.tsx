@@ -11,6 +11,7 @@ import ScrollRestoration from "@/components/ScrollRestoration";
 import { PHProvider } from "@/app/providers";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { WebVitals } from "@/components/WebVitals";
 import "../globals.css";
 
 export const viewport: Viewport = {
@@ -192,6 +193,7 @@ export default async function LocaleLayout({
           <Suspense fallback={null}>
             <PostHogPageView />
           </Suspense>
+          <WebVitals />
           <NextIntlClientProvider messages={messages}>
             {children}
             <NoiseOverlay />
