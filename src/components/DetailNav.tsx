@@ -95,28 +95,42 @@ export default function DetailNav({
         role="dialog"
         aria-modal="true"
         aria-label={t("openMenu")}
-        className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-current/0 transition-opacity duration-300 md:hidden ${
-          menuOpen
-            ? "pointer-events-auto opacity-100"
-            : "pointer-events-none opacity-0"
+        className={`fixed inset-0 z-50 flex flex-col items-center justify-center md:hidden ${
+          menuOpen ? "pointer-events-auto" : "pointer-events-none"
         }`}
-        style={{ backgroundColor: "inherit", color: "inherit" }}
+        style={{
+          backgroundColor: "inherit",
+          color: "inherit",
+          transform: menuOpen ? "translateY(0)" : "translateY(-100%)",
+          transition: menuOpen
+            ? "transform 300ms cubic-bezier(0.4,0,0.1,1)"
+            : "transform 150ms ease-in",
+        }}
       >
-        <ul className="flex flex-col items-center gap-10 font-helvetica text-2xl font-medium uppercase tracking-widest">
-          {NAV_ITEMS.map((item) => (
-            <li key={item}>
-              <Link
-                href={
-                  item === "blog" ? `/${locale}/blog` : `/${locale}/#${item}`
+        <ul className="mobile-nav-links flex flex-col items-center gap-10 font-helvetica text-2xl font-medium uppercase tracking-widest">
+          {NAV_ITEMS.map((item, index) => {
+            const animationStyle = menuOpen
+              ? {
+                  animation: `menu-link-in 280ms ease-out ${index * 60}ms both`,
                 }
-                tabIndex={menuOpen ? 0 : -1}
-                className="transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
-                onClick={() => setMenuOpen(false)}
-              >
-                {t(item)}
-              </Link>
-            </li>
-          ))}
+              : undefined;
+            return (
+              <li key={item} style={animationStyle}>
+                <Link
+                  href={
+                    item === "blog" ? `/${locale}/blog` : `/${locale}/#${item}`
+                  }
+                  tabIndex={menuOpen ? 0 : -1}
+                  className={`focus-visible:opacity-70 focus-visible:outline-none ${
+                    item === activeItem ? "underline underline-offset-4" : ""
+                  }`}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {t(item)}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
 
