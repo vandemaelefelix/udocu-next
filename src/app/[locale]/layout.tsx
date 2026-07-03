@@ -88,6 +88,14 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
+      <head>
+        <link
+          rel="preload"
+          as="image"
+          href="/videos/hero-poster.jpg"
+          fetchPriority="high"
+        />
+      </head>
       <body className={`${fontVariables} antialiased`}>
         <a
           href="#main-content"
