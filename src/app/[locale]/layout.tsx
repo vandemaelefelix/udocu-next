@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import { garamond, helveticaNeue, posterman } from "../fonts";
 import { SITE_URL } from "@/lib/seo";
 import NoiseOverlay from "@/components/NoiseOverlay";
+import ScrollRestoration from "@/components/ScrollRestoration";
 import { PHProvider } from "@/app/providers";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import "../globals.css";
@@ -186,6 +187,7 @@ export default async function LocaleLayout({
           }}
         />
         <PHProvider>
+          <ScrollRestoration />
           <Suspense fallback={null}>
             <PostHogPageView />
           </Suspense>

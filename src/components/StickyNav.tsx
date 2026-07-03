@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import UdocuLogo from "@/components/UdocuLogo";
 import GlitchText from "@/components/GlitchText";
 import { useScrollColor } from "@/context/ScrollColorContext";
@@ -13,21 +14,32 @@ export default function StickyNav() {
   const t = useTranslations("nav");
   const [menuOpen, setMenuOpen] = useState(false);
   const locale = useLocale();
+  const router = useRouter();
   const { bgColor, textColor } = useScrollColor();
+
+  const scrollToSection = useCallback(
+    (item: string) => {
+      window.dispatchEvent(new Event("programmatic-scroll"));
+      document
+        .querySelector(`#${item}`)
+        ?.scrollIntoView({ behavior: "smooth" });
+      // Use router.push so Next.js stores its state in the history entry —
+      // plain <a href="#section"> creates a null-state entry that Next.js
+      // can't restore on Back, leaving the page un-rendered.
+      router.push(`/${locale}#${item}`, { scroll: false });
+    },
+    [locale, router],
+  );
 
   const handleNavClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
-      if (!menuOpen) return;
       e.preventDefault();
-      setMenuOpen(false);
-      const href = e.currentTarget.getAttribute("href");
-      if (href) {
-        const target = document.querySelector(href);
-        window.dispatchEvent(new Event("programmatic-scroll"));
-        target?.scrollIntoView({ behavior: "smooth" });
-      }
+      const item = e.currentTarget.getAttribute("href")?.replace("#", "");
+      if (!item) return;
+      if (menuOpen) setMenuOpen(false);
+      scrollToSection(item);
     },
-    [menuOpen],
+    [menuOpen, scrollToSection],
   );
 
   useEffect(() => {
@@ -82,9 +94,10 @@ export default function StickyNav() {
                   <a
                     href={`#${item}`}
                     className="focus-visible:opacity-70 focus-visible:outline-none"
-                    onClick={() =>
-                      window.dispatchEvent(new Event("programmatic-scroll"))
-                    }
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToSection(item);
+                    }}
                   >
                     <GlitchText>{label}</GlitchText>
                   </a>

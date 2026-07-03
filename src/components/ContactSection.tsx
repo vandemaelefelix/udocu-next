@@ -85,7 +85,7 @@ export default function ContactSection() {
             <p>
               <a
                 href={`mailto:${t("email")}`}
-                className="transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
+                className="rounded transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2"
                 onClick={() =>
                   posthog.capture("contact_link_clicked", { type: "email" })
                 }
@@ -96,7 +96,7 @@ export default function ContactSection() {
             <p>
               <a
                 href={`tel:${t("phone").replace(/\s/g, "")}`}
-                className="transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
+                className="rounded transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2"
                 onClick={() =>
                   posthog.capture("contact_link_clicked", { type: "phone" })
                 }

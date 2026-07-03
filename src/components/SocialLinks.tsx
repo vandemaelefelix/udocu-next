@@ -41,7 +41,7 @@ export default function SocialLinks({
             target="_blank"
             rel="noopener noreferrer"
             aria-label={platform}
-            className="transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
+            className="rounded transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2"
             onClick={() => posthog.capture("social_link_clicked", { platform })}
           >
             <Icon
