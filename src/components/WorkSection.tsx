@@ -15,6 +15,7 @@ import {
 } from "motion/react";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePostHog } from "posthog-js/react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 type Props = {
@@ -87,9 +88,16 @@ const MobileWorkSection = ({
   displayedItems,
   t,
 }: {
-  displayedItems: { id: string; href: string; imageUrl: string; alt: string }[];
+  displayedItems: {
+    id: string;
+    uid: string;
+    href: string;
+    imageUrl: string;
+    alt: string;
+  }[];
   t: (key: string) => string;
 }) => {
+  const posthog = usePostHog();
   const itemCount = displayedItems.length;
   const setWidth = itemCount * MOBILE_STEP;
 
@@ -148,6 +156,9 @@ const MobileWorkSection = ({
                 key={item.key}
                 href={item.href}
                 className="shrink-0 no-underline"
+                onClick={() =>
+                  posthog.capture("work_item_clicked", { uid: item.uid })
+                }
               >
                 <div
                   className="rounded-lg overflow-hidden bg-gray-100"
@@ -177,7 +188,13 @@ const DesktopWorkSection = ({
   setWidth,
   t,
 }: {
-  displayedItems: { id: string; href: string; imageUrl: string; alt: string }[];
+  displayedItems: {
+    id: string;
+    uid: string;
+    href: string;
+    imageUrl: string;
+    alt: string;
+  }[];
   itemCount: number;
   setWidth: number;
   t: (key: string) => string;
@@ -400,12 +417,19 @@ const CarouselItem = ({
   isVisible,
   scrollDelta,
 }: {
-  item: { id: string; href: string; imageUrl: string; alt: string };
+  item: {
+    id: string;
+    uid: string;
+    href: string;
+    imageUrl: string;
+    alt: string;
+  };
   flexIndex: number;
   x: MotionValue<number>;
   isVisible: boolean;
   scrollDelta: MotionValue<number>;
 }) => {
+  const posthog = usePostHog();
   const [scope, animate] = useAnimate();
 
   // Compute the visual index (position on screen) to determine stagger delay
@@ -453,7 +477,11 @@ const CarouselItem = ({
   );
 
   return (
-    <a href={item.href} className="no-underline">
+    <a
+      href={item.href}
+      className="no-underline"
+      onClick={() => posthog.capture("work_item_clicked", { uid: item.uid })}
+    >
       <motion.div
         ref={scope}
         data-carousel-item

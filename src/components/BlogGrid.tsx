@@ -6,6 +6,7 @@ import * as prismic from "@prismicio/client";
 import { PrismicNextImage } from "@prismicio/next";
 import { motion, useInView } from "motion/react";
 import { useTranslations } from "next-intl";
+import { usePostHog } from "posthog-js/react";
 import type { Content } from "@prismicio/client";
 import { formatDate } from "@/utils/formatDate";
 
@@ -14,11 +15,13 @@ function PostCard({
   locale,
   featured = false,
   staggerDelay,
+  onCardClick,
 }: {
   post: Content.BlogPostDocument;
   locale: string;
   featured?: boolean;
   staggerDelay: number;
+  onCardClick: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px 0px" });
@@ -35,7 +38,11 @@ function PostCard({
       }}
       className="break-inside-avoid"
     >
-      <Link href={`/${locale}/blog/${post.uid}`} className="group mb-8 block">
+      <Link
+        href={`/${locale}/blog/${post.uid}`}
+        className="group mb-8 block"
+        onClick={onCardClick}
+      >
         {post.data.image?.url && (
           <div className="overflow-hidden">
             <PrismicNextImage
@@ -100,6 +107,7 @@ export default function BlogGrid({
   totalPages,
 }: BlogGridProps) {
   const t = useTranslations("blog");
+  const posthog = usePostHog();
   const [items, setItems] = useState<PostWithBatchIndex[]>(
     initialPosts.map((post, i) => ({ post, batchIndex: i })),
   );
@@ -113,6 +121,7 @@ export default function BlogGrid({
 
     setLoading(true);
     const nextPage = page + 1;
+    posthog.capture("blog_load_more", { page: nextPage });
 
     try {
       const res = await fetch(
@@ -135,7 +144,7 @@ export default function BlogGrid({
     } finally {
       setLoading(false);
     }
-  }, [loading, hasMore, page, locale]);
+  }, [loading, hasMore, page, locale, posthog]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -168,6 +177,13 @@ export default function BlogGrid({
             locale={locale}
             featured={i === 0}
             staggerDelay={batchIndex * 0.07}
+            onCardClick={() =>
+              posthog.capture("blog_post_clicked", {
+                uid: post.uid,
+                title: prismic.asText(post.data.title),
+                featured: i === 0,
+              })
+            }
           />
         ))}
       </div>

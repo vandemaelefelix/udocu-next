@@ -1,3 +1,5 @@
+"use client";
+
 import { socialLinks } from "@/config/social";
 import {
   FacebookIcon,
@@ -5,6 +7,7 @@ import {
   YouTubeIcon,
 } from "@/components/SocialIcons";
 import { type SVGProps, type ReactNode } from "react";
+import { usePostHog } from "posthog-js/react";
 
 const iconMap: Record<string, (props: SVGProps<SVGSVGElement>) => ReactNode> = {
   Facebook: FacebookIcon,
@@ -23,6 +26,8 @@ export default function SocialLinks({
   iconClassName = "h-5 w-5 transition-opacity hover:opacity-70",
   iconSize,
 }: SocialLinksProps) {
+  const posthog = usePostHog();
+
   return (
     <div className={className}>
       {socialLinks.map(({ platform, url }) => {
@@ -37,6 +42,7 @@ export default function SocialLinks({
             rel="noopener noreferrer"
             aria-label={platform}
             className="transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
+            onClick={() => posthog.capture("social_link_clicked", { platform })}
           >
             <Icon
               className={iconSize ? undefined : iconClassName}
