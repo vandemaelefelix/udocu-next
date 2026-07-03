@@ -14,6 +14,10 @@ interface DetailNavProps {
   mobileBackOnly?: boolean;
   /** When true, the back link is completely hidden */
   hideBackLink?: boolean;
+  /** Explicit background color for the mobile overlay (CSS value or variable). Defaults to red-dark. */
+  overlayBgColor?: string;
+  /** Explicit text color for the mobile overlay (CSS value or variable). Defaults to red-light. */
+  overlayTextColor?: string;
 }
 
 const NAV_ITEMS = ["about", "work", "contact", "blog"] as const;
@@ -23,6 +27,8 @@ export default function DetailNav({
   activeItem,
   mobileBackOnly,
   hideBackLink,
+  overlayBgColor = "var(--color-red-dark)",
+  overlayTextColor = "var(--color-red-light)",
 }: DetailNavProps) {
   const t = useTranslations("nav");
   const locale = useLocale();
@@ -95,28 +101,43 @@ export default function DetailNav({
         role="dialog"
         aria-modal="true"
         aria-label={t("openMenu")}
-        className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-current/0 transition-opacity duration-300 md:hidden ${
-          menuOpen
-            ? "pointer-events-auto opacity-100"
-            : "pointer-events-none opacity-0"
+        className={`fixed inset-0 z-50 flex flex-col items-center justify-center md:hidden ${
+          menuOpen ? "pointer-events-auto" : "pointer-events-none"
         }`}
-        style={{ backgroundColor: "inherit", color: "inherit" }}
+        style={{
+          backgroundColor: overlayBgColor,
+          color: overlayTextColor,
+          transform: menuOpen ? "translateY(0)" : "translateY(-100%)",
+          transition: menuOpen
+            ? "transform 300ms cubic-bezier(0.4,0,0.1,1)"
+            : "transform 150ms ease-in",
+          willChange: menuOpen ? "transform" : "auto",
+        }}
       >
-        <ul className="flex flex-col items-center gap-10 font-helvetica text-2xl font-medium uppercase tracking-widest">
-          {NAV_ITEMS.map((item) => (
-            <li key={item}>
-              <Link
-                href={
-                  item === "blog" ? `/${locale}/blog` : `/${locale}/#${item}`
+        <ul className="mobile-nav-links flex flex-col items-center gap-10 font-helvetica text-2xl font-medium uppercase tracking-widest">
+          {NAV_ITEMS.map((item, index) => {
+            const animationStyle = menuOpen
+              ? {
+                  animation: `menu-link-in 280ms ease-out ${index * 60}ms both`,
                 }
-                tabIndex={menuOpen ? 0 : -1}
-                className="transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
-                onClick={() => setMenuOpen(false)}
-              >
-                {t(item)}
-              </Link>
-            </li>
-          ))}
+              : { animation: "none" };
+            return (
+              <li key={item} style={animationStyle}>
+                <Link
+                  href={
+                    item === "blog" ? `/${locale}/blog` : `/${locale}/#${item}`
+                  }
+                  tabIndex={menuOpen ? 0 : -1}
+                  className={`focus-visible:opacity-70 focus-visible:outline-none ${
+                    item === activeItem ? "underline underline-offset-4" : ""
+                  }`}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {t(item)}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
 

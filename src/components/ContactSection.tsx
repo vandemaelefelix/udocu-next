@@ -4,6 +4,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { motion, useScroll, useTransform } from "motion/react";
+import { usePostHog } from "posthog-js/react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import contactImage from "@/assets/images/contact-image.jpg";
 import SocialLinks from "@/components/SocialLinks";
@@ -12,6 +13,7 @@ export default function ContactSection() {
   const t = useTranslations("contact");
   const sectionRef = useRef<HTMLElement>(null);
   const isMobile = useIsMobile();
+  const posthog = usePostHog();
 
   // Entrance phase: image fades in and pans up as section enters the viewport
   const { scrollYProgress: scrollProgressEntrance } = useScroll({
@@ -84,6 +86,9 @@ export default function ContactSection() {
               <a
                 href={`mailto:${t("email")}`}
                 className="transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
+                onClick={() =>
+                  posthog.capture("contact_link_clicked", { type: "email" })
+                }
               >
                 {t("email")}
               </a>
@@ -92,6 +97,9 @@ export default function ContactSection() {
               <a
                 href={`tel:${t("phone").replace(/\s/g, "")}`}
                 className="transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
+                onClick={() =>
+                  posthog.capture("contact_link_clicked", { type: "phone" })
+                }
               >
                 {t("phone")}
               </a>

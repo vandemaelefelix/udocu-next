@@ -1,8 +1,28 @@
 export const COLOR_PAIRS = [
-  { bg: "bg-contact-bg", text: "text-orange-light" },
-  { bg: "bg-green-dark", text: "text-green-light" },
-  { bg: "bg-red-dark", text: "text-red-light" },
-  { bg: "bg-blue-dark", text: "text-blue-light" },
+  {
+    bg: "bg-contact-bg",
+    text: "text-orange-light",
+    overlayBg: "var(--color-contact-bg)",
+    overlayText: "var(--color-orange-light)",
+  },
+  {
+    bg: "bg-green-dark",
+    text: "text-green-light",
+    overlayBg: "var(--color-green-dark)",
+    overlayText: "var(--color-green-light)",
+  },
+  {
+    bg: "bg-red-dark",
+    text: "text-red-light",
+    overlayBg: "var(--color-red-dark)",
+    overlayText: "var(--color-red-light)",
+  },
+  {
+    bg: "bg-blue-dark",
+    text: "text-blue-light",
+    overlayBg: "var(--color-blue-dark)",
+    overlayText: "var(--color-blue-light)",
+  },
 ] as const;
 
 export function hashString(str: string): number {

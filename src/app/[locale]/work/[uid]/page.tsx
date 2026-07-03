@@ -166,6 +166,8 @@ export default async function WorkDetailPage({
           backHref={`/${locale}/#work`}
           activeItem="work"
           mobileBackOnly
+          overlayBgColor={colors.overlayBg}
+          overlayTextColor={colors.overlayText}
         />
       </div>
 

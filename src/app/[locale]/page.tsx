@@ -15,6 +15,7 @@ import ThemeColorSync from "@/components/ThemeColorSync";
 import MagneticScroll from "@/components/MagneticScroll";
 import { createClient } from "@/prismicio";
 import type { Content } from "@prismicio/client";
+import { HomepageSectionTracker } from "@/components/HomepageSectionTracker";
 
 type Params = { locale: string };
 
@@ -51,6 +52,7 @@ export default async function HomePage({
 
   return (
     <ScrollColorProvider>
+      <HomepageSectionTracker />
       <ThemeColorSync />
       <MagneticScroll />
       <main id="main-content">

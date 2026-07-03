@@ -2,10 +2,13 @@ import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { routing } from "@/i18n/routing";
 import { garamond, helveticaNeue, posterman } from "../fonts";
 import { SITE_URL } from "@/lib/seo";
 import NoiseOverlay from "@/components/NoiseOverlay";
+import { PHProvider } from "@/app/providers";
+import { PostHogPageView } from "@/components/PostHogPageView";
 import "../globals.css";
 
 export const viewport: Viewport = {
@@ -182,10 +185,15 @@ export default async function LocaleLayout({
             },
           }}
         />
-        <NextIntlClientProvider messages={messages}>
-          {children}
-          <NoiseOverlay />
-        </NextIntlClientProvider>
+        <PHProvider>
+          <Suspense fallback={null}>
+            <PostHogPageView />
+          </Suspense>
+          <NextIntlClientProvider messages={messages}>
+            {children}
+            <NoiseOverlay />
+          </NextIntlClientProvider>
+        </PHProvider>
       </body>
     </html>
   );
