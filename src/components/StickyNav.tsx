@@ -149,7 +149,7 @@ export default function StickyNav() {
                     className="focus-visible:opacity-70 focus-visible:outline-none"
                     onClick={() => setMenuOpen(false)}
                   >
-                    {t(item)}
+                    <GlitchText>{t(item)}</GlitchText>
                   </Link>
                 </li>
               ) : (
@@ -160,7 +160,7 @@ export default function StickyNav() {
                     className="focus-visible:opacity-70 focus-visible:outline-none"
                     onClick={handleNavClick}
                   >
-                    {t(item)}
+                    <GlitchText>{t(item)}</GlitchText>
                   </a>
                 </li>
               );
