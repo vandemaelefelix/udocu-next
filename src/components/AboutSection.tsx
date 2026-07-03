@@ -154,6 +154,7 @@ export default function AboutSection() {
             {/* Video in the TV screen cutout */}
             <Link
               href={`/${locale}/about`}
+              aria-label={t("aboutLinkLabel")}
               className="group absolute cursor-pointer overflow-hidden"
               style={{
                 top: "37%",

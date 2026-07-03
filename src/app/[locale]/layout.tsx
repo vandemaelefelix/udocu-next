@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { preload } from "react-dom";
+import { preload, preconnect } from "react-dom";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -88,6 +88,7 @@ export default async function LocaleLayout({
   const t = await getTranslations({ locale, namespace: "a11y" });
 
   preload("/videos/hero-poster.jpg", { as: "image", fetchPriority: "high" });
+  preconnect("https://res.cloudinary.com");
 
   return (
     <html lang={locale}>
