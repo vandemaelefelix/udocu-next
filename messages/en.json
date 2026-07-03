@@ -4,6 +4,7 @@
     "tagline": "So as not to forget who you were"
   },
   "about": {
+    "aboutLinkLabel": "Learn more about Udocu",
     "titlePrefix": "What is",
     "titleSuffix": "UDOCU?",
     "paragraph1": "Udocu is a time capsule that captures, in words and images, who you are right now. An honest, warmly filmed portrait that remains when memories fade.",

@@ -17,14 +17,16 @@ const csp = [
   // 'unsafe-eval' is added in development only — React's dev runtime uses eval()
   // for debugging features; it is never used in production builds.
   // https://eu-assets.i.posthog.com serves the PostHog analytics bundle (config.js).
-  `script-src 'self' 'unsafe-inline' https://eu-assets.i.posthog.com${isDev ? " 'unsafe-eval'" : ""}`,
+  // https://va.vercel-scripts.com serves the Vercel Speed Insights script.
+  `script-src 'self' 'unsafe-inline' https://eu-assets.i.posthog.com https://va.vercel-scripts.com${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   "img-src 'self' data: blob: https://images.prismic.io https://res.cloudinary.com https://i.ytimg.com https://eu.i.posthog.com https://eu-assets.i.posthog.com",
   "media-src 'self' blob: https://res.cloudinary.com",
   "frame-src https://www.youtube-nocookie.com",
-  // PostHog analytics: eu.i.posthog.com (events/flags) and eu-assets.i.posthog.com (config).
-  "connect-src 'self' https://images.prismic.io https://res.cloudinary.com https://*.prismic.io https://eu.i.posthog.com https://eu-assets.i.posthog.com",
+  // PostHog analytics: eu.i.posthog.com (events/decide), eu-assets.i.posthog.com (config bundle),
+  // eu.posthog.com (feature flags /decide endpoint).
+  "connect-src 'self' https://images.prismic.io https://res.cloudinary.com https://*.prismic.io https://eu.i.posthog.com https://eu-assets.i.posthog.com https://eu.posthog.com",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   "upgrade-insecure-requests",

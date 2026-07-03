@@ -1,0 +1,27 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  lighthouse:
+    name: Lighthouse Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Lighthouse CI
+        run: npm run lhci
+        env:
+          # Audits the live production URL (udocu-next.vercel.app by default).
+          # Override LHCI_BASE_URL to test a specific deployment.
+          LHCI_BASE_URL: ${{ vars.LHCI_BASE_URL }}
