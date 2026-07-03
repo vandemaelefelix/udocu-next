@@ -10,7 +10,6 @@ import contactImage from "@/assets/images/contact-image.jpg";
 import SocialLinks from "@/components/SocialLinks";
 import GlitchText from "@/components/GlitchText";
 import { useScrollColor } from "@/context/ScrollColorContext";
-import { useScrollColor } from "@/context/ScrollColorContext";
 
 export default function ContactSection() {
   const t = useTranslations("contact");
