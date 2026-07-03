@@ -124,23 +124,18 @@ body {
   }
 }
 
-.glitch-text:hover {
+.glitch-text:hover,
+a:focus-visible .glitch-text,
+button:focus-visible .glitch-text {
   animation: glitch-chroma 480ms ease 1;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .glitch-text:hover,
+  a:focus-visible .glitch-text,
+  button:focus-visible .glitch-text {
+    animation: none;
+  }
+}
+
 /* ─────────────────────────────────────────────────────────────────────────── */
-
-.mobile-nav-links li {
-  transition:
-    opacity 150ms ease,
-    letter-spacing 150ms ease;
-}
-
-.mobile-nav-links:hover li {
-  opacity: 0.25;
-}
-
-.mobile-nav-links:hover li:hover {
-  opacity: 1;
-  letter-spacing: 0.22em;
-}
