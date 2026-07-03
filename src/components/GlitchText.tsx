@@ -16,13 +16,20 @@ export default function GlitchText({ children, className }: GlitchTextProps) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const focusTarget = el.closest("a, button, [tabindex]") ?? el;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     function trigger() {
+      if (reduceMotion.matches) return;
       (
         document.getElementById(animId) as SVGAnimateElement | null
       )?.beginElement();
     }
     el.addEventListener("mouseenter", trigger);
-    return () => el.removeEventListener("mouseenter", trigger);
+    focusTarget.addEventListener("focusin", trigger);
+    return () => {
+      el.removeEventListener("mouseenter", trigger);
+      focusTarget.removeEventListener("focusin", trigger);
+    };
   }, [animId]);
 
   return (
