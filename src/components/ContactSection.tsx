@@ -8,6 +8,7 @@ import { usePostHog } from "posthog-js/react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import contactImage from "@/assets/images/contact-image.jpg";
 import SocialLinks from "@/components/SocialLinks";
+import GlitchText from "@/components/GlitchText";
 
 export default function ContactSection() {
   const t = useTranslations("contact");
@@ -90,7 +91,7 @@ export default function ContactSection() {
                   posthog.capture("contact_link_clicked", { type: "email" })
                 }
               >
-                {t("email")}
+                <GlitchText>{t("email")}</GlitchText>
               </a>
             </p>
             <p>
@@ -101,7 +102,7 @@ export default function ContactSection() {
                   posthog.capture("contact_link_clicked", { type: "phone" })
                 }
               >
-                {t("phone")}
+                <GlitchText>{t("phone")}</GlitchText>
               </a>
             </p>
           </div>
