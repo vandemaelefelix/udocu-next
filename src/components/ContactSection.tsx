@@ -75,7 +75,7 @@ export default function ContactSection() {
       </motion.div>
 
       {/* Right: contact details */}
-      <div className="flex w-full flex-col justify-end px-6 pb-8 pt-8 md:w-2/5 md:px-12 md:pb-12 md:pt-0">
+      <div className="flex w-full flex-col justify-end px-6 pb-8 pt-8 text-white md:w-2/5 md:px-12 md:pb-12 md:pt-0">
         <div>
           <h2
             className="mb-6 font-posterman font-black uppercase leading-none"
