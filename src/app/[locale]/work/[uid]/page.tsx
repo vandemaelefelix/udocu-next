@@ -163,7 +163,7 @@ export default async function WorkDetailPage({
 
       <div className="shrink-0">
         <DetailNav
-          backHref={`/${locale}/#work`}
+          backHref={`/${locale}#work`}
           activeItem="work"
           mobileBackOnly
           overlayBgColor={colors.overlayBg}
@@ -207,7 +207,7 @@ export default async function WorkDetailPage({
 
           <div className="hidden md:block">
             <ArrowLink
-              href={`/${locale}/#work`}
+              href={`/${locale}#work`}
               direction="back"
               className="font-helvetica text-[16px] font-medium uppercase leading-5 tracking-widest transition-opacity hover:opacity-70"
             >

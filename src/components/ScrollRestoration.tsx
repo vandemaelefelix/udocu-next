@@ -26,11 +26,27 @@ function restoreScroll() {
   const url = window.location.href;
   const saved = readPositions()[url];
 
-  if (saved !== undefined) {
-    window.scrollTo({ top: saved, behavior: "instant" });
-  } else if (hash) {
-    document.querySelector(hash)?.scrollIntoView({ behavior: "instant" });
+  if (saved === undefined && !hash) return;
+
+  // If the page hasn't rendered yet (docH ≈ viewport), retry every 50ms
+  // until content loads or we give up after 1 second.
+  function attempt(retriesLeft: number) {
+    const ready =
+      document.documentElement.scrollHeight > window.innerHeight + 100;
+
+    if (!ready && retriesLeft > 0) {
+      setTimeout(() => attempt(retriesLeft - 1), 50);
+      return;
+    }
+
+    if (saved !== undefined) {
+      window.scrollTo({ top: saved, behavior: "instant" });
+    } else if (hash) {
+      document.querySelector(hash)?.scrollIntoView({ behavior: "instant" });
+    }
   }
+
+  attempt(20); // up to 20 × 50ms = 1 000ms
 }
 
 export default function ScrollRestoration() {
@@ -53,8 +69,7 @@ export default function ScrollRestoration() {
   // usePathname() to catch those navigations.
   useEffect(() => {
     function onPopstate() {
-      // Small delay to let React settle after the navigation commit
-      setTimeout(restoreScroll, 80);
+      restoreScroll();
     }
     window.addEventListener("popstate", onPopstate);
     return () => window.removeEventListener("popstate", onPopstate);
@@ -63,8 +78,7 @@ export default function ScrollRestoration() {
   // Restore on forward (pushState) navigation: usePathname() updates when
   // Next.js navigates forward, which doesn't fire popstate.
   useEffect(() => {
-    const timer = setTimeout(restoreScroll, 80);
-    return () => clearTimeout(timer);
+    restoreScroll();
   }, [pathname]);
 
   return null;
