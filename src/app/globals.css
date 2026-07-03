@@ -84,3 +84,29 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+@keyframes menu-link-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-nav-links li {
+  transition:
+    opacity 150ms ease,
+    letter-spacing 150ms ease;
+}
+
+.mobile-nav-links:hover li {
+  opacity: 0.25;
+}
+
+.mobile-nav-links:hover li:hover {
+  opacity: 1;
+  letter-spacing: 0.2em;
+}
