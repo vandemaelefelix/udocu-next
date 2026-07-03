@@ -8,7 +8,7 @@ const THRESHOLDS = {
 };
 
 async function collectVitals(page: import("@playwright/test").Page) {
-  await page.goto("/nl", { waitUntil: "networkidle" });
+  await page.goto("/nl", { waitUntil: "load" });
 
   return page.evaluate(() => {
     return new Promise<{ lcp: number; fcp: number; cls: number }>((resolve) => {
