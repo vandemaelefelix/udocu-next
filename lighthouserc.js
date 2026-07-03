@@ -3,10 +3,18 @@ module.exports = {
   ci: {
     collect: {
       url: [
-        "https://udocu.be/nl",
-        "https://udocu.be/en",
-        "https://udocu.be/nl/work",
-        "https://udocu.be/nl/contact",
+        process.env.LHCI_BASE_URL
+          ? `${process.env.LHCI_BASE_URL}/nl`
+          : "https://udocu-next.vercel.app/nl",
+        process.env.LHCI_BASE_URL
+          ? `${process.env.LHCI_BASE_URL}/en`
+          : "https://udocu-next.vercel.app/en",
+        process.env.LHCI_BASE_URL
+          ? `${process.env.LHCI_BASE_URL}/nl/work`
+          : "https://udocu-next.vercel.app/nl/work",
+        process.env.LHCI_BASE_URL
+          ? `${process.env.LHCI_BASE_URL}/nl/contact`
+          : "https://udocu-next.vercel.app/nl/contact",
       ],
       numberOfRuns: 3,
       settings: {
