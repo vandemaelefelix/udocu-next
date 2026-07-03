@@ -10,6 +10,7 @@ import NoiseOverlay from "@/components/NoiseOverlay";
 import ScrollRestoration from "@/components/ScrollRestoration";
 import { PHProvider } from "@/app/providers";
 import { PostHogPageView } from "@/components/PostHogPageView";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "../globals.css";
 
 export const viewport: Viewport = {
@@ -195,6 +196,7 @@ export default async function LocaleLayout({
             {children}
             <NoiseOverlay />
           </NextIntlClientProvider>
+          <SpeedInsights />
         </PHProvider>
       </body>
     </html>

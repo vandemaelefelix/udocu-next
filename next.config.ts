@@ -23,8 +23,9 @@ const csp = [
   "img-src 'self' data: blob: https://images.prismic.io https://res.cloudinary.com https://i.ytimg.com https://eu.i.posthog.com https://eu-assets.i.posthog.com",
   "media-src 'self' blob: https://res.cloudinary.com",
   "frame-src https://www.youtube-nocookie.com",
-  // PostHog analytics: eu.i.posthog.com (events/flags) and eu-assets.i.posthog.com (config).
-  "connect-src 'self' https://images.prismic.io https://res.cloudinary.com https://*.prismic.io https://eu.i.posthog.com https://eu-assets.i.posthog.com",
+  // PostHog analytics: eu.i.posthog.com (events/decide), eu-assets.i.posthog.com (config bundle),
+  // eu.posthog.com (feature flags /decide endpoint).
+  "connect-src 'self' https://images.prismic.io https://res.cloudinary.com https://*.prismic.io https://eu.i.posthog.com https://eu-assets.i.posthog.com https://eu.posthog.com",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   "upgrade-insecure-requests",
