@@ -25,7 +25,7 @@ export default function WorkPage() {
 
   return (
     <main id="main-content">
-      <h1 className="sr-only">{t("title")}</h1>
+      <h1 className="text-white">{t("title")}</h1>
     </main>
   );
 }
