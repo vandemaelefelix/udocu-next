@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { Content } from "@prismicio/client";
 import { createClient, localeMap } from "@/prismicio";
-import { getAlternates } from "@/lib/seo";
+import { getAlternates, SITE_URL } from "@/lib/seo";
 import DetailNav from "@/components/DetailNav";
 import BlogGrid from "@/components/BlogGrid";
 import SocialLinks from "@/components/SocialLinks";
@@ -23,6 +23,12 @@ export async function generateMetadata({
     title: t("blogTitle"),
     description: t("blogDescription"),
     alternates: getAlternates(locale, "blog"),
+    openGraph: {
+      title: t("blogTitle"),
+      description: t("blogDescription"),
+      images: [`${SITE_URL}/videos/hero-poster.webp`],
+    },
+    twitter: { card: "summary_large_image" },
   };
 }
 

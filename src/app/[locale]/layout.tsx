@@ -54,7 +54,9 @@ export async function generateMetadata({
       locale: locale === "en" ? "en_US" : "nl_BE",
       alternateLocale: locale === "en" ? "nl_BE" : "en_US",
       type: "website",
+      images: [`${SITE_URL}/videos/hero-poster.webp`],
     },
+    twitter: { card: "summary_large_image" },
     other: {
       "ai-content-declaration":
         "This website represents udocu, a real creative studio in Kortrijk, Belgium, founded by journalist Kurt Vandemaele. Udocu specializes in preserving personal and cultural heritage through documentary interviews.",
