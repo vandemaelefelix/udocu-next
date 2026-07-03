@@ -14,7 +14,7 @@ interface SectionLayout {
 }
 
 const HERO_STOP: ColorStop = {
-  bg: [62, 2, 2],
+  bg: [174, 212, 115],
   text: [174, 212, 115],
 };
 
@@ -103,16 +103,7 @@ export default function ScrollBackground({
     const wrapperTop = wrapperOffsetTop - scrollY;
 
     if (wrapperTop > 0) {
-      const heroProgress = Math.min(1, scrollY / window.innerHeight);
-      const compressed = Math.max(0, Math.min(1, (heroProgress - 0.65) / 0.25));
-      const smooth = compressed * compressed * (3 - 2 * compressed);
-      const bg = interpolateColor(HERO_STOP.bg, COLOR_STOPS[0].bg, smooth);
-      const text = interpolateColor(
-        HERO_STOP.text,
-        COLOR_STOPS[0].text,
-        smooth,
-      );
-      setColors(rgbToString(...bg), rgbToString(...text));
+      setColors(rgbToString(...HERO_STOP.bg), rgbToString(...HERO_STOP.text));
       return;
     }
 

@@ -17,6 +17,11 @@ export default function StickyNav() {
   const router = useRouter();
   const { bgColor, textColor } = useScrollColor();
 
+  const overlayTextColor =
+    textColor === "rgb(174, 212, 115)" && bgColor === "rgb(62, 2, 2)"
+      ? "rgb(196, 181, 253)"
+      : textColor;
+
   const scrollToSection = useCallback(
     (item: string) => {
       window.dispatchEvent(new Event("programmatic-scroll"));
@@ -110,6 +115,7 @@ export default function StickyNav() {
           <button
             type="button"
             className="relative z-[60] flex h-8 w-8 flex-col items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded md:hidden"
+            style={menuOpen ? { color: overlayTextColor } : undefined}
             onClick={() => setMenuOpen((prev) => !prev)}
             aria-label={menuOpen ? t("closeMenu") : t("openMenu")}
             aria-expanded={menuOpen}

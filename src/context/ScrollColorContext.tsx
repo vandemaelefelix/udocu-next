@@ -2,8 +2,8 @@
 
 import { createContext, useContext, useState } from "react";
 
-const DEFAULT_BG = "rgb(62, 2, 2)";
-const DEFAULT_TEXT = "rgb(196, 181, 253)";
+const DEFAULT_BG = "rgb(174, 212, 115)";
+const DEFAULT_TEXT = "rgb(174, 212, 115)";
 
 interface ScrollColorContextValue {
   bgColor: string;

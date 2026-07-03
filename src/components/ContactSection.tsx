@@ -9,11 +9,14 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import contactImage from "@/assets/images/contact-image.jpg";
 import SocialLinks from "@/components/SocialLinks";
 import GlitchText from "@/components/GlitchText";
+import { useScrollColor } from "@/context/ScrollColorContext";
+import { useScrollColor } from "@/context/ScrollColorContext";
 
 export default function ContactSection() {
   const t = useTranslations("contact");
   const sectionRef = useRef<HTMLElement>(null);
   const isMobile = useIsMobile();
+  const { textColor } = useScrollColor();
   const posthog = usePostHog();
 
   // Entrance phase: image fades in and pans up as section enters the viewport
@@ -75,7 +78,10 @@ export default function ContactSection() {
       </motion.div>
 
       {/* Right: contact details */}
-      <div className="flex w-full flex-col justify-end px-6 pb-8 pt-8 text-white md:w-2/5 md:px-12 md:pb-12 md:pt-0">
+      <div
+        className="flex w-full flex-col justify-end px-6 pb-8 pt-8 md:w-2/5 md:px-12 md:pb-12 md:pt-0"
+        style={{ color: textColor }}
+      >
         <div>
           <h2
             className="mb-6 font-posterman font-black uppercase leading-none"
