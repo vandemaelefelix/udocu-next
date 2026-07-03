@@ -4,6 +4,9 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const isDev = process.env.NODE_ENV !== "production";
+// Vercel preview deployments inject a live-feedback toolbar (vercel.live).
+// NODE_ENV is "production" on preview builds, so we need a separate check.
+const isVercelPreview = process.env.VERCEL_ENV === "preview";
 
 const csp = [
   "default-src 'self'",
@@ -18,15 +21,15 @@ const csp = [
   // for debugging features; it is never used in production builds.
   // https://eu-assets.i.posthog.com serves the PostHog analytics bundle (config.js).
   // https://va.vercel-scripts.com serves the Vercel Speed Insights script.
-  `script-src 'self' 'unsafe-inline' https://eu-assets.i.posthog.com https://va.vercel-scripts.com${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://eu-assets.i.posthog.com https://va.vercel-scripts.com${isDev || isVercelPreview ? " https://vercel.live" : ""}${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   "img-src 'self' data: blob: https://images.prismic.io https://res.cloudinary.com https://i.ytimg.com https://eu.i.posthog.com https://eu-assets.i.posthog.com",
   "media-src 'self' blob: https://res.cloudinary.com",
-  "frame-src https://www.youtube-nocookie.com",
+  `frame-src https://www.youtube-nocookie.com${isDev || isVercelPreview ? " https://vercel.live" : ""}`,
   // PostHog analytics: eu.i.posthog.com (events/decide), eu-assets.i.posthog.com (config bundle),
   // eu.posthog.com (feature flags /decide endpoint).
-  "connect-src 'self' https://images.prismic.io https://res.cloudinary.com https://*.prismic.io https://eu.i.posthog.com https://eu-assets.i.posthog.com https://eu.posthog.com",
+  `connect-src 'self' https://images.prismic.io https://res.cloudinary.com https://*.prismic.io https://eu.i.posthog.com https://eu-assets.i.posthog.com https://eu.posthog.com${isDev || isVercelPreview ? " https://vercel.live wss://ws-us3.pusher.com" : ""}`,
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   "upgrade-insecure-requests",
