@@ -14,6 +14,10 @@ interface DetailNavProps {
   mobileBackOnly?: boolean;
   /** When true, the back link is completely hidden */
   hideBackLink?: boolean;
+  /** Explicit background color for the mobile overlay (CSS value or variable). Defaults to red-dark. */
+  overlayBgColor?: string;
+  /** Explicit text color for the mobile overlay (CSS value or variable). Defaults to red-light. */
+  overlayTextColor?: string;
 }
 
 const NAV_ITEMS = ["about", "work", "contact", "blog"] as const;
@@ -23,6 +27,8 @@ export default function DetailNav({
   activeItem,
   mobileBackOnly,
   hideBackLink,
+  overlayBgColor = "var(--color-red-dark)",
+  overlayTextColor = "var(--color-red-light)",
 }: DetailNavProps) {
   const t = useTranslations("nav");
   const locale = useLocale();
@@ -99,8 +105,8 @@ export default function DetailNav({
           menuOpen ? "pointer-events-auto" : "pointer-events-none"
         }`}
         style={{
-          backgroundColor: "inherit",
-          color: "inherit",
+          backgroundColor: overlayBgColor,
+          color: overlayTextColor,
           transform: menuOpen ? "translateY(0)" : "translateY(-100%)",
           transition: menuOpen
             ? "transform 300ms cubic-bezier(0.4,0,0.1,1)"

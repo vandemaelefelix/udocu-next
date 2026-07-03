@@ -38,6 +38,13 @@ export default function StickyNav() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [menuOpen]);
 
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
   return (
     <div className="fixed top-0 left-0 right-0 z-50 h-0">
       <nav
@@ -113,7 +120,10 @@ export default function StickyNav() {
         }`}
         style={{
           backgroundColor: bgColor,
-          color: textColor,
+          color:
+            textColor === "rgb(174, 212, 115)" && bgColor === "rgb(62, 2, 2)"
+              ? "rgb(196, 181, 253)"
+              : textColor,
           transform: menuOpen ? "translateY(0)" : "translateY(-100%)",
           transition: menuOpen
             ? "transform 300ms cubic-bezier(0.4,0,0.1,1)"
