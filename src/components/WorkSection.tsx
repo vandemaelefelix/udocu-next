@@ -46,6 +46,7 @@ const filteredInterviews = (interviews: Content.InterviewDocument[]) =>
       uid: i.uid,
       imageUrl: i.data.image_url.url!,
       alt: i.data.image_url.alt ?? "",
+      name: (i.data.name as string | null) ?? i.uid,
     }));
 
 export default function WorkSection({ interviews }: Props) {
@@ -95,6 +96,7 @@ const MobileWorkSection = ({
     href: string;
     imageUrl: string;
     alt: string;
+    name: string;
   }[];
   t: (key: string) => string;
 }) => {
@@ -165,6 +167,7 @@ const MobileWorkSection = ({
                 href={item.href}
                 tabIndex={item.isCanonical ? 0 : -1}
                 aria-hidden={item.isCanonical ? undefined : true}
+                aria-label={item.isCanonical ? item.name : undefined}
                 className="shrink-0 no-underline rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2"
                 onClick={() =>
                   posthog.capture("work_item_clicked", { uid: item.uid })
@@ -204,6 +207,7 @@ const DesktopWorkSection = ({
     href: string;
     imageUrl: string;
     alt: string;
+    name: string;
   }[];
   itemCount: number;
   setWidth: number;
@@ -437,6 +441,7 @@ const CarouselItem = ({
     href: string;
     imageUrl: string;
     alt: string;
+    name: string;
   };
   flexIndex: number;
   x: MotionValue<number>;
@@ -496,6 +501,7 @@ const CarouselItem = ({
       href={item.href}
       tabIndex={isCanonical ? 0 : -1}
       aria-hidden={isCanonical ? undefined : true}
+      aria-label={isCanonical ? item.name : undefined}
       className="no-underline rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2"
       onClick={() => posthog.capture("work_item_clicked", { uid: item.uid })}
     >

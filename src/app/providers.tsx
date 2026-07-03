@@ -13,6 +13,8 @@ export function PHProvider({ children }: { children: React.ReactNode }) {
         process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com",
       capture_pageview: false,
       capture_pageleave: true,
+      disable_session_recording: true,
+      disable_surveys: true,
     });
   }, []);
 

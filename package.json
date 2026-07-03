@@ -9,7 +9,9 @@
     "lint": "eslint",
     "slicemachine": "start-slicemachine",
     "tsc": "tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:perf": "playwright test --project=performance",
+    "lhci": "lhci autorun"
   },
   "dependencies": {
     "@cloudinary/react": "^1.14.4",
@@ -17,6 +19,7 @@
     "@prismicio/client": "^7.21.8",
     "@prismicio/next": "^2.2.4",
     "@prismicio/react": "^3.4.1",
+    "@vercel/speed-insights": "^2.0.0",
     "motion": "^12.38.0",
     "next": "^16.2.4",
     "next-intl": "^4.9.1",
@@ -25,6 +28,7 @@
     "react-dom": "19.2.3"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.61.1",
     "@slicemachine/adapter-next": "^0.3.95",
     "@tailwindcss/postcss": "^4",

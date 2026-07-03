@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
 import { getAlternates } from "@/lib/seo";
 import UdocuLogo from "@/components/UdocuLogo";
@@ -6,9 +7,9 @@ import ParallaxHero from "@/components/ParallaxHero";
 import ScrollBackground from "@/components/ScrollBackground";
 import StickyNav from "@/components/StickyNav";
 import AboutSection from "@/components/AboutSection";
-import WhoAmISection from "@/components/WhoAmISection";
+const WhoAmISection = dynamic(() => import("@/components/WhoAmISection"));
 import WorkSection from "@/components/WorkSection";
-import ContactSection from "@/components/ContactSection";
+const ContactSection = dynamic(() => import("@/components/ContactSection"));
 import SocialDock from "@/components/SocialDock";
 import { ScrollColorProvider } from "@/context/ScrollColorContext";
 import ThemeColorSync from "@/components/ThemeColorSync";
@@ -60,7 +61,7 @@ export default async function HomePage({
 
         <ParallaxHero
           backgroundVideo="/videos/hero-video.mp4"
-          backgroundVideoPoster="/videos/hero-poster.jpg"
+          backgroundVideoPoster="/videos/hero-poster.webp"
         >
           <div className="w-[90vw] md:w-auto">
             <UdocuLogo

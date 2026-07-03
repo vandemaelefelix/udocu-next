@@ -10,6 +10,8 @@ import NoiseOverlay from "@/components/NoiseOverlay";
 import ScrollRestoration from "@/components/ScrollRestoration";
 import { PHProvider } from "@/app/providers";
 import { PostHogPageView } from "@/components/PostHogPageView";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { WebVitals } from "@/components/WebVitals";
 import "../globals.css";
 
 export const viewport: Viewport = {
@@ -86,6 +88,17 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
+      <head>
+        {/* Preload LCP image so browser fetches it at highest priority from the first byte */}
+        <link
+          rel="preload"
+          as="image"
+          href="/videos/hero-poster.webp"
+          fetchPriority="high"
+        />
+        {/* Preconnect to Cloudinary to shave TCP/TLS handshake time off the below-fold video */}
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+      </head>
       <body className={`${fontVariables} antialiased`}>
         <a
           href="#main-content"
@@ -191,10 +204,12 @@ export default async function LocaleLayout({
           <Suspense fallback={null}>
             <PostHogPageView />
           </Suspense>
+          <WebVitals />
           <NextIntlClientProvider messages={messages}>
             {children}
             <NoiseOverlay />
           </NextIntlClientProvider>
+          <SpeedInsights />
         </PHProvider>
       </body>
     </html>
