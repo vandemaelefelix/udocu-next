@@ -14,7 +14,8 @@ import {
   type MotionValue,
 } from "motion/react";
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePostHog } from "posthog-js/react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
@@ -101,13 +102,6 @@ const MobileWorkSection = ({
   const itemCount = displayedItems.length;
   const setWidth = itemCount * MOBILE_STEP;
 
-  const repeatedItems = Array.from({ length: MOBILE_COPIES }, (_, copyIdx) =>
-    displayedItems.map((item) => ({
-      ...item,
-      key: `${item.id}-${copyIdx}`,
-    })),
-  ).flat();
-
   // Start in the middle copy so there's equal buffer on both sides
   const x = useMotionValue(-MOBILE_MIDDLE_COPY * setWidth);
 
@@ -120,8 +114,22 @@ const MobileWorkSection = ({
     [setWidth],
   );
 
+  const repeatedItemsWithCanonical = Array.from(
+    { length: MOBILE_COPIES },
+    (_, copyIdx) =>
+      displayedItems.map((item) => ({
+        ...item,
+        key: `${item.id}-${copyIdx}`,
+        isCanonical: copyIdx === MOBILE_MIDDLE_COPY,
+      })),
+  ).flat();
+
   return (
-    <section id="work" className="h-screen overflow-x-clip">
+    <section
+      id="work"
+      aria-label={t("work.title")}
+      className="h-screen overflow-x-clip"
+    >
       <div className="h-full flex flex-col items-start justify-center">
         <h2 className="font-posterman font-black text-[48px] leading-12 mb-8 text-center px-4">
           {t("work.title")}
@@ -151,11 +159,13 @@ const MobileWorkSection = ({
               x.set(normalizeX(x.get()));
             }}
           >
-            {repeatedItems.map((item) => (
-              <a
+            {repeatedItemsWithCanonical.map((item) => (
+              <Link
                 key={item.key}
                 href={item.href}
-                className="shrink-0 no-underline"
+                tabIndex={item.isCanonical ? 0 : -1}
+                aria-hidden={item.isCanonical ? undefined : true}
+                className="shrink-0 no-underline rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2"
                 onClick={() =>
                   posthog.capture("work_item_clicked", { uid: item.uid })
                 }
@@ -173,7 +183,7 @@ const MobileWorkSection = ({
                     height={MOBILE_ITEM_SIZE}
                   />
                 </div>
-              </a>
+              </Link>
             ))}
           </motion.div>
         </div>
@@ -199,12 +209,13 @@ const DesktopWorkSection = ({
   setWidth: number;
   t: (key: string) => string;
 }) => {
-  // Repeat items for seamless infinite scrolling
+  // Repeat items for seamless infinite scrolling; only copy 3 (middle) is keyboard-focusable
   const repeatedItems = Array.from({ length: COPIES }, (_, copyIdx) =>
     displayedItems.map((item, i) => ({
       ...item,
       key: `${item.id}-${copyIdx}`,
       flexIndex: copyIdx * itemCount + i,
+      isCanonical: copyIdx === 3,
     })),
   ).flat();
 
@@ -309,6 +320,7 @@ const DesktopWorkSection = ({
     <section
       ref={sectionRef}
       id="work"
+      aria-label={t("work.title")}
       className="flex h-screen flex-col items-start justify-center overflow-clip"
     >
       <div ref={wrapperRef}>
@@ -340,6 +352,7 @@ const DesktopWorkSection = ({
               x={x}
               isVisible={isVisible}
               scrollDelta={scrollDelta}
+              isCanonical={item.isCanonical}
             />
           ))}
         </motion.div>
@@ -347,7 +360,7 @@ const DesktopWorkSection = ({
           <button
             type="button"
             aria-label={t("work.previous")}
-            className="p-2 transition-opacity hover:opacity-50 focus-visible:opacity-50 focus-visible:outline-none"
+            className="p-2 rounded transition-opacity hover:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2"
             onClick={() => {
               const target = x.get() + STEP * 3;
               motionAnimate(x, target, {
@@ -376,7 +389,7 @@ const DesktopWorkSection = ({
           <button
             type="button"
             aria-label={t("work.next")}
-            className="p-2 transition-opacity hover:opacity-50 focus-visible:opacity-50 focus-visible:outline-none"
+            className="p-2 rounded transition-opacity hover:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2"
             onClick={() => {
               const target = x.get() - STEP * 3;
               motionAnimate(x, target, {
@@ -416,6 +429,7 @@ const CarouselItem = ({
   x,
   isVisible,
   scrollDelta,
+  isCanonical,
 }: {
   item: {
     id: string;
@@ -428,6 +442,7 @@ const CarouselItem = ({
   x: MotionValue<number>;
   isVisible: boolean;
   scrollDelta: MotionValue<number>;
+  isCanonical: boolean;
 }) => {
   const posthog = usePostHog();
   const [scope, animate] = useAnimate();
@@ -477,9 +492,11 @@ const CarouselItem = ({
   );
 
   return (
-    <a
+    <Link
       href={item.href}
-      className="no-underline"
+      tabIndex={isCanonical ? 0 : -1}
+      aria-hidden={isCanonical ? undefined : true}
+      className="no-underline rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2"
       onClick={() => posthog.capture("work_item_clicked", { uid: item.uid })}
     >
       <motion.div
@@ -498,6 +515,6 @@ const CarouselItem = ({
           height={ITEM_SIZE.px}
         />
       </motion.div>
-    </a>
+    </Link>
   );
 };

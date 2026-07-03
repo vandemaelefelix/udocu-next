@@ -20,6 +20,12 @@ export function useMagneticScroll({
     let timer: ReturnType<typeof setTimeout> | null = null;
     let rafId: number | null = null;
     let isSnapping = false;
+    // Wait before activating so the browser can restore scroll position on
+    // Back navigation without being immediately overridden by the snap logic.
+    let ready = false;
+    const activationTimer = setTimeout(() => {
+      ready = true;
+    }, 600);
 
     function easeInOutCubic(t: number): number {
       return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -70,7 +76,7 @@ export function useMagneticScroll({
     }
 
     function onScroll() {
-      if (isSnapping) return;
+      if (!ready || isSnapping) return;
       if (timer) clearTimeout(timer);
 
       timer = setTimeout(() => {
@@ -127,6 +133,7 @@ export function useMagneticScroll({
     window.addEventListener("touchstart", onUserScroll, { passive: true });
 
     return () => {
+      clearTimeout(activationTimer);
       cancelSnap();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("wheel", onUserScroll);
