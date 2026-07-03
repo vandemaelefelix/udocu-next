@@ -134,7 +134,7 @@ export default function StickyNav() {
             willChange: menuOpen ? "transform" : "auto",
           }}
         >
-          <ul className="mobile-nav-links flex flex-col items-center gap-10 font-helvetica text-2xl font-medium uppercase tracking-widest">
+          <ul className="flex flex-col items-center gap-10 font-helvetica text-2xl font-medium uppercase tracking-widest">
             {NAV_ITEMS.map((item, index) => {
               const animationStyle = menuOpen
                 ? {
@@ -149,7 +149,7 @@ export default function StickyNav() {
                     className="focus-visible:opacity-70 focus-visible:outline-none"
                     onClick={() => setMenuOpen(false)}
                   >
-                    {t(item)}
+                    <GlitchText>{t(item)}</GlitchText>
                   </Link>
                 </li>
               ) : (
@@ -160,7 +160,7 @@ export default function StickyNav() {
                     className="focus-visible:opacity-70 focus-visible:outline-none"
                     onClick={handleNavClick}
                   >
-                    {t(item)}
+                    <GlitchText>{t(item)}</GlitchText>
                   </a>
                 </li>
               );

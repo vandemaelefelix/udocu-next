@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { type ReactNode, type ElementType } from "react";
+import GlitchText from "@/components/GlitchText";
 
 interface ArrowLinkProps {
   href: string;
@@ -48,11 +49,10 @@ export default function ArrowLink({
   const linkProps = external ? { href } : { href };
 
   return (
-    <Tag
-      {...linkProps}
-      className={`group inline-flex items-center gap-2 ${className}`}
-    >
-      {content}
+    <Tag {...linkProps} className={`group ${className}`}>
+      <GlitchText className="inline-flex items-center gap-2">
+        {content}
+      </GlitchText>
     </Tag>
   );
 }
