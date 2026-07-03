@@ -7,8 +7,11 @@ export default function ThemeColorSync() {
   const { bgColor } = useScrollColor();
 
   useEffect(() => {
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", bgColor);
+    document.documentElement.style.backgroundColor = bgColor;
+    document.body.style.backgroundColor = bgColor;
+    document
+      .querySelectorAll('meta[name="theme-color"]')
+      .forEach((meta) => meta.setAttribute("content", bgColor));
   }, [bgColor]);
 
   return null;
