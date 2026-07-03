@@ -24,11 +24,15 @@ export default function GlitchText({ children, className }: GlitchTextProps) {
         document.getElementById(animId) as SVGAnimateElement | null
       )?.beginElement();
     }
+    function onFocusIn() {
+      if (!focusTarget.matches(":focus-visible")) return;
+      trigger();
+    }
     el.addEventListener("mouseenter", trigger);
-    focusTarget.addEventListener("focusin", trigger);
+    focusTarget.addEventListener("focusin", onFocusIn);
     return () => {
       el.removeEventListener("mouseenter", trigger);
-      focusTarget.removeEventListener("focusin", trigger);
+      focusTarget.removeEventListener("focusin", onFocusIn);
     };
   }, [animId]);
 

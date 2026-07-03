@@ -134,7 +134,7 @@ export default function StickyNav() {
             willChange: menuOpen ? "transform" : "auto",
           }}
         >
-          <ul className="mobile-nav-links flex flex-col items-center gap-10 font-helvetica text-2xl font-medium uppercase tracking-widest">
+          <ul className="flex flex-col items-center gap-10 font-helvetica text-2xl font-medium uppercase tracking-widest">
             {NAV_ITEMS.map((item, index) => {
               const animationStyle = menuOpen
                 ? {

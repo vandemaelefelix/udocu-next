@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import UdocuLogo from "@/components/UdocuLogo";
 import ArrowLink from "@/components/ArrowLink";
+import GlitchText from "@/components/GlitchText";
 
 interface DetailNavProps {
   backHref: string;
@@ -70,7 +71,7 @@ export default function DetailNav({
                   item === activeItem ? "underline underline-offset-4" : ""
                 }`}
               >
-                {t(item)}
+                <GlitchText>{t(item)}</GlitchText>
               </Link>
             </li>
           ))}
@@ -114,7 +115,7 @@ export default function DetailNav({
           willChange: menuOpen ? "transform" : "auto",
         }}
       >
-        <ul className="mobile-nav-links flex flex-col items-center gap-10 font-helvetica text-2xl font-medium uppercase tracking-widest">
+        <ul className="flex flex-col items-center gap-10 font-helvetica text-2xl font-medium uppercase tracking-widest">
           {NAV_ITEMS.map((item, index) => {
             const animationStyle = menuOpen
               ? {
@@ -133,7 +134,7 @@ export default function DetailNav({
                   }`}
                   onClick={() => setMenuOpen(false)}
                 >
-                  {t(item)}
+                  <GlitchText>{t(item)}</GlitchText>
                 </Link>
               </li>
             );
