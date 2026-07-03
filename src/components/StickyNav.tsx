@@ -118,6 +118,7 @@ export default function StickyNav() {
           transition: menuOpen
             ? "transform 300ms cubic-bezier(0.4,0,0.1,1)"
             : "transform 150ms ease-in",
+          willChange: menuOpen ? "transform" : "auto",
         }}
       >
         <ul className="mobile-nav-links flex flex-col items-center gap-10 font-helvetica text-2xl font-medium uppercase tracking-widest">
@@ -126,7 +127,7 @@ export default function StickyNav() {
               ? {
                   animation: `menu-link-in 280ms ease-out ${index * 60}ms both`,
                 }
-              : undefined;
+              : { animation: "none" };
             return item === "blog" ? (
               <li key={item} style={animationStyle}>
                 <Link
