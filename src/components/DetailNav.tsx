@@ -35,6 +35,12 @@ export default function DetailNav({
   const locale = useLocale();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // "/#about" → "/nl#about": callers often omit the locale prefix; also
+  // strip a trailing slash before the hash so storage keys are consistent.
+  const resolvedBackHref = backHref.startsWith("/#")
+    ? `/${locale}${backHref.slice(1)}`
+    : backHref.replace(/\/#/, "#");
+
   useEffect(() => {
     if (!menuOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -65,7 +71,7 @@ export default function DetailNav({
             <li key={item}>
               <Link
                 href={
-                  item === "blog" ? `/${locale}/blog` : `/${locale}/#${item}`
+                  item === "blog" ? `/${locale}/blog` : `/${locale}#${item}`
                 }
                 className={`transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none ${
                   item === activeItem ? "underline underline-offset-4" : ""
@@ -126,7 +132,7 @@ export default function DetailNav({
               <li key={item} style={animationStyle}>
                 <Link
                   href={
-                    item === "blog" ? `/${locale}/blog` : `/${locale}/#${item}`
+                    item === "blog" ? `/${locale}/blog` : `/${locale}#${item}`
                   }
                   tabIndex={menuOpen ? 0 : -1}
                   className={`focus-visible:opacity-70 focus-visible:outline-none ${
@@ -148,7 +154,7 @@ export default function DetailNav({
           className={`px-8 ${mobileBackOnly ? "md:hidden" : "hidden md:block"}`}
         >
           <ArrowLink
-            href={backHref}
+            href={resolvedBackHref}
             direction="back"
             className="font-helvetica text-[16px] font-medium uppercase leading-5 tracking-widest transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
           >
