@@ -17,9 +17,11 @@ export default function StickyNav() {
   const router = useRouter();
   const { bgColor, textColor } = useScrollColor();
 
+  // On the hero the nav text is green over a Bordeaux background; the menu
+  // overlay uses purple text there (matching About) instead of green.
   const overlayTextColor =
     textColor === "rgb(174, 212, 115)" && bgColor === "rgb(62, 2, 2)"
-      ? "rgb(196, 181, 253)"
+      ? "rgb(180, 150, 214)"
       : textColor;
 
   const scrollToSection = useCallback(
@@ -142,10 +144,7 @@ export default function StickyNav() {
           }`}
           style={{
             backgroundColor: bgColor,
-            color:
-              textColor === "rgb(174, 212, 115)" && bgColor === "rgb(62, 2, 2)"
-                ? "rgb(196, 181, 253)"
-                : textColor,
+            color: overlayTextColor,
             transform: menuOpen ? "translateY(0)" : "translateY(-100%)",
             transition: menuOpen
               ? "transform 300ms cubic-bezier(0.4,0,0.1,1)"

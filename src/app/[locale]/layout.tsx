@@ -15,7 +15,7 @@ import { WebVitals } from "@/components/WebVitals";
 import "../globals.css";
 
 export const viewport: Viewport = {
-  themeColor: "rgb(174, 212, 115)",
+  themeColor: "#3e0202",
 };
 
 export async function generateMetadata({

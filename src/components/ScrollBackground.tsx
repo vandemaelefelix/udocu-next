@@ -13,13 +13,15 @@ interface SectionLayout {
   height: number;
 }
 
+// Hero bg is Bordeaux (never green) so body/html overscroll and theme-color
+// stay Bordeaux; the hero div itself is hidden behind the video. Text is green.
 const HERO_STOP: ColorStop = {
-  bg: [174, 212, 115],
+  bg: [62, 2, 2],
   text: [174, 212, 115],
 };
 
 const COLOR_STOPS: ColorStop[] = [
-  { bg: [62, 2, 2], text: [196, 181, 253] },
+  { bg: [62, 2, 2], text: [180, 150, 214] },
   { bg: [104, 97, 33], text: [174, 212, 115] },
   { bg: [45, 95, 99], text: [197, 232, 230] },
   { bg: [92, 40, 0], text: [218, 85, 28] },
