@@ -21,7 +21,8 @@ interface DetailNavProps {
   overlayTextColor?: string;
 }
 
-const NAV_ITEMS = ["about", "work", "contact", "blog"] as const;
+// Keep in sync with StickyNav so every screen exposes the same destinations.
+const NAV_ITEMS = ["about", "who-am-i", "work", "contact", "blog"] as const;
 
 export default function DetailNav({
   backHref,
