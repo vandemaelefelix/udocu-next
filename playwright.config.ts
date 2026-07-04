@@ -17,5 +17,33 @@ export default defineConfig({
         bypassCSP: false,
       },
     },
+    {
+      name: "scroll-colors-desktop",
+      testMatch: "tests/scroll-colors/**/*.spec.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1280, height: 800 },
+        bypassCSP: false,
+      },
+    },
+    {
+      name: "scroll-colors-mobile",
+      testMatch: "tests/scroll-colors/**/*.spec.ts",
+      use: {
+        ...devices["Pixel 5"],
+        bypassCSP: false,
+      },
+    },
+    {
+      // Real WebKit (Safari engine) — closest automated proxy for iOS Safari.
+      // TC18–TC20 (native browser-chrome bar colour) still require a real device
+      // or Xcode Simulator; everything else runs here.
+      name: "scroll-colors-webkit",
+      testMatch: "tests/scroll-colors/**/*.spec.ts",
+      use: {
+        ...devices["iPhone 12"],
+        bypassCSP: false,
+      },
+    },
   ],
 });

@@ -96,6 +96,7 @@ export default function ScrollBackground({
       setColors(
         rgbToString(...COLOR_STOPS[0].bg),
         rgbToString(...COLOR_STOPS[0].text),
+        rgbToString(...COLOR_STOPS[0].bg),
       );
       return;
     }
@@ -105,7 +106,12 @@ export default function ScrollBackground({
     const wrapperTop = wrapperOffsetTop - scrollY;
 
     if (wrapperTop > 0) {
-      setColors(rgbToString(...HERO_STOP.bg), rgbToString(...HERO_STOP.text));
+      // Hero zone: bgColor stays Bordeaux (hidden under video); chrome is olive.
+      setColors(
+        rgbToString(...HERO_STOP.bg),
+        rgbToString(...HERO_STOP.text),
+        "#686121",
+      );
       return;
     }
 
@@ -160,7 +166,8 @@ export default function ScrollBackground({
       smooth,
     );
 
-    setColors(rgbToString(...bg), rgbToString(...text));
+    // For all non-hero zones the chrome colour equals the section background.
+    setColors(rgbToString(...bg), rgbToString(...text), rgbToString(...bg));
   }, [setColors]);
 
   useEffect(() => {
@@ -200,6 +207,7 @@ export default function ScrollBackground({
   return (
     <div
       ref={ref}
+      data-testid="scroll-bg"
       className="relative"
       style={{ backgroundColor: bgColor, color: textColor }}
     >

@@ -45,19 +45,35 @@ Colour transitions between consecutive sections (About→Who Am I, Who Am I→Wo
 
 When scrolling from the hero into About there is no colour fade or transition on the `ScrollBackground` div. The div is Bordeaux as soon as it enters the viewport. (The hero is covered by the video so the div background is hidden; this is about ensuring no green bleeds in.)
 
-### AC5 — Overscroll background matches current section
+### AC5 — Overscroll background matches Safari chrome colour
 
-The `html` and `body` element `backgroundColor` (visible when bouncing at top/bottom of page on mobile) must match the current section's background colour at all times. `ThemeColorSync` sets this via `document.documentElement.style.backgroundColor` and `document.body.style.backgroundColor`.
+The `html` and `body` element `backgroundColor` (visible when bouncing at top/bottom of page on mobile) must always match the Safari chrome colour — i.e. the same value as `meta[name="theme-color"]`. `ThemeColorSync` sets this via `document.documentElement.style.backgroundColor` and `document.body.style.backgroundColor`.
 
-During the hero (before the user has scrolled into any section), the overscroll colour should be Bordeaux `#3e0202`.
+| Section  | Overscroll colour    |
+| -------- | -------------------- |
+| Hero     | `#686121` (olive)    |
+| About    | `#3e0202` (Bordeaux) |
+| Who Am I | `#686121` (olive)    |
+| Work     | `#2d5f63` (teal)     |
+| Contact  | `#5c2800` (brown)    |
 
-### AC6 — Safari browser chrome follows section colour (best-effort)
+### AC6 — Safari browser chrome follows section colour
 
 The `theme-color` meta tag is updated on every scroll colour change via `ThemeColorSync`. This controls the Safari top bar and bottom navigation bar colour on iOS.
 
-- The `viewport.themeColor` static value in `layout.tsx` must be `#3e0202` (Bordeaux) so the initial chrome colour is correct before JS hydrates.
-- After hydration, the meta tag content is updated dynamically via `querySelectorAll('meta[name="theme-color"]')`.
-- If Safari on the test device does not visually update its chrome on scroll, this is documented as a browser limitation — not a code bug — provided the meta tag content is being updated correctly in the DOM.
+- On initial load (before JS hydrates), the Safari chrome must already show olive `#686121`. This is controlled by the `viewport.themeColor` static value in `layout.tsx`.
+- After hydration, the Safari chrome must visually update as the user scrolls between sections:
+
+| Section  | Chrome colour        |
+| -------- | -------------------- |
+| Hero     | `#686121` (olive)    |
+| About    | `#3e0202` (Bordeaux) |
+| Who Am I | `#686121` (olive)    |
+| Work     | `#2d5f63` (teal)     |
+| Contact  | `#5c2800` (brown)    |
+
+- Simply mutating the `content` attribute of an existing `meta[name="theme-color"]` tag is not sufficient to trigger a Safari chrome repaint. The implementation must remove and re-insert the meta tag on each colour change to force Safari to re-read it.
+- Verify on a real iOS Safari device (or Simulator): chrome colour is olive on load, then transitions to the correct section colour as you scroll through About, Who Am I, Work, and Contact.
 
 ### AC7 — Menu overlay uses current section colours
 
@@ -102,8 +118,8 @@ Before marking done, manually (or via Playwright) verify each of the following:
 - [ ] AC2: Scroll slowly from hero into About — no green visible in About at any point.
 - [ ] AC3: Scroll through all sections — transitions are smooth between sections.
 - [ ] AC4: Hero → About boundary — no colour fade on the div, immediate Bordeaux.
-- [ ] AC5: Overscroll (bounce) at top and bottom — body/html bg matches current section.
-- [ ] AC6: Inspect `meta[name="theme-color"]` content in DevTools at each section — value matches bg colour. Check Safari chrome on device if available.
+- [ ] AC5: Overscroll (bounce) at top and bottom — body/html bg matches the chrome colour table (olive on hero, Bordeaux on About, etc.).
+- [ ] AC6: Inspect `meta[name="theme-color"]` content in DevTools at each section — value matches bg colour. On a real iOS Safari device (or Simulator), confirm chrome colour updates visually as you scroll between sections.
 - [ ] AC7: Open menu from each section — overlay bg and text match the colour map.
 - [ ] AC8: Open menu from hero — X button is purple, not green.
 - [ ] AC9: Scroll to Contact — right panel text and icons are orange.
@@ -116,6 +132,6 @@ Before marking done, manually (or via Playwright) verify each of the following:
 1. `bgColor` in `ScrollColorContext` must **never** be green. Green is a text/accent colour only.
 2. `HERO_STOP.bg` in `ScrollBackground` must be `[62, 2, 2]` (Bordeaux).
 3. Context defaults (`DEFAULT_BG`, `DEFAULT_TEXT`) must be Bordeaux and purple respectively.
-4. The `viewport.themeColor` static seed in `layout.tsx` must be `#3e0202`.
+4. The `viewport.themeColor` static seed in `layout.tsx` must be `#686121` (olive) — matching the hero chrome colour.
 5. `ThemeColorSync` handles body/html background and theme-color meta — it reads `bgColor` from context and applies it, no separate hero logic needed.
 6. The menu overlay already reads `bgColor` from context — no separate colour needed if `bgColor` is always a section colour.
