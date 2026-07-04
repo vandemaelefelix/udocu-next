@@ -35,7 +35,12 @@ body {
   font-family: var(--font-serif);
   scroll-behavior: initial;
   overscroll-behavior-y: none;
-  background-color: #686121; /* olive — hero chrome; ThemeColorSync takes over after hydration */
+  /* Warm near-black neutral. This is the *initial* background iOS 26 Safari
+     samples for its toolbar tint — and iOS 26 ignores later JS/theme-color
+     changes, so this is the fixed chrome colour iOS users see throughout.
+     A neutral frames all four section colours cleanly. Android/macOS Safari
+     still get the per-section effect via ThemeColorSync's theme-color meta. */
+  background-color: #1a1613;
 }
 
 .scrollbar-hide {

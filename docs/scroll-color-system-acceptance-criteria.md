@@ -75,6 +75,22 @@ The `theme-color` meta tag is updated on every scroll colour change via `ThemeCo
 - Simply mutating the `content` attribute of an existing `meta[name="theme-color"]` tag is not sufficient to trigger a Safari chrome repaint. The implementation must remove and re-insert the meta tag on each colour change to force Safari to re-read it.
 - Verify on a real iOS Safari device (or Simulator): chrome colour is olive on load, then transitions to the correct section colour as you scroll through About, Who Am I, Work, and Contact.
 
+#### Platform support (updated July 2026)
+
+The per-section chrome effect is **fully supported on Android Chrome, macOS Safari, and iOS 15–18 Safari** (driven by the `theme-color` meta tag).
+
+**iOS 26 Safari does NOT support it.** iOS 26 dropped `theme-color` meta support entirely and instead derives the toolbar tint from the page's initial `background-color`, sampled once at render time — JavaScript changes after the first paint are deliberately ignored (Apple's "content over chrome" design intent; see WebKit toolbar-tinting notes). Because our colour system is JS/scroll-driven, iOS 26 locks the toolbar to whatever colour is present at load.
+
+Decision: on iOS 26 the toolbar shows a fixed **warm near-black neutral `#1a1613`**, set as the initial `body { background-color }` in `globals.css`. This is a deliberate neutral that frames every section cleanly, so the fixed colour reads as intentional rather than "stuck." The dynamic per-section effect remains active everywhere it is supported.
+
+| Platform                    | Per-section chrome             |
+| --------------------------- | ------------------------------ |
+| Android Chrome              | ✅ dynamic (theme-color meta)  |
+| macOS Safari                | ✅ dynamic                     |
+| iOS 15–18 Safari            | ✅ dynamic (flaky on old vers) |
+| **iOS 26 Safari**           | ❌ fixed neutral `#1a1613`     |
+| Desktop Chrome/Firefox/Edge | n/a (no themed toolbar)        |
+
 ### AC7 — Menu overlay uses current section colours
 
 Opening the hamburger menu at any scroll position shows an overlay whose background and text match the current section from the colour map.
