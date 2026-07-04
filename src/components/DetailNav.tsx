@@ -150,9 +150,7 @@ export default function DetailNav({
 
       {/* Back link below nav */}
       {!hideBackLink && (
-        <div
-          className={`px-8 ${mobileBackOnly ? "md:hidden" : "hidden md:block"}`}
-        >
+        <div className={`px-8 ${mobileBackOnly ? "md:hidden" : ""}`}>
           <ArrowLink
             href={resolvedBackHref}
             direction="back"

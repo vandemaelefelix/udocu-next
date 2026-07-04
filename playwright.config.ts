@@ -45,5 +45,31 @@ export default defineConfig({
         bypassCSP: false,
       },
     },
+    {
+      name: "navigation-desktop",
+      testMatch: "tests/navigation/**/*.spec.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1280, height: 800 },
+        bypassCSP: false,
+      },
+    },
+    {
+      name: "navigation-mobile",
+      testMatch: "tests/navigation/**/*.spec.ts",
+      use: {
+        ...devices["Pixel 5"],
+        bypassCSP: false,
+      },
+    },
+    {
+      // WebKit (Safari engine) — closest automated proxy for iOS Safari.
+      name: "navigation-webkit",
+      testMatch: "tests/navigation/**/*.spec.ts",
+      use: {
+        ...devices["iPhone 12"],
+        bypassCSP: false,
+      },
+    },
   ],
 });

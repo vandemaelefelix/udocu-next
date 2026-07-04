@@ -87,9 +87,14 @@ export default function WhoAmISection() {
       id="who-am-i"
       className="flex min-h-screen flex-col md:min-h-[150vh] md:flex-row"
     >
-      {/* Left: title + bio + links — fades in as WhoAmI scrolls into view */}
+      {/* Left: title + bio + links — fades in as WhoAmI scrolls into view.
+          `relative z-20` lifts this interactive column above the About
+          section's sticky TV image (z-10 on the opposite column): during the
+          scroll cross-dissolve the two overlap, and an opacity-0 image still
+          captures pointer events, which would otherwise swallow clicks on the
+          "read more"/contact links here. */}
       <motion.div
-        className="flex w-full flex-col px-6 py-12 md:h-screen md:w-2/5 md:px-12 md:py-16"
+        className="relative z-20 flex w-full flex-col px-6 py-12 md:h-screen md:w-2/5 md:px-12 md:py-16"
         style={{ opacity: isMobile ? 1 : textOpacity }}
       >
         <motion.div
