@@ -248,8 +248,22 @@ test("TC6 — ScrollBackground colour is a blend inside the transition zone", as
 }) => {
   await goHome(page);
 
-  // Replicate the internal transitionTarget logic to find a scroll position
-  // that lands at t≈0.775 (midpoint of the smoothstep blend zone t=0.65–0.90).
+  // Pass 1 — scroll near WhoAmI to trigger lazy-image loading (same rationale
+  // as scrollToPureSectionColor's two-pass approach). Without this, the
+  // WhoAmI section height is underestimated and the blend target overshoots.
+  await page.evaluate(() => {
+    document.getElementById("who-am-i")?.scrollIntoView({
+      block: "start",
+      behavior: "instant",
+    });
+  });
+  await waitForColorUpdate(page);
+  await page.waitForTimeout(800);
+
+  // Pass 2 — recompute with accurate post-load heights, then scroll to blend zone.
+  // Use t=0.70 (not 0.775) to stay ≥180 px from MagneticScroll's nearest snap
+  // target (WhoAmI at idealScroll=wrapperOffsetTop+WhoAmI.top ≈ 2000 px on
+  // desktop) — the snap threshold is 150 px, so t=0.70 keeps us outside it.
   const blendScrollY = await page.evaluate(() => {
     const scrollBgEl = document.querySelector<HTMLElement>(
       '[data-testid="scroll-bg"]',
@@ -267,25 +281,23 @@ test("TC6 — ScrollBackground colour is a blend inside the transition zone", as
     );
     if (sectionEls.length < 2) return null;
 
-    const getLayout = (el: HTMLElement) => ({
-      top: el.getBoundingClientRect().top + window.scrollY - wrapperOffsetTop,
-      height: el.offsetHeight,
-    });
+    const getTop = (el: HTMLElement) =>
+      el.getBoundingClientRect().top + window.scrollY - wrapperOffsetTop;
 
-    const s0 = getLayout(sectionEls[0]); // About
-    const s1 = getLayout(sectionEls[1]); // Who Am I
+    const s0top = getTop(sectionEls[0]);
+    const s0height = sectionEls[0].getBoundingClientRect().height;
+    const s1top = getTop(sectionEls[1]);
 
     // Mirror ScrollBackground.tsx's transitionTargets logic exactly
-    const t0 = s0.top + s0.height / 2;
-    // i=1 → uses section.top + viewportMiddle (not section center)
-    const t1 = s1.top + viewportMiddle;
+    const t0 = s0top + s0height / 2;
+    const t1 = s1top + viewportMiddle; // i=1 special case
 
     if (t1 <= t0) return null; // degenerate layout, skip
 
-    // t=0.775 is in the middle of the blend zone [0.65, 0.90]
-    const blendScrollPos = t0 + 0.775 * (t1 - t0);
-    // scrollPos = viewportMiddle - (wrapperOffsetTop - scrollY)
-    // ⟹ scrollY = scrollPos + wrapperOffsetTop - viewportMiddle
+    // t=0.70 puts us in the blend zone [0.65, 0.90] AND keeps blendScrollY
+    // ≥180 px below MagneticScroll's WhoAmI snap target, so the snap never
+    // fires within the 150 px threshold before we read the colour.
+    const blendScrollPos = t0 + 0.7 * (t1 - t0);
     return Math.max(
       0,
       Math.floor(blendScrollPos + wrapperOffsetTop - viewportMiddle),
