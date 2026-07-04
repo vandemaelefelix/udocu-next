@@ -10,8 +10,7 @@
  */
 
 import { test, expect, type Page, type Locator } from "@playwright/test";
-
-const LOCALE = "nl";
+import { LOCALE, HAMBURGER } from "./helpers";
 
 type NavKind = "sticky" | "detail";
 
@@ -50,9 +49,7 @@ async function loadScreen(page: Page, path: string) {
 
 /** Open the hamburger overlay (mobile only). */
 async function openMobileMenu(page: Page) {
-  await page
-    .locator("button[aria-expanded]:not([data-nextjs-dev-tools-button])")
-    .click();
+  await page.locator(HAMBURGER).click();
   await page.waitForTimeout(400);
 }
 

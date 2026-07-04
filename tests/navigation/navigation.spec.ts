@@ -1,95 +1,47 @@
 /**
  * Navigation — acceptance criteria
  *
- * The site is a one-pager (`/nl`) with sections: about, who-am-i, work, contact.
- *   AC1  The one-pager renders all four sections (correct ids).
- *   AC2  A link/item inside a section navigates to its detail page:
- *          about read-more   → /nl/about
- *          who-am-i read-more→ /nl/who-am-i
- *          work item         → /nl/work/<uid>
- *   AC3  Each detail page has a VISIBLE back button that returns to the
- *        specific originating section (href targets the hash AND clicking it
- *        lands on the one-pager with that section in view).
- *   AC4  The blog page is only reachable through the site menu/nav — it is not
- *        linked from any section body of the one-pager.
- *   AC5  Each blog post has a VISIBLE back button that returns to the blog
- *        overview (/nl/blog).
+ * See docs/superpowers/specs/2026-07-04-navigation-acceptance-criteria-design.md
+ * for the full AC list. This file encodes:
+ *   A1  The one-pager renders all four sections (correct ids): about,
+ *       who-am-i, work, contact.
+ *   A2  A link/item inside a section navigates to its detail page:
+ *         about read-more   → /nl/about
+ *         who-am-i read-more→ /nl/who-am-i
+ *         work item         → /nl/work/<uid>
+ *   B3  The blog page is only reachable through the site menu/nav — it is not
+ *       linked from any section body of the one-pager.
+ *   D1  Clicking a section link (menu or in-page) scrolls that section into
+ *       view — after the scroll settles, the target section straddles the
+ *       viewport centre.
+ *   D3  Each blog post has a VISIBLE back button that returns to the blog
+ *       overview (/nl/blog).
  *
- * Runs on both navigation-desktop and navigation-mobile projects, because the
- * back button and menu render differently per breakpoint.
+ * The legacy "AC3" tests below (fixed-destination back button on
+ * about/who-am-i/work detail pages) are superseded by D2, which Task 4
+ * rewrites — left as-is for now. The "AC4b" test (blog reachable via the
+ * menu) is exercised more thoroughly per-screen/per-breakpoint by B1/B2 in
+ * menu.spec.ts and is kept here only as a quick smoke check.
+ *
+ * Runs on both navigation-webkit-desktop and navigation-webkit projects,
+ * because the back button and menu render differently per breakpoint.
  *
  * Requires a running dev/preview server (BASE_URL env or http://localhost:3000).
  */
 
-import { test, expect, type Page, type Locator } from "@playwright/test";
-
-const LOCALE = "nl";
-const HOME = `/${LOCALE}`;
-const BACK_LABEL = "Terug"; // nav.back (nl)
-const SECTIONS = ["about", "who-am-i", "work", "contact"] as const;
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Navigate to the one-pager and wait for hydration. */
-async function goHome(page: Page) {
-  await page.goto(HOME, { waitUntil: "load" });
-  await page.waitForSelector('[data-testid="scroll-bg"]', { timeout: 15000 });
-  await page.waitForTimeout(1500);
-}
-
-/** Navigate to a detail/overview page and wait for hydration. */
-async function gotoPage(page: Page, path: string) {
-  await page.goto(path, { waitUntil: "load" });
-  await page.waitForSelector("#main-content", { timeout: 15000 });
-  await page.waitForTimeout(800);
-}
-
-/** The single visible back link on a detail page (label "Terug"). */
-function visibleBackLink(page: Page): Locator {
-  return page.locator(`a:visible`, { hasText: BACK_LABEL });
-}
-
-/** Whether the section with `id` vertically straddles the viewport centre. */
-async function sectionCoversViewportCentre(
-  page: Page,
-  id: string,
-): Promise<{ ok: boolean; detail: string }> {
-  return page.evaluate((sectionId) => {
-    const el = document.getElementById(sectionId);
-    if (!el) return { ok: false, detail: `#${sectionId} not found` };
-    const rect = el.getBoundingClientRect();
-    const mid = window.innerHeight / 2;
-    const ok = rect.top <= mid && rect.bottom >= mid;
-    return {
-      ok,
-      detail: `#${sectionId} top=${Math.round(rect.top)} bottom=${Math.round(
-        rect.bottom,
-      )} viewportMid=${Math.round(mid)} scrollY=${Math.round(window.scrollY)}`,
-    };
-  }, id);
-}
-
-/** First on-page href matching a prefix (e.g. "/nl/work/"). */
-async function firstHref(page: Page, prefix: string): Promise<string | null> {
-  return page.evaluate((p) => {
-    const a = Array.from(
-      document.querySelectorAll<HTMLAnchorElement>("a"),
-    ).find((el) => new URL(el.href, location.origin).pathname.startsWith(p));
-    return a ? new URL(a.href, location.origin).pathname : null;
-  }, prefix);
-}
-
-/** Scroll a section to the viewport centre (as a user reading it would). */
-async function revealSection(page: Page, id: string) {
-  await page.evaluate((sectionId) => {
-    document
-      .getElementById(sectionId)
-      ?.scrollIntoView({ block: "center", behavior: "instant" });
-  }, id);
-  await page.waitForTimeout(900);
-}
+import { test, expect } from "@playwright/test";
+import {
+  LOCALE,
+  HOME,
+  SECTIONS,
+  HAMBURGER,
+  goHome,
+  gotoPage,
+  visibleBackLink,
+  sectionCoversViewportCentre,
+  firstHref,
+  revealSection,
+} from "./helpers";
 
 // ---------------------------------------------------------------------------
 // AC1 — one-pager sections
@@ -231,9 +183,7 @@ test("AC4b — blog is reachable via the site menu/nav", async ({
 
   if (isMobile) {
     // Open the hamburger overlay first.
-    await page
-      .locator("button[aria-expanded]:not([data-nextjs-dev-tools-button])")
-      .click();
+    await page.locator(HAMBURGER).click();
     await page.waitForTimeout(400);
   }
 
@@ -269,4 +219,26 @@ test("AC5 — blog post has a visible back button to the blog overview", async (
 
   await back.click();
   await expect(page).toHaveURL(new RegExp(`/${LOCALE}/blog/?$`));
+});
+
+// ---------------------------------------------------------------------------
+// D1 — clicking a section menu link scrolls it into view
+// ---------------------------------------------------------------------------
+
+test("D1 — clicking the 'work' menu link scrolls #work to the viewport centre", async ({
+  page,
+  viewport,
+}) => {
+  await goHome(page);
+  const isMobile = (viewport?.width ?? 1280) < 768;
+  if (isMobile) {
+    await page.locator(HAMBURGER).click();
+    await page.waitForTimeout(400);
+  }
+  const link = page.locator(`a[href="#work"]:visible`).first();
+  await expect(link).toBeVisible();
+  await link.click();
+  await page.waitForTimeout(1500); // smooth scroll settle
+  const res = await sectionCoversViewportCentre(page, "work");
+  expect(res.ok, `after click, ${res.detail}`).toBe(true);
 });
