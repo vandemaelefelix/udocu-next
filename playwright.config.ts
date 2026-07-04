@@ -71,5 +71,23 @@ export default defineConfig({
         bypassCSP: false,
       },
     },
+    {
+      // Desktop WebKit (Safari engine) — the desktop AC target.
+      name: "navigation-webkit-desktop",
+      testMatch: "tests/navigation/**/*.spec.ts",
+      use: {
+        ...devices["Desktop Safari"],
+        viewport: { width: 1280, height: 800 },
+        bypassCSP: false,
+      },
+    },
   ],
+  webServer: process.env.BASE_URL
+    ? undefined
+    : {
+        command: "npm run dev",
+        url: "http://localhost:3000",
+        reuseExistingServer: true,
+        timeout: 120_000,
+      },
 });

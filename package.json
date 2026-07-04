@@ -11,6 +11,7 @@
     "tsc": "tsc --noEmit",
     "prepare": "husky",
     "test:perf": "playwright test --project=performance",
+    "test:nav": "playwright test --project=navigation-webkit-desktop --project=navigation-webkit",
     "lhci": "lhci autorun"
   },
   "dependencies": {
