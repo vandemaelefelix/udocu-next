@@ -32,7 +32,11 @@ const csp = [
   `connect-src 'self' https://images.prismic.io https://res.cloudinary.com https://*.prismic.io https://eu.i.posthog.com https://eu-assets.i.posthog.com https://eu.posthog.com${isDev || isVercelPreview ? " https://vercel.live wss://ws-us3.pusher.com" : ""}`,
   "worker-src 'self' blob:",
   "manifest-src 'self'",
-  "upgrade-insecure-requests",
+  // Force http→https in production only. On the HTTP dev server this directive
+  // breaks WebKit/Safari (unlike Chromium, WebKit does not exempt localhost):
+  // it upgrades _next/static chunk requests to https, they fail TLS, and React
+  // never hydrates. Omit it in dev so local Safari testing works.
+  ...(isDev ? [] : ["upgrade-insecure-requests"]),
 ].join("; ");
 
 const permissionsPolicy = [
@@ -59,10 +63,17 @@ const permissionsPolicy = [
 
 const securityHeaders = [
   { key: "Content-Security-Policy", value: csp },
-  {
-    key: "Strict-Transport-Security",
-    value: "max-age=63072000; includeSubDomains; preload",
-  },
+  // HSTS forces https. Emit it in production only — on localhost the browser
+  // pins it and then upgrades http→https for every port, breaking this and
+  // other local dev servers (and WebKit hydration in particular).
+  ...(isDev
+    ? []
+    : [
+        {
+          key: "Strict-Transport-Security",
+          value: "max-age=63072000; includeSubDomains; preload",
+        },
+      ]),
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
