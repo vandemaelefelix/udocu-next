@@ -59,6 +59,13 @@ export default function ScrollRestoration() {
       const link = (e.target as Element).closest("a");
       if (!link?.href) return;
       writePosition(window.location.href, window.scrollY);
+
+      try {
+        const url = new URL(link.href, window.location.origin);
+        if (url.origin === window.location.origin) {
+          sessionStorage.setItem("udocu_internal_nav", "1");
+        }
+      } catch {}
     }
     document.addEventListener("click", save, true);
     return () => document.removeEventListener("click", save, true);

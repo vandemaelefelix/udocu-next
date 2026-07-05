@@ -16,12 +16,14 @@
  *       viewport centre.
  *   D3  Each blog post has a VISIBLE back button that returns to the blog
  *       overview (/nl/blog).
+ *   D2  A detail page's back button returns to the origin section via
+ *       `history.back()` (restoring the exact scroll position) when the
+ *       visitor arrived in-app; on a deep link (no in-app history) it falls
+ *       back to the fixed section hash.
  *
- * The legacy "AC3" tests below (fixed-destination back button on
- * about/who-am-i/work detail pages) are superseded by D2, which Task 4
- * rewrites — left as-is for now. The "AC4b" test (blog reachable via the
- * menu) is exercised more thoroughly per-screen/per-breakpoint by B1/B2 in
- * menu.spec.ts and is kept here only as a quick smoke check.
+ * The "AC4b" test (blog reachable via the menu) is exercised more thoroughly
+ * per-screen/per-breakpoint by B1/B2 in menu.spec.ts and is kept here only
+ * as a quick smoke check.
  *
  * Runs on both navigation-webkit-desktop and navigation-webkit projects,
  * because the back button and menu render differently per breakpoint.
@@ -96,63 +98,56 @@ test("AC2c — Work item navigates to /nl/work/<uid>", async ({ page }) => {
 });
 
 // ---------------------------------------------------------------------------
-// AC3 — detail back button returns to the specific section
+// D2 — back button returns to origin (arrived in-app), with scroll restored;
+//      deep-link fallback returns to the section the page belongs to.
 // ---------------------------------------------------------------------------
 
-for (const { path, section, label } of [
-  { path: `${HOME}/about`, section: "about", label: "About" },
-  { path: `${HOME}/who-am-i`, section: "who-am-i", label: "Who Am I" },
-] as const) {
-  test(`AC3 — ${label} detail has a visible back button to #${section}`, async ({
-    page,
-  }) => {
-    await gotoPage(page, path);
-
-    const back = visibleBackLink(page);
-    await expect(
-      back,
-      `${label} detail must show a visible back button`,
-    ).toHaveCount(1);
-
-    const href = await back.getAttribute("href");
-    expect(href, `back href should target #${section}`).toMatch(
-      new RegExp(`/${LOCALE}#${section}$`),
-    );
-
-    await back.click();
-    await expect(page).toHaveURL(new RegExp(`/${LOCALE}(#${section})?$`));
-    await page.waitForTimeout(1800); // allow smooth/magnetic scroll to settle
-    const res = await sectionCoversViewportCentre(page, section);
-    expect(res.ok, `after back, ${res.detail}`).toBe(true);
-  });
-}
-
-test("AC3 — Work detail has a visible back button to #work", async ({
+test("D2 — Work item → back returns to #work at the original scroll position", async ({
   page,
 }) => {
   await goHome(page);
-  const workPath = await firstHref(page, `${HOME}/work/`);
-  expect(workPath, "expected at least one work item on the one-pager").not.toBe(
-    null,
-  );
+  await revealSection(page, "work");
+  const originScrollY = await page.evaluate(() => window.scrollY);
+  expect(
+    originScrollY,
+    "should have scrolled down to reach #work",
+  ).toBeGreaterThan(0);
 
-  await gotoPage(page, workPath!);
+  const link = page
+    .locator(`#work a[href^="${HOME}/work/"]:visible:not([aria-hidden="true"])`)
+    .first();
+  await link.click();
+  await expect(page).toHaveURL(new RegExp(`/nl/work/[^/]+/?$`));
 
   const back = visibleBackLink(page);
-  await expect(back, "Work detail must show a visible back button").toHaveCount(
-    1,
-  );
-
-  const href = await back.getAttribute("href");
-  expect(href, "back href should target #work").toMatch(
-    new RegExp(`/${LOCALE}#work$`),
-  );
-
+  await expect(back).toHaveCount(1);
   await back.click();
-  await expect(page).toHaveURL(new RegExp(`/${LOCALE}(#work)?$`));
+
+  await expect(page).toHaveURL(new RegExp(`/nl(#work)?$`));
   await page.waitForTimeout(1800);
   const res = await sectionCoversViewportCentre(page, "work");
   expect(res.ok, `after back, ${res.detail}`).toBe(true);
+  const restoredScrollY = await page.evaluate(() => window.scrollY);
+  expect(
+    Math.abs(restoredScrollY - originScrollY),
+    `scroll should be restored to origin (was ${originScrollY}, now ${restoredScrollY})`,
+  ).toBeLessThan(80);
+});
+
+test("D2 — deep-linked /nl/about → back falls back to #about in view", async ({
+  page,
+}) => {
+  // Fresh context: no in-app history, so the fixed-hash fallback must be used.
+  await gotoPage(page, `${HOME}/about`);
+  const back = visibleBackLink(page);
+  await expect(back).toHaveCount(1);
+  const href = await back.getAttribute("href");
+  expect(href, "fallback href should target #about").toMatch(/\/nl#about$/);
+  await back.click();
+  await expect(page).toHaveURL(new RegExp(`/nl(#about)?$`));
+  await page.waitForTimeout(1500);
+  const res = await sectionCoversViewportCentre(page, "about");
+  expect(res.ok, `after fallback back, ${res.detail}`).toBe(true);
 });
 
 // ---------------------------------------------------------------------------

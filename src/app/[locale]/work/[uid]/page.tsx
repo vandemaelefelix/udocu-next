@@ -6,7 +6,7 @@ import { createClient, localeMap } from "@/prismicio";
 import type { Content } from "@prismicio/client";
 import { formatDate } from "@/utils/formatDate";
 import { getAlternates, SITE_URL } from "@/lib/seo";
-import ArrowLink from "@/components/ArrowLink";
+import DetailBackLink from "@/components/DetailBackLink";
 import { getTranslations } from "next-intl/server";
 import DetailNav from "@/components/DetailNav";
 import YouTubeEmbed from "@/components/YouTubeEmbed";
@@ -206,13 +206,12 @@ export default async function WorkDetailPage({
           </div>
 
           <div className="hidden md:block">
-            <ArrowLink
+            <DetailBackLink
               href={`/${locale}#work`}
-              direction="back"
               className="font-helvetica text-[16px] font-medium uppercase leading-5 tracking-widest transition-opacity hover:opacity-70"
             >
               {t("back")}
-            </ArrowLink>
+            </DetailBackLink>
           </div>
         </div>
 

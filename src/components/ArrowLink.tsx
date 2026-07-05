@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { type ReactNode, type ElementType } from "react";
+import { type ReactNode, type ElementType, type MouseEvent } from "react";
 import GlitchText from "@/components/GlitchText";
 
 interface ArrowLinkProps {
@@ -8,6 +8,7 @@ interface ArrowLinkProps {
   direction?: "forward" | "back";
   className?: string;
   external?: boolean;
+  onClick?: (e: MouseEvent<HTMLAnchorElement>) => void;
 }
 
 export default function ArrowLink({
@@ -16,6 +17,7 @@ export default function ArrowLink({
   direction = "forward",
   className = "font-helvetica text-[16px] font-medium uppercase leading-5 transition-opacity hover:opacity-70",
   external = false,
+  onClick,
 }: ArrowLinkProps) {
   const isBack = direction === "back";
   const arrow = isBack ? "←" : "→";
@@ -46,7 +48,7 @@ export default function ArrowLink({
   );
 
   const Tag: ElementType = external ? "a" : Link;
-  const linkProps = external ? { href } : { href };
+  const linkProps = external ? { href, onClick } : { href, onClick };
 
   return (
     <Tag {...linkProps} className={`group ${className}`}>
