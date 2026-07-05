@@ -17,6 +17,9 @@ test("E2 — one-pager nav marks the centred section active (desktop)", async ({
     page.locator(`nav a[href="#work"][aria-current="true"]`),
   ).toBeVisible();
   await expect(
+    page.locator(`nav a[href="#work"][aria-current="true"]`),
+  ).toHaveClass(/underline/);
+  await expect(
     page.locator(`nav a[href="#about"][aria-current="true"]`),
   ).toHaveCount(0);
 });

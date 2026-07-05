@@ -112,7 +112,11 @@ export default function StickyNav() {
                   <a
                     href={`#${item}`}
                     aria-current={item === activeSection ? "true" : undefined}
-                    className="focus-visible:opacity-70 focus-visible:outline-none"
+                    className={`focus-visible:opacity-70 focus-visible:outline-none ${
+                      item === activeSection
+                        ? "underline underline-offset-4"
+                        : ""
+                    }`}
                     onClick={(e) => {
                       e.preventDefault();
                       scrollToSection(item);
