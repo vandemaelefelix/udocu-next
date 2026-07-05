@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,7 @@ import UdocuLogo from "@/components/UdocuLogo";
 import GlitchText from "@/components/GlitchText";
 import { useScrollColor } from "@/context/ScrollColorContext";
 import { useActiveSection } from "@/hooks/useActiveSection";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 const NAV_ITEMS = ["about", "who-am-i", "work", "contact", "blog"] as const;
 
@@ -24,6 +25,8 @@ export default function StickyNav() {
   const router = useRouter();
   const { bgColor, textColor } = useScrollColor();
   const activeSection = useActiveSection(SECTION_IDS);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(overlayRef, menuOpen);
 
   // On the hero the nav text is green over a Bordeaux background; the menu
   // overlay uses purple text there (matching About) instead of green.
@@ -127,7 +130,12 @@ export default function StickyNav() {
             type="button"
             className="relative z-[60] flex h-8 w-8 flex-col items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded md:hidden"
             style={menuOpen ? { color: overlayTextColor } : undefined}
-            onClick={() => setMenuOpen((prev) => !prev)}
+            onClick={(e) => {
+              // WebKit does not focus buttons on click by default, which would
+              // make the focus trap capture the wrong element as its trigger.
+              e.currentTarget.focus();
+              setMenuOpen((prev) => !prev);
+            }}
             aria-label={menuOpen ? t("closeMenu") : t("openMenu")}
             aria-expanded={menuOpen}
           >
@@ -145,6 +153,7 @@ export default function StickyNav() {
 
         {/* Mobile full-screen overlay */}
         <div
+          ref={overlayRef}
           role="dialog"
           aria-modal="true"
           aria-label={t("openMenu")}

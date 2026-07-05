@@ -87,3 +87,26 @@ test("F4 — detail back link is keyboard-operable", async ({ page }) => {
   await back.focus();
   await expect(back).toBeFocused();
 });
+
+test("F3 — open overlay traps focus and Escape returns focus to the trigger", async ({
+  page,
+  viewport,
+}) => {
+  test.skip((viewport?.width ?? 1280) >= 768, "overlay is mobile-only");
+  await goHome(page);
+  const trigger = page.locator(HAMBURGER);
+  await trigger.click();
+  await page.waitForTimeout(400);
+  for (let i = 0; i < 8; i++) {
+    await page.keyboard.press("Tab");
+    const inside = await page.evaluate(
+      () => !!document.activeElement?.closest('[role="dialog"]'),
+    );
+    expect(inside, `focus should stay inside the dialog (iter ${i})`).toBe(
+      true,
+    );
+  }
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(300);
+  await expect(trigger).toBeFocused();
+});

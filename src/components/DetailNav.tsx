@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import UdocuLogo from "@/components/UdocuLogo";
 import ArrowLink from "@/components/ArrowLink";
 import GlitchText from "@/components/GlitchText";
 import { useBackNavigation } from "@/hooks/useBackNavigation";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 interface DetailNavProps {
   backHref: string;
@@ -36,6 +37,8 @@ export default function DetailNav({
   const t = useTranslations("nav");
   const locale = useLocale();
   const [menuOpen, setMenuOpen] = useState(false);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(overlayRef, menuOpen);
 
   // "/#about" → "/nl#about": callers often omit the locale prefix; also
   // strip a trailing slash before the hash so storage keys are consistent.
@@ -91,7 +94,12 @@ export default function DetailNav({
         <button
           type="button"
           className="relative z-[60] flex h-8 w-8 flex-col items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded md:hidden"
-          onClick={() => setMenuOpen((prev) => !prev)}
+          onClick={(e) => {
+            // WebKit does not focus buttons on click by default, which would
+            // make the focus trap capture the wrong element as its trigger.
+            e.currentTarget.focus();
+            setMenuOpen((prev) => !prev);
+          }}
           aria-label={menuOpen ? t("closeMenu") : t("openMenu")}
           aria-expanded={menuOpen}
         >
@@ -109,6 +117,7 @@ export default function DetailNav({
 
       {/* Mobile full-screen overlay */}
       <div
+        ref={overlayRef}
         role="dialog"
         aria-modal="true"
         aria-label={t("openMenu")}
