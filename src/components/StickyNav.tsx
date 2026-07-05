@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import UdocuLogo from "@/components/UdocuLogo";
 import GlitchText from "@/components/GlitchText";
 import { useScrollColor } from "@/context/ScrollColorContext";
+import { useActiveSection } from "@/hooks/useActiveSection";
 
 const NAV_ITEMS = ["about", "who-am-i", "work", "contact", "blog"] as const;
 
@@ -16,6 +17,12 @@ export default function StickyNav() {
   const locale = useLocale();
   const router = useRouter();
   const { bgColor, textColor } = useScrollColor();
+  const activeSection = useActiveSection([
+    "about",
+    "who-am-i",
+    "work",
+    "contact",
+  ]);
 
   // On the hero the nav text is green over a Bordeaux background; the menu
   // overlay uses purple text there (matching About) instead of green.
@@ -100,6 +107,7 @@ export default function StickyNav() {
                 <li key={item}>
                   <a
                     href={`#${item}`}
+                    aria-current={item === activeSection ? "true" : undefined}
                     className="focus-visible:opacity-70 focus-visible:outline-none"
                     onClick={(e) => {
                       e.preventDefault();
