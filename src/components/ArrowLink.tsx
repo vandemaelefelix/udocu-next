@@ -48,7 +48,7 @@ export default function ArrowLink({
   );
 
   const Tag: ElementType = external ? "a" : Link;
-  const linkProps = external ? { href, onClick } : { href, onClick };
+  const linkProps = { href, onClick };
 
   return (
     <Tag {...linkProps} className={`group ${className}`}>

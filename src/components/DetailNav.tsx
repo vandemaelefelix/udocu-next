@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef, type MouseEvent } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import UdocuLogo from "@/components/UdocuLogo";
 import ArrowLink from "@/components/ArrowLink";
 import GlitchText from "@/components/GlitchText";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 interface DetailNavProps {
   backHref: string;
@@ -51,40 +52,7 @@ export default function DetailNav({
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [menuOpen]);
 
-  // Capture whether *this page* was reached via an in-app link click as of
-  // mount. Reading the flag fresh inside `handleBack` instead would be
-  // wrong: clicking the back link itself is also a same-origin anchor
-  // click, so ScrollRestoration's capture-phase listener would set the flag
-  // for *this very click* before handleBack's bubble-phase handler runs,
-  // making every back click look "in-app" even on a deep link.
-  //
-  // Deliberately never cleared: this same page can mount more than one back
-  // link at once (e.g. the work detail page renders both `DetailNav`'s
-  // mobile-only link and a separate desktop-only `DetailBackLink`, one
-  // always CSS-hidden but both still mounted) — a "read once, then clear"
-  // flag would race between them, with whichever mounts first winning and
-  // the other reading it back empty.
-  //
-  // `null` sentinel guards against React Strict Mode's dev-mode double
-  // effect invocation re-running this unnecessarily (harmless since the
-  // read itself has no side effect, but avoids doing it twice).
-  const arrivedViaInAppNav = useRef<boolean | null>(null);
-  useEffect(() => {
-    if (arrivedViaInAppNav.current !== null) return;
-    arrivedViaInAppNav.current =
-      sessionStorage.getItem("udocu_internal_nav") === "1";
-  }, []);
-
-  const handleBack = (e: MouseEvent<HTMLAnchorElement>) => {
-    if (typeof window === "undefined") return;
-    const cameFromInApp =
-      window.history.length > 1 && arrivedViaInAppNav.current;
-    if (cameFromInApp) {
-      e.preventDefault();
-      window.history.back();
-    }
-    // else: allow the <a href={resolvedBackHref}> to navigate (deep-link fallback)
-  };
+  const handleBack = useBackNavigation();
 
   return (
     <header className="sticky top-0 z-50">

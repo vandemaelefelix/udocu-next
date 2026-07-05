@@ -107,6 +107,15 @@ test("D2 — Work item → back returns to #work at the original scroll position
 }) => {
   await goHome(page);
   await revealSection(page, "work");
+  // Nudge to a scroll offset that does NOT coincide with a fresh
+  // scrollIntoView(center) of #work. Without this, the old fixed-hash back
+  // link (which re-runs scrollIntoView) lands on nearly the same scrollY as
+  // the origin for this section's geometry, so the test would pass even for
+  // the pre-D2 behavior. The offset makes the assertion actually
+  // discriminate history.back() (restores this exact offset) from the fixed
+  // hash (top/centre-aligns the section, losing the offset).
+  await page.evaluate(() => window.scrollBy(0, 220));
+  await page.waitForTimeout(400);
   const originScrollY = await page.evaluate(() => window.scrollY);
   expect(
     originScrollY,

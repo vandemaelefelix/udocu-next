@@ -52,6 +52,20 @@ function restoreScroll() {
 export default function ScrollRestoration() {
   const pathname = usePathname();
 
+  // Clear the in-app-nav flag once per FULL document load. This component is
+  // mounted in the root layout, which the App Router does NOT remount across
+  // client-side navigations, so this []-effect runs exactly once per real
+  // document load (deep link / reload) — never on client transitions. That
+  // makes `udocu_internal_nav` mean "an in-app navigation happened since the
+  // last full document load": on a deep link or reload it starts unset, so a
+  // detail page's back button uses its fixed-hash fallback; once the visitor
+  // clicks an in-app link the flag is set and survives the client navigation
+  // into the detail page, where the back button then uses history.back().
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    sessionStorage.removeItem("udocu_internal_nav");
+  }, []);
+
   // Save scroll position before any link-driven navigation (capture phase
   // so it runs before the router intercepts the click)
   useEffect(() => {
