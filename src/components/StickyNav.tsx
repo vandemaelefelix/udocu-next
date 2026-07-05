@@ -11,18 +11,19 @@ import { useActiveSection } from "@/hooks/useActiveSection";
 
 const NAV_ITEMS = ["about", "who-am-i", "work", "contact", "blog"] as const;
 
+// Module-scoped so the reference is stable across renders. StickyNav re-renders
+// ~60×/sec during scroll (it consumes bgColor/textColor from ScrollColorContext,
+// which updates per requestAnimationFrame); a new inline array each render would
+// force useActiveSection's IntersectionObserver to disconnect + rebuild every frame.
+const SECTION_IDS = ["about", "who-am-i", "work", "contact"] as const;
+
 export default function StickyNav() {
   const t = useTranslations("nav");
   const [menuOpen, setMenuOpen] = useState(false);
   const locale = useLocale();
   const router = useRouter();
   const { bgColor, textColor } = useScrollColor();
-  const activeSection = useActiveSection([
-    "about",
-    "who-am-i",
-    "work",
-    "contact",
-  ]);
+  const activeSection = useActiveSection(SECTION_IDS);
 
   // On the hero the nav text is green over a Bordeaux background; the menu
   // overlay uses purple text there (matching About) instead of green.
