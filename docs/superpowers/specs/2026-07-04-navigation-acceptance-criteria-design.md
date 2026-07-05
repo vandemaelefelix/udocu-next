@@ -54,7 +54,7 @@ Legend: _(exists)_ = current behavior already satisfies it (verify + keep); **CH
 ### E — Active-section indication
 
 - **E1** _(exists)_ On detail pages and the blog, the nav underlines the matching item (blog underlined on the blog overview).
-- **E2** **NEW** — On the one-pager, the nav indicates the currently-viewed section as the user scrolls (scroll-spy): the nav item for the section straddling the viewport centre is marked active.
+- **E2** **NEW** — On the one-pager, the nav indicates the currently-viewed section as the user scrolls (scroll-spy): the nav item for the section straddling the viewport centre is marked active. On **desktop** this is the persistent nav bar; on **mobile** (no persistent bar) the current section is highlighted in the hamburger overlay when it is opened. The observer re-attaches when section nodes mount/replace (`next/dynamic` sections), so it works regardless of hydration timing.
 
 ### F — Keyboard & accessibility
 

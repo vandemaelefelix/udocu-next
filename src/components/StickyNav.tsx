@@ -197,7 +197,12 @@ export default function StickyNav() {
                   <a
                     href={`#${item}`}
                     tabIndex={menuOpen ? 0 : -1}
-                    className="focus-visible:opacity-70 focus-visible:outline-none"
+                    aria-current={item === activeSection ? "true" : undefined}
+                    className={`focus-visible:opacity-70 focus-visible:outline-none ${
+                      item === activeSection
+                        ? "underline underline-offset-4"
+                        : ""
+                    }`}
                     onClick={handleNavClick}
                   >
                     <GlitchText>{t(item)}</GlitchText>
