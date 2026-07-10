@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import tvFrameOverlay from "@/assets/images/tv-frame-overlay.png";
-import CloudinaryVideo from "@/components/CloudinaryVideo";
+import AboutVideo from "@/components/AboutVideo";
 import VolumeIcon from "@/components/icons/VolumeIcon";
 import ArrowLink from "@/components/ArrowLink";
 import Link from "next/link";
@@ -164,9 +164,22 @@ export default function AboutSection() {
               }}
             >
               {isVideoVisible ? (
-                <CloudinaryVideo className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                <AboutVideo
+                  src="/videos/about-tv.mp4"
+                  poster="/videos/about-poster-tv.jpg"
+                  autoPlay
+                  loop
+                  preload="auto"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
               ) : (
-                <div className="absolute inset-0 bg-black" />
+                <Image
+                  src="/videos/about-poster-tv.jpg"
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 767px) 40vw, 15vw"
+                />
               )}
               {/* CRT screen effect overlay */}
               <div
