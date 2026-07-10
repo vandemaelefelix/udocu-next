@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { getAlternates } from "@/lib/seo";
 import DetailPage from "@/components/DetailPage";
-import CloudinaryVideo from "@/components/CloudinaryVideo";
+import AboutVideo from "@/components/AboutVideo";
 import VideoPlayer from "@/components/VideoPlayer";
 
 type Params = { locale: string };
@@ -32,7 +32,12 @@ export default function AboutPage() {
       colorScheme="bg-red-dark text-red-light"
       media={
         <VideoPlayer className="h-full w-full">
-          <CloudinaryVideo className="h-full w-full object-cover" />
+          <AboutVideo
+            src="/videos/about.mp4"
+            poster="/videos/about-poster.jpg"
+            preload="none"
+            className="h-full w-full object-cover"
+          />
         </VideoPlayer>
       }
       date={t("date")}

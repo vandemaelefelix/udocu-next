@@ -68,8 +68,8 @@ export default function VideoPlayer({
     const v = getVideo();
     if (!v) return;
 
-    // On first play, disable the autoPlay/loop attributes the
-    // CloudinaryVideo component may have set, unmute, and restart.
+    // On first play, disable any autoPlay/loop attributes the child video
+    // may have set, unmute, and restart.
     if (!hasStarted) {
       v.autoplay = false;
       v.loop = false;

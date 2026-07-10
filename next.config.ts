@@ -24,12 +24,12 @@ const csp = [
   `script-src 'self' 'unsafe-inline' https://eu-assets.i.posthog.com https://va.vercel-scripts.com${isDev || isVercelPreview ? " https://vercel.live" : ""}${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
-  "img-src 'self' data: blob: https://images.prismic.io https://res.cloudinary.com https://i.ytimg.com https://eu.i.posthog.com https://eu-assets.i.posthog.com",
-  "media-src 'self' blob: https://res.cloudinary.com",
+  "img-src 'self' data: blob: https://images.prismic.io https://i.ytimg.com https://eu.i.posthog.com https://eu-assets.i.posthog.com",
+  "media-src 'self' blob:",
   `frame-src https://www.youtube-nocookie.com${isDev || isVercelPreview ? " https://vercel.live" : ""}`,
   // PostHog analytics: eu.i.posthog.com (events/decide), eu-assets.i.posthog.com (config bundle),
   // eu.posthog.com (feature flags /decide endpoint).
-  `connect-src 'self' https://images.prismic.io https://res.cloudinary.com https://*.prismic.io https://eu.i.posthog.com https://eu-assets.i.posthog.com https://eu.posthog.com${isDev || isVercelPreview ? " https://vercel.live wss://ws-us3.pusher.com" : ""}`,
+  `connect-src 'self' https://images.prismic.io https://*.prismic.io https://eu.i.posthog.com https://eu-assets.i.posthog.com https://eu.posthog.com${isDev || isVercelPreview ? " https://vercel.live wss://ws-us3.pusher.com" : ""}`,
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   // Force http→https in production only. On the HTTP dev server this directive
@@ -101,6 +101,21 @@ const nextConfig: NextConfig = {
     {
       source: "/:path*",
       headers: securityHeaders,
+    },
+    {
+      // Self-hosted videos + posters are content-stable (their bytes never
+      // change under a given filename), so let the browser cache them for a
+      // year. This means a page refresh reuses the already-downloaded file
+      // instead of re-fetching it — the key lever for keeping video traffic
+      // down. If a video's content ever changes, ship it under a new filename
+      // (e.g. about.v2.mp4) so cached browsers pick it up.
+      source: "/videos/:path*",
+      headers: [
+        {
+          key: "Cache-Control",
+          value: "public, max-age=31536000, immutable",
+        },
+      ],
     },
     {
       source: "/api/preview",

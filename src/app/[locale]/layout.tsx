@@ -98,8 +98,6 @@ export default async function LocaleLayout({
           href="/videos/hero-poster.webp"
           fetchPriority="high"
         />
-        {/* Preconnect to Cloudinary to shave TCP/TLS handshake time off the below-fold video */}
-        <link rel="preconnect" href="https://res.cloudinary.com" />
       </head>
       <body className={`${fontVariables} antialiased`}>
         <a
