@@ -25,10 +25,12 @@
     "readMoreLink": "READ MORE",
     "contactLink": "CONTACT",
     "imageAlt": "Kurt Vandemaele",
+    "photoCredit": "© Henk Deleu",
     "date": "12 February 2026"
   },
   "work": {
     "title": "Fragments",
+    "description": "These are fragments from a few test recordings made before Udocu's launch. They give you a bit of an idea of what Udocu does. The filmed interviews that Udocu delivers are deeply personal — meaning the client alone decides who gets to see the footage.",
     "previous": "Previous",
     "next": "Next"
   },
