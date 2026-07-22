@@ -8,6 +8,8 @@ interface DetailPageProps {
   image?: StaticImageData;
   imageAlt?: string;
   imageClassName?: string;
+  /** Optional photographer/copyright credit shown in the cover image's bottom corner */
+  imageCredit?: string;
   /** Optional custom media element (e.g. a video) that replaces the cover image */
   media?: ReactNode;
   date: string;
@@ -21,6 +23,7 @@ export default function DetailPage({
   image,
   imageAlt = "",
   imageClassName = "object-cover object-center",
+  imageCredit,
   media,
   date,
   title,
@@ -44,6 +47,11 @@ export default function DetailPage({
                 priority
               />
             ))}
+          {imageCredit && (
+            <span className="pointer-events-none absolute bottom-2 right-2 z-10 font-helvetica text-xs tracking-wide text-white/80 md:bottom-3 md:right-3">
+              {imageCredit}
+            </span>
+          )}
         </div>
       </div>
 
