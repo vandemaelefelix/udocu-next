@@ -31,6 +31,7 @@ export default function WhoAmIPage() {
       colorScheme="bg-green-dark text-green-light"
       image={bioPhoto}
       imageAlt={t("imageAlt")}
+      imageCredit={t("photoCredit")}
       date={t("date")}
       title={<span className="font-serif font-semibold">{t("title")}</span>}
     >

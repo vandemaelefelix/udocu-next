@@ -137,6 +137,10 @@ export default function WhoAmISection() {
             sizes="(max-width: 767px) 100vw, 60vw"
           />
         </motion.div>
+        {/* Photographer credit — required attribution, white text in the bottom corner */}
+        <span className="pointer-events-none absolute bottom-3 right-3 z-10 font-helvetica text-xs tracking-wide text-white/80 md:bottom-4 md:right-4">
+          {t("photoCredit")}
+        </span>
       </motion.div>
     </section>
   );
