@@ -164,8 +164,8 @@ export default function AboutSection() {
             >
               {isVideoVisible ? (
                 <AboutVideo
-                  src="/videos/about-tv.mp4"
-                  poster="/videos/about-poster-tv.jpg"
+                  src="/videos/about-tv.v2.mp4"
+                  poster="/videos/about-poster-tv.webp"
                   autoPlay
                   loop
                   preload="auto"
@@ -173,7 +173,7 @@ export default function AboutSection() {
                 />
               ) : (
                 <Image
-                  src="/videos/about-poster-tv.jpg"
+                  src="/videos/about-poster-tv.webp"
                   alt=""
                   fill
                   className="object-cover"
@@ -244,7 +244,9 @@ export default function AboutSection() {
             <p>{t("paragraph2")}</p>
           </div>
           <div className="flex flex-col gap-4 md:gap-16 mt-8">
-            <ArrowLink href="/about">{t("readMoreLink")}</ArrowLink>
+            <ArrowLink href="/about" ariaLabel={t("readMoreAriaLabel")}>
+              {t("readMoreLink")}
+            </ArrowLink>
             <ArrowLink href="#contact">{t("contactLink")}</ArrowLink>
           </div>
         </div>

@@ -24,7 +24,7 @@ interface AboutVideoProps {
  * and the AboutSection mute toggle keep working via `querySelector("video")`.
  */
 export default function AboutVideo({
-  src = "/videos/about.mp4",
+  src = "/videos/about.v2.mp4",
   poster,
   className = "h-full w-full object-cover",
   style,

@@ -9,6 +9,8 @@ interface ArrowLinkProps {
   className?: string;
   external?: boolean;
   onClick?: (e: MouseEvent<HTMLAnchorElement>) => void;
+  /** Overrides the accessible name — use when multiple links share visible text (e.g. "LEES MEER") so screen readers can tell them apart. */
+  ariaLabel?: string;
 }
 
 export default function ArrowLink({
@@ -18,6 +20,7 @@ export default function ArrowLink({
   className = "font-helvetica text-[16px] font-medium uppercase leading-5 transition-opacity hover:opacity-70",
   external = false,
   onClick,
+  ariaLabel,
 }: ArrowLinkProps) {
   const isBack = direction === "back";
   const arrow = isBack ? "←" : "→";
@@ -48,7 +51,7 @@ export default function ArrowLink({
   );
 
   const Tag: ElementType = external ? "a" : Link;
-  const linkProps = { href, onClick };
+  const linkProps = { href, onClick, "aria-label": ariaLabel };
 
   return (
     <Tag {...linkProps} className={`group ${className}`}>
