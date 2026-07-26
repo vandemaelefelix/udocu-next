@@ -52,7 +52,7 @@ async function waitForColorUpdate(page: Page) {
 
 /** Navigate to the home page and wait for React hydration + ThemeColorSync. */
 async function goHome(page: Page) {
-  await page.goto("/nl", { waitUntil: "load" });
+  await page.goto("/", { waitUntil: "load" });
   // Wait for the scroll-bg div — confirms React hydration is done.
   await page.waitForSelector('[data-testid="scroll-bg"]', { timeout: 15000 });
   // Give ThemeColorSync's useEffect time to fire and set body.style.backgroundColor.
