@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { routing } from "@/i18n/routing";
 import { garamond, helveticaNeue, posterman } from "../fonts";
 import { SITE_URL } from "@/lib/seo";
+import { contactInfo } from "@/config/contact";
 import NoiseOverlay from "@/components/NoiseOverlay";
 import ScrollRestoration from "@/components/ScrollRestoration";
 import { PHProvider } from "@/app/providers";
@@ -116,7 +117,7 @@ export default async function LocaleLayout({
               "Udocu is a creative studio founded by journalist Kurt Vandemaele, dedicated to preserving personal and cultural heritage through in-depth documentary interviews, film, photography, and digital archives. Based in Kortrijk, Belgium.",
             founder: {
               "@type": "Person",
-              name: "Kurt Vandemaele",
+              name: contactInfo.name,
               url: `${SITE_URL}/nl/who-am-i`,
               jobTitle: "Journalist & Founder",
               description:
@@ -124,17 +125,17 @@ export default async function LocaleLayout({
             },
             contactPoint: {
               "@type": "ContactPoint",
-              email: "Kurtvandemaele@udocu.be",
-              telephone: "+32475731156",
+              email: contactInfo.email,
+              telephone: contactInfo.phone.replace(/\s/g, ""),
               contactType: "customer service",
               availableLanguage: ["Dutch", "English"],
             },
             address: {
               "@type": "PostalAddress",
-              streetAddress: "André Devaerelaan 20",
-              addressLocality: "Kortrijk",
-              postalCode: "8500",
-              addressCountry: "BE",
+              streetAddress: contactInfo.address.line1,
+              addressLocality: contactInfo.address.locality,
+              postalCode: contactInfo.address.postalCode,
+              addressCountry: contactInfo.address.country,
             },
             areaServed: {
               "@type": "Country",

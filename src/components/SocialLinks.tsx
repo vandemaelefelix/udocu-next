@@ -1,6 +1,6 @@
 "use client";
 
-import { socialLinks } from "@/config/social";
+import { socialLinks } from "@/config/contact";
 import {
   FacebookIcon,
   InstagramIcon,
