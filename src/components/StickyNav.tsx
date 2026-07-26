@@ -90,12 +90,12 @@ export default function StickyNav() {
           >
             <UdocuLogo
               aria-hidden="true"
-              className="h-6 w-auto max-w-24 md:h-10 md:max-w-48"
+              className="h-6 w-auto max-w-24 md:h-8 md:max-w-36 lg:h-10 lg:max-w-48"
             />
           </Link>
 
           {/* Desktop nav */}
-          <ul className="hidden gap-8 font-helvetica text-sm font-medium uppercase tracking-widest md:flex">
+          <ul className="hidden gap-6 font-helvetica text-sm font-medium uppercase tracking-widest md:flex lg:gap-8">
             {NAV_ITEMS.map((item) => {
               const label = t(item);
               return item === "blog" ? (

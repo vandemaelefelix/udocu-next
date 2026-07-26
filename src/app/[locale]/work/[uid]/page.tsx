@@ -1,10 +1,8 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import * as prismic from "@prismicio/client";
-import { PrismicRichText } from "@prismicio/react";
 import { createClient, localeMap } from "@/prismicio";
 import type { Content } from "@prismicio/client";
-import { formatDate } from "@/utils/formatDate";
 import { getAlternates, SITE_URL } from "@/lib/seo";
 import DetailBackLink from "@/components/DetailBackLink";
 import { getTranslations } from "next-intl/server";
@@ -99,10 +97,6 @@ export default async function WorkDetailPage({
   const colors = getColorPair(uid);
   const t = await getTranslations("nav");
 
-  const formattedDate = page.data.publish_date
-    ? formatDate(page.data.publish_date, locale)
-    : null;
-
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -171,41 +165,24 @@ export default async function WorkDetailPage({
         />
       </div>
 
-      <div className="flex flex-1 flex-col px-8 pb-8 md:flex-row md:items-center md:gap-12 md:pb-16 lg:gap-16">
-        <div className="flex flex-col md:w-[38%] md:shrink-0">
-          <h1 className="mb-6 font-posterman text-[48px] font-black uppercase leading-[1.1] md:mb-8 md:text-[72px]">
-            {page.data.name}
-          </h1>
+      <div className="flex flex-1 flex-col px-8 pb-8 md:pb-16">
+        <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-8 md:gap-10">
+          {page.data.name && (
+            <h1 className="text-center font-posterman text-[40px] font-black uppercase leading-[1.1] md:text-[64px]">
+              {page.data.name}
+            </h1>
+          )}
 
           {videoUrl && (
-            <div className="mb-6 md:hidden">
-              <div className="relative aspect-video w-full overflow-hidden">
-                <YouTubeEmbed
-                  url={videoUrl}
-                  title={page.data.name ?? undefined}
-                />
-              </div>
+            <div className="relative aspect-video w-full overflow-hidden">
+              <YouTubeEmbed
+                url={videoUrl}
+                title={page.data.name ?? undefined}
+              />
             </div>
           )}
 
-          <div className="mb-4 font-serif text-[20px] font-semibold leading-7 md:text-[24px] md:leading-8">
-            <PrismicRichText field={page.data.lead} />
-          </div>
-
-          {formattedDate && (
-            <time
-              dateTime={page.data.publish_date!}
-              className="mb-6 block font-helvetica text-xs uppercase tracking-widest opacity-60"
-            >
-              {formattedDate}
-            </time>
-          )}
-
-          <div className="mb-8 space-y-4 font-helvetica text-[14px] font-light leading-5 opacity-80 md:text-[15px] md:leading-6">
-            <PrismicRichText field={page.data.body} />
-          </div>
-
-          <div className="hidden md:block">
+          <div className="hidden justify-center md:flex">
             <DetailBackLink
               href={`/${locale}#work`}
               className="font-helvetica text-[16px] font-medium uppercase leading-5 tracking-widest transition-opacity hover:opacity-70"
@@ -214,17 +191,6 @@ export default async function WorkDetailPage({
             </DetailBackLink>
           </div>
         </div>
-
-        {videoUrl && (
-          <div className="hidden flex-1 md:block">
-            <div className="relative aspect-video w-full overflow-hidden">
-              <YouTubeEmbed
-                url={videoUrl}
-                title={page.data.name ?? undefined}
-              />
-            </div>
-          </div>
-        )}
       </div>
 
       <SocialLinks className="absolute right-8 bottom-6 hidden gap-4 md:flex" />
