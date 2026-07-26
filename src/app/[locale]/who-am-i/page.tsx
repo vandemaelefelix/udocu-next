@@ -32,7 +32,6 @@ export default function WhoAmIPage() {
       image={bioPhoto}
       imageAlt={t("imageAlt")}
       imageCredit={t("photoCredit")}
-      date={t("date")}
       title={<span className="font-serif font-semibold">{t("title")}</span>}
     >
       <p>{t("detailParagraph1")}</p>

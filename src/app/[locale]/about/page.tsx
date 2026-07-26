@@ -40,7 +40,6 @@ export default function AboutPage() {
           />
         </VideoPlayer>
       }
-      date={t("date")}
       title={
         <>
           <span className="font-serif font-semibold">{t("titlePrefix")}</span>{" "}

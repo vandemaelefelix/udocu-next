@@ -12,7 +12,7 @@ interface DetailPageProps {
   imageCredit?: string;
   /** Optional custom media element (e.g. a video) that replaces the cover image */
   media?: ReactNode;
-  date: string;
+  date?: string;
   title: ReactNode;
   children: ReactNode;
 }
@@ -57,9 +57,11 @@ export default function DetailPage({
 
       {/* Date, title & body */}
       <article className="mx-auto max-w-5xl px-8 pt-8 pb-16 md:pt-12 md:pb-24">
-        <p className="mb-6 font-helvetica text-xs uppercase tracking-widest opacity-60">
-          {date}
-        </p>
+        {date && (
+          <p className="mb-6 font-helvetica text-xs uppercase tracking-widest opacity-60">
+            {date}
+          </p>
+        )}
 
         <h1 className="mb-8 font-serif text-[40px] font-semibold leading-[1] tracking-normal md:text-[72px] md:leading-[72px]">
           {title}
