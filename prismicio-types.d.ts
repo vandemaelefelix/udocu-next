@@ -164,24 +164,6 @@ interface InterviewDocumentData {
   name: prismic.KeyTextField;
 
   /**
-   * Lead field in *Interview*
-   *
-   * - **Field Type**: Rich Text
-   * - **API ID Path**: interview.lead
-   * - **Tab**: Main
-   */
-  lead: prismic.RichTextField;
-
-  /**
-   * Body field in *Interview*
-   *
-   * - **Field Type**: Rich Text
-   * - **API ID Path**: interview.body
-   * - **Tab**: Main
-   */
-  body: prismic.RichTextField;
-
-  /**
    * Publish Date field in *Interview*
    *
    * - **Field Type**: Date
