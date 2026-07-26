@@ -56,16 +56,16 @@ The idea for udocu grew from a personal experience: watching his father become d
 - **Phone**: ${contactInfo.phone}
 - **Address**: ${contactInfo.address.line1}, ${contactInfo.address.line2}, Belgium
 - **Website**: ${SITE_URL}
-- **Languages**: Dutch (primary), English
+- **Languages**: Dutch
 
 ## Site structure
 
-- [Home](${SITE_URL}/en) — Main landing page with overview of all sections
-- [About udocu](${SITE_URL}/en/about) — Detailed explanation of the udocu concept and services
-- [Who Am I](${SITE_URL}/en/who-am-i) — Kurt Vandemaele's personal story and background
-- [Work](${SITE_URL}/en/work) — Portfolio of documentary interviews and projects
-- [Blog](${SITE_URL}/en/blog) — Stories, insights, and reflections on documentary storytelling
-- [Contact](${SITE_URL}/en/contact) — Get in touch with udocu
+- [Home](${SITE_URL}) — Main landing page with overview of all sections
+- [About udocu](${SITE_URL}/about) — Detailed explanation of the udocu concept and services
+- [Who Am I](${SITE_URL}/who-am-i) — Kurt Vandemaele's personal story and background
+- [Work](${SITE_URL}/work) — Portfolio of documentary interviews and projects
+- [Blog](${SITE_URL}/blog) — Stories, insights, and reflections on documentary storytelling
+- [Contact](${SITE_URL}/contact) — Get in touch with udocu
 
 ## Frequently asked questions
 
@@ -76,7 +76,7 @@ The idea for udocu grew from a personal experience: watching his father become d
 Udocu is based in Kortrijk, Belgium, but serves clients throughout Belgium and beyond.
 
 ### What languages does udocu work in?
-Udocu primarily works in Dutch but also offers services in English. The website is available in both Dutch and English.
+Udocu primarily works in Dutch but also offers services in English. The website itself is in Dutch.
 
 ### How much does a udocu interview cost?
 Contact ${contactInfo.name} directly at ${contactInfo.email} or ${contactInfo.phone} for pricing information.

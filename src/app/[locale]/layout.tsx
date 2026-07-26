@@ -52,8 +52,7 @@ export async function generateMetadata({
     ],
     openGraph: {
       siteName: t("title"),
-      locale: locale === "en" ? "en_US" : "nl_BE",
-      alternateLocale: locale === "en" ? "nl_BE" : "en_US",
+      locale: "nl_BE",
       type: "website",
       images: [`${SITE_URL}/videos/hero-poster.webp`],
     },
@@ -118,7 +117,7 @@ export default async function LocaleLayout({
             founder: {
               "@type": "Person",
               name: contactInfo.name,
-              url: `${SITE_URL}/nl/who-am-i`,
+              url: `${SITE_URL}/who-am-i`,
               jobTitle: "Journalist & Founder",
               description:
                 "Veteran journalist with 40 years of experience, including 24 years at Humo magazine. Founder of udocu, specialising in personal documentary interviews and heritage preservation.",
@@ -193,7 +192,7 @@ export default async function LocaleLayout({
             url: SITE_URL,
             description:
               "Udocu preserves personal and cultural heritage through documentary storytelling. So as not to forget who you were.",
-            inLanguage: ["en", "nl"],
+            inLanguage: "nl-BE",
             publisher: {
               "@type": "Organization",
               name: "udocu",
