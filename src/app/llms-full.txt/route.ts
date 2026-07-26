@@ -1,4 +1,5 @@
 import { SITE_URL } from "@/lib/seo";
+import { contactInfo } from "@/config/contact";
 
 export function GET() {
   const today = new Date().toISOString().split("T")[0];
@@ -50,10 +51,10 @@ The idea for udocu grew from a personal experience: watching his father become d
 
 ## Contact information
 
-- **Name**: Kurt Vandemaele
-- **Email**: Kurtvandemaele@udocu.be
-- **Phone**: +32 475 73 11 56
-- **Address**: André Devaerelaan 20, 8500 Kortrijk, Belgium
+- **Name**: ${contactInfo.name}
+- **Email**: ${contactInfo.email}
+- **Phone**: ${contactInfo.phone}
+- **Address**: ${contactInfo.address.line1}, ${contactInfo.address.line2}, Belgium
 - **Website**: ${SITE_URL}
 - **Languages**: Dutch (primary), English
 
@@ -78,7 +79,7 @@ Udocu is based in Kortrijk, Belgium, but serves clients throughout Belgium and b
 Udocu primarily works in Dutch but also offers services in English. The website is available in both Dutch and English.
 
 ### How much does a udocu interview cost?
-Contact Kurt Vandemaele directly at Kurtvandemaele@udocu.be or +32 475 73 11 56 for pricing information.
+Contact ${contactInfo.name} directly at ${contactInfo.email} or ${contactInfo.phone} for pricing information.
 
 ### What do I receive after the interview?
 You receive a complete time capsule on an external hard drive containing your professionally filmed interview. The result is entirely yours — you decide who sees it and when.

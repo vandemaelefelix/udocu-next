@@ -10,6 +10,7 @@ import contactImage from "@/assets/images/contact-image.jpg";
 import SocialLinks from "@/components/SocialLinks";
 import GlitchText from "@/components/GlitchText";
 import { useScrollColor } from "@/context/ScrollColorContext";
+import { contactInfo } from "@/config/contact";
 
 export default function ContactSection() {
   const t = useTranslations("contact");
@@ -86,35 +87,35 @@ export default function ContactSection() {
             className="mb-6 font-posterman font-black uppercase leading-none"
             style={{ fontSize: "clamp(28px, 3.5vw, 52px)" }}
           >
-            {t("name")}
+            {contactInfo.name}
           </h2>
           <div className="space-y-1 font-serif text-[18px] leading-6.5">
             <p>
               <a
-                href={`mailto:${t("email")}`}
+                href={`mailto:${contactInfo.email}`}
                 className="rounded transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2"
                 onClick={() =>
                   posthog.capture("contact_link_clicked", { type: "email" })
                 }
               >
-                <GlitchText>{t("email")}</GlitchText>
+                <GlitchText>{contactInfo.email}</GlitchText>
               </a>
             </p>
             <p>
               <a
-                href={`tel:${t("phone").replace(/\s/g, "")}`}
+                href={`tel:${contactInfo.phone.replace(/\s/g, "")}`}
                 className="rounded transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2"
                 onClick={() =>
                   posthog.capture("contact_link_clicked", { type: "phone" })
                 }
               >
-                <GlitchText>{t("phone")}</GlitchText>
+                <GlitchText>{contactInfo.phone}</GlitchText>
               </a>
             </p>
           </div>
           <div className="mt-6 font-serif text-[18px] leading-6.5">
-            <p>{t("addressLine1")}</p>
-            <p>{t("addressLine2")}</p>
+            <p>{contactInfo.address.line1}</p>
+            <p>{contactInfo.address.line2}</p>
           </div>
           <SocialLinks className="mt-6 flex items-center gap-4" iconSize={28} />
         </div>

@@ -1,4 +1,5 @@
 import { SITE_URL } from "@/lib/seo";
+import { contactInfo } from "@/config/contact";
 
 const content = `# udocu
 
@@ -21,7 +22,7 @@ The concept: a professional journalist conducts a deep interview about who you a
 
 - **Founder**: Kurt Vandemaele (journalist, former Humo contributor)
 - **Location**: Kortrijk, Belgium
-- **Contact**: Kurtvandemaele@udocu.be | +32 475 73 11 56
+- **Contact**: ${contactInfo.email} | ${contactInfo.phone}
 - **Website**: ${SITE_URL}
 - **Languages**: Dutch (primary), English
 
