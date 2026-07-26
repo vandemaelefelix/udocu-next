@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useSyncExternalStore } from "react";
 import Image, { type StaticImageData } from "next/image";
 import {
   motion,
@@ -10,10 +10,24 @@ import {
 } from "motion/react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
+// Returns false during SSR / first paint and true once hydrated, without a
+// setState-in-effect. Lets us defer attaching the video source to the client.
+const emptySubscribe = () => () => {};
+function useHydrated() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+}
+
 interface ParallaxHeroProps {
   backgroundImage?: StaticImageData;
   backgroundVideo?: string;
   backgroundVideoPoster?: string;
+  /** Portrait (9:16) cut served on small screens; falls back to the desktop video. */
+  backgroundVideoMobile?: string;
+  backgroundVideoPosterMobile?: string;
   children: React.ReactNode;
 }
 
@@ -21,12 +35,25 @@ export default function ParallaxHero({
   backgroundImage,
   backgroundVideo,
   backgroundVideoPoster,
+  backgroundVideoMobile,
+  backgroundVideoPosterMobile,
   children,
 }: ParallaxHeroProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
+
+  // Attach the video source only after hydration so the correct per-device file
+  // is requested exactly once — mobile never downloads the heavier desktop cut.
+  const mounted = useHydrated();
+
+  const videoSrc =
+    isMobile && backgroundVideoMobile ? backgroundVideoMobile : backgroundVideo;
+  const videoPoster =
+    isMobile && backgroundVideoPosterMobile
+      ? backgroundVideoPosterMobile
+      : backgroundVideoPoster;
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -45,17 +72,17 @@ export default function ParallaxHero({
     } else {
       video.play().catch(() => {});
     }
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, videoSrc, mounted]);
 
-  const background = backgroundVideo ? (
+  const background = videoSrc ? (
     <video
       ref={videoRef}
-      src={backgroundVideo}
+      src={mounted ? videoSrc : undefined}
       autoPlay
       loop
       muted
       playsInline
-      poster={backgroundVideoPoster}
+      poster={videoPoster}
       className="absolute inset-0 h-full w-full object-cover pointer-events-none"
     />
   ) : backgroundImage ? (
