@@ -11,7 +11,10 @@ export const localeMap: Record<string, string> = {
 export function createClient() {
   const client = prismic.createClient(repositoryName, {
     fetchOptions: {
-      next: { tags: ["prismic"] },
+      // On-demand revalidation via the /api/revalidate webhook should keep this
+      // fresh instantly, but the time-based revalidate is a safety net so content
+      // still self-heals if the webhook ever silently fails (e.g. secret mismatch).
+      next: { revalidate: 60, tags: ["prismic"] },
     } as RequestInitLike & { next: NextFetchRequestConfig },
   });
 

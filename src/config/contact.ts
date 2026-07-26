@@ -34,6 +34,4 @@ export const socialLinks: SocialLink[] = [
     platform: "Instagram",
     url: "https://www.instagram.com/udocu.be/",
   },
-  // TODO: replace with the real udocu YouTube channel URL.
-  { platform: "YouTube", url: "https://youtube.com" },
 ];
