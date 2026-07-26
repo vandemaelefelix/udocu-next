@@ -14,7 +14,7 @@ import SocialDock from "@/components/SocialDock";
 import { ScrollColorProvider } from "@/context/ScrollColorContext";
 import ThemeColorSync from "@/components/ThemeColorSync";
 import MagneticScroll from "@/components/MagneticScroll";
-import { createClient } from "@/prismicio";
+import { createClient, PRISMIC_LOCALE } from "@/prismicio";
 import type { Content } from "@prismicio/client";
 import { HomepageSectionTracker } from "@/components/HomepageSectionTracker";
 
@@ -31,7 +31,7 @@ export async function generateMetadata({
   return {
     title: t("homeTitle"),
     description: t("homeDescription"),
-    alternates: getAlternates(locale),
+    alternates: getAlternates(),
   };
 }
 
@@ -46,7 +46,7 @@ export default async function HomePage({
   const interviews = await client.getAllByType<Content.InterviewDocument>(
     "interview",
     {
-      lang: "*",
+      lang: PRISMIC_LOCALE,
       orderings: [{ field: "my.interview.publish_date", direction: "desc" }],
     },
   );

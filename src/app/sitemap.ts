@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { createClient } from "@/prismicio";
+import { createClient, PRISMIC_LOCALE } from "@/prismicio";
 import type { Content } from "@prismicio/client";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.udocu.be";
@@ -17,63 +17,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const client = createClient();
 
   const [blogPosts, interviews] = await Promise.all([
-    client.getAllByType<Content.BlogPostDocument>("blog_post", { lang: "*" }),
-    client.getAllByType<Content.InterviewDocument>("interview", { lang: "*" }),
+    client.getAllByType<Content.BlogPostDocument>("blog_post", {
+      lang: PRISMIC_LOCALE,
+    }),
+    client.getAllByType<Content.InterviewDocument>("interview", {
+      lang: PRISMIC_LOCALE,
+    }),
   ]);
 
-  const staticEntries: MetadataRoute.Sitemap = staticPages.flatMap((page) =>
-    ["en", "nl"].map((locale) => ({
-      url: `${SITE_URL}/${locale}${page.path}`,
-      lastModified: new Date(),
-      changeFrequency: page.changeFrequency,
-      priority: page.priority,
-      alternates: {
-        languages: {
-          en: `${SITE_URL}/en${page.path}`,
-          nl: `${SITE_URL}/nl${page.path}`,
-        },
-      },
-    })),
-  );
+  const staticEntries: MetadataRoute.Sitemap = staticPages.map((page) => ({
+    url: `${SITE_URL}${page.path}`,
+    lastModified: new Date(),
+    changeFrequency: page.changeFrequency,
+    priority: page.priority,
+  }));
 
-  const blogEntries: MetadataRoute.Sitemap = blogPosts.map((post) => {
-    const locale = post.lang === "nl-be" ? "nl" : "en";
-    const otherLocale = locale === "en" ? "nl" : "en";
-    return {
-      url: `${SITE_URL}/${locale}/blog/${post.uid}`,
-      lastModified: post.last_publication_date
-        ? new Date(post.last_publication_date)
+  const blogEntries: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    url: `${SITE_URL}/blog/${post.uid}`,
+    lastModified: post.last_publication_date
+      ? new Date(post.last_publication_date)
+      : new Date(),
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  const interviewEntries: MetadataRoute.Sitemap = interviews.map(
+    (interview) => ({
+      url: `${SITE_URL}/work/${interview.uid}`,
+      lastModified: interview.last_publication_date
+        ? new Date(interview.last_publication_date)
         : new Date(),
       changeFrequency: "monthly" as const,
       priority: 0.7,
-      alternates: {
-        languages: {
-          [locale]: `${SITE_URL}/${locale}/blog/${post.uid}`,
-          [otherLocale]: `${SITE_URL}/${otherLocale}/blog/${post.uid}`,
-        },
-      },
-    };
-  });
-
-  const interviewEntries: MetadataRoute.Sitemap = interviews.map(
-    (interview) => {
-      const locale = interview.lang === "nl-be" ? "nl" : "en";
-      const otherLocale = locale === "en" ? "nl" : "en";
-      return {
-        url: `${SITE_URL}/${locale}/work/${interview.uid}`,
-        lastModified: interview.last_publication_date
-          ? new Date(interview.last_publication_date)
-          : new Date(),
-        changeFrequency: "monthly" as const,
-        priority: 0.7,
-        alternates: {
-          languages: {
-            [locale]: `${SITE_URL}/${locale}/work/${interview.uid}`,
-            [otherLocale]: `${SITE_URL}/${otherLocale}/work/${interview.uid}`,
-          },
-        },
-      };
-    },
+    }),
   );
 
   return [...staticEntries, ...blogEntries, ...interviewEntries];

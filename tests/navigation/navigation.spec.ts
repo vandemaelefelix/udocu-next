@@ -6,16 +6,16 @@
  *   A1  The one-pager renders all four sections (correct ids): about,
  *       who-am-i, work, contact.
  *   A2  A link/item inside a section navigates to its detail page:
- *         about read-more   → /nl/about
- *         who-am-i read-more→ /nl/who-am-i
- *         work item         → /nl/work/<uid>
+ *         about read-more   → /about
+ *         who-am-i read-more→ /who-am-i
+ *         work item         → /work/<uid>
  *   B3  The blog page is only reachable through the site menu/nav — it is not
  *       linked from any section body of the one-pager.
  *   D1  Clicking a section link (menu or in-page) scrolls that section into
  *       view — after the scroll settles, the target section straddles the
  *       viewport centre.
  *   D3  Each blog post has a VISIBLE back button that returns to the blog
- *       overview (/nl/blog).
+ *       overview (/blog).
  *   D2  A detail page's back button returns to the origin section via
  *       `history.back()` (restoring the exact scroll position) when the
  *       visitor arrived in-app; on a deep link (no in-app history) it falls
@@ -33,7 +33,6 @@
 
 import { test, expect } from "@playwright/test";
 import {
-  LOCALE,
   HOME,
   SECTIONS,
   HAMBURGER,
@@ -68,7 +67,7 @@ test("AC2a — About read-more navigates to /nl/about", async ({ page }) => {
   const link = page.locator(`#about a[href="${HOME}/about"]:visible`).first();
   await expect(link).toBeVisible();
   await link.click();
-  await expect(page).toHaveURL(new RegExp(`/${LOCALE}/about/?$`));
+  await expect(page).toHaveURL(/\/about\/?$/);
 });
 
 test("AC2b — Who Am I read-more navigates to /nl/who-am-i", async ({
@@ -81,7 +80,7 @@ test("AC2b — Who Am I read-more navigates to /nl/who-am-i", async ({
     .first();
   await expect(link).toBeVisible();
   await link.click();
-  await expect(page).toHaveURL(new RegExp(`/${LOCALE}/who-am-i/?$`));
+  await expect(page).toHaveURL(/\/who-am-i\/?$/);
 });
 
 test("AC2c — Work item navigates to /nl/work/<uid>", async ({ page }) => {
@@ -94,7 +93,7 @@ test("AC2c — Work item navigates to /nl/work/<uid>", async ({ page }) => {
     .first();
   await expect(link).toBeVisible();
   await link.click();
-  await expect(page).toHaveURL(new RegExp(`/${LOCALE}/work/[^/]+/?$`));
+  await expect(page).toHaveURL(/\/work\/[^/]+\/?$/);
 });
 
 // ---------------------------------------------------------------------------
@@ -126,13 +125,13 @@ test("D2 — Work item → back returns to #work at the original scroll position
     .locator(`#work a[href^="${HOME}/work/"]:visible:not([aria-hidden="true"])`)
     .first();
   await link.click();
-  await expect(page).toHaveURL(new RegExp(`/nl/work/[^/]+/?$`));
+  await expect(page).toHaveURL(/\/work\/[^/]+\/?$/);
 
   const back = visibleBackLink(page);
   await expect(back).toHaveCount(1);
   await back.click();
 
-  await expect(page).toHaveURL(new RegExp(`/nl(#work)?$`));
+  await expect(page).toHaveURL(/\/(#work)?$/);
   await page.waitForTimeout(1800);
   const res = await sectionCoversViewportCentre(page, "work");
   expect(res.ok, `after back, ${res.detail}`).toBe(true);
@@ -151,9 +150,9 @@ test("D2 — deep-linked /nl/about → back falls back to #about in view", async
   const back = visibleBackLink(page);
   await expect(back).toHaveCount(1);
   const href = await back.getAttribute("href");
-  expect(href, "fallback href should target #about").toMatch(/\/nl#about$/);
+  expect(href, "fallback href should target #about").toMatch(/\/#about$/);
   await back.click();
-  await expect(page).toHaveURL(new RegExp(`/nl(#about)?$`));
+  await expect(page).toHaveURL(/\/(#about)?$/);
   await page.waitForTimeout(1500);
   const res = await sectionCoversViewportCentre(page, "about");
   expect(res.ok, `after fallback back, ${res.detail}`).toBe(true);
@@ -194,7 +193,7 @@ test("AC4b — blog is reachable via the site menu/nav", async ({
   const blogLink = page.locator(`a[href="${HOME}/blog"]:visible`).first();
   await expect(blogLink).toBeVisible();
   await blogLink.click();
-  await expect(page).toHaveURL(new RegExp(`/${LOCALE}/blog/?$`));
+  await expect(page).toHaveURL(/\/blog\/?$/);
 });
 
 // ---------------------------------------------------------------------------
@@ -218,11 +217,11 @@ test("AC5 — blog post has a visible back button to the blog overview", async (
 
   const href = await back.getAttribute("href");
   expect(href, "back href should target the blog overview").toMatch(
-    new RegExp(`/${LOCALE}/blog/?$`),
+    /\/blog\/?$/,
   );
 
   await back.click();
-  await expect(page).toHaveURL(new RegExp(`/${LOCALE}/blog/?$`));
+  await expect(page).toHaveURL(/\/blog\/?$/);
 });
 
 // ---------------------------------------------------------------------------

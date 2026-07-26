@@ -2,7 +2,7 @@
 
 import { useRef, useState, useCallback, useEffect } from "react";
 import Image from "next/image";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import tvFrameOverlay from "@/assets/images/tv-frame-overlay.png";
 import AboutVideo from "@/components/AboutVideo";
@@ -12,7 +12,6 @@ import Link from "next/link";
 
 export default function AboutSection() {
   const t = useTranslations("about");
-  const locale = useLocale();
   const sectionRef = useRef<HTMLElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
@@ -153,7 +152,7 @@ export default function AboutSection() {
 
             {/* Video in the TV screen cutout */}
             <Link
-              href={`/${locale}/about`}
+              href="/about"
               aria-label={t("aboutLinkLabel")}
               className="group absolute cursor-pointer overflow-hidden"
               style={{
@@ -245,7 +244,7 @@ export default function AboutSection() {
             <p>{t("paragraph2")}</p>
           </div>
           <div className="flex flex-col gap-4 md:gap-16 mt-8">
-            <ArrowLink href={`/${locale}/about`}>{t("readMoreLink")}</ArrowLink>
+            <ArrowLink href="/about">{t("readMoreLink")}</ArrowLink>
             <ArrowLink href="#contact">{t("contactLink")}</ArrowLink>
           </div>
         </div>

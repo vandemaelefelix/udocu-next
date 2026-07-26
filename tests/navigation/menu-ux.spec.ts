@@ -38,8 +38,8 @@ test("C3 — tapping an overlay link closes it and navigates", async ({
   await goHome(page);
   await page.locator(HAMBURGER).click();
   await page.waitForTimeout(400);
-  await page.locator(`[role="dialog"] a[href="/nl/blog"]`).click();
-  await expect(page).toHaveURL(/\/nl\/blog\/?$/);
+  await page.locator(`[role="dialog"] a[href="/blog"]`).click();
+  await expect(page).toHaveURL(/\/blog\/?$/);
 });
 
 test("C4 — body scroll locks while the overlay is open", async ({
@@ -80,7 +80,7 @@ test("F2 — overlay links are not tab-reachable when closed", async ({
 });
 
 test("F4 — detail back link is keyboard-operable", async ({ page }) => {
-  await page.goto("/nl/about", { waitUntil: "load" });
+  await page.goto("/about", { waitUntil: "load" });
   await page.waitForSelector("#main-content", { timeout: 15000 });
   const back = page.locator(`a:visible`, { hasText: "Terug" });
   await expect(back).toHaveCount(1);

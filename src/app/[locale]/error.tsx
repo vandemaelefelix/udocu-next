@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 
 export default function LocaleError({
   error,
@@ -12,7 +12,6 @@ export default function LocaleError({
   reset: () => void;
 }) {
   const t = useTranslations("error");
-  const locale = useLocale();
 
   useEffect(() => {
     console.error(error);
@@ -34,7 +33,7 @@ export default function LocaleError({
           {t("retry")}
         </button>
         <Link
-          href={`/${locale}`}
+          href="/"
           className="font-helvetica text-sm font-medium uppercase tracking-widest underline underline-offset-4 transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
         >
           {t("backHome")}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import UdocuLogo from "@/components/UdocuLogo";
 import ArrowLink from "@/components/ArrowLink";
 import GlitchText from "@/components/GlitchText";
@@ -35,16 +35,9 @@ export default function DetailNav({
   overlayTextColor = "var(--color-red-light)",
 }: DetailNavProps) {
   const t = useTranslations("nav");
-  const locale = useLocale();
   const [menuOpen, setMenuOpen] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
   useFocusTrap(overlayRef, menuOpen);
-
-  // "/#about" → "/nl#about": callers often omit the locale prefix; also
-  // strip a trailing slash before the hash so storage keys are consistent.
-  const resolvedBackHref = backHref.startsWith("/#")
-    ? `/${locale}${backHref.slice(1)}`
-    : backHref.replace(/\/#/, "#");
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -62,7 +55,7 @@ export default function DetailNav({
       {/* Top bar: logo left, nav links right */}
       <nav className="flex items-center justify-between px-8 py-6">
         <Link
-          href={`/${locale}`}
+          href="/"
           aria-label={t("home")}
           className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded"
         >
@@ -77,9 +70,7 @@ export default function DetailNav({
           {NAV_ITEMS.map((item) => (
             <li key={item}>
               <Link
-                href={
-                  item === "blog" ? `/${locale}/blog` : `/${locale}#${item}`
-                }
+                href={item === "blog" ? "/blog" : `/#${item}`}
                 className={`transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none ${
                   item === activeItem ? "underline underline-offset-4" : ""
                 }`}
@@ -144,9 +135,7 @@ export default function DetailNav({
             return (
               <li key={item} style={animationStyle}>
                 <Link
-                  href={
-                    item === "blog" ? `/${locale}/blog` : `/${locale}#${item}`
-                  }
+                  href={item === "blog" ? "/blog" : `/#${item}`}
                   tabIndex={menuOpen ? 0 : -1}
                   className={`focus-visible:opacity-70 focus-visible:outline-none ${
                     item === activeItem ? "underline underline-offset-4" : ""
@@ -165,7 +154,7 @@ export default function DetailNav({
       {!hideBackLink && (
         <div className={`px-8 ${mobileBackOnly ? "md:hidden" : ""}`}>
           <ArrowLink
-            href={resolvedBackHref}
+            href={backHref}
             direction="back"
             onClick={handleBack}
             className="font-helvetica text-[16px] font-medium uppercase leading-5 tracking-widest transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import type { Content } from "@prismicio/client";
 import {
   motion,
@@ -50,13 +50,12 @@ const filteredInterviews = (interviews: Content.InterviewDocument[]) =>
     }));
 
 export default function WorkSection({ interviews }: Props) {
-  const locale = useLocale();
   const t = useTranslations();
   const items = filteredInterviews(interviews);
   const isMobile = useIsMobile();
 
   const displayedItems = items.map((item) => ({
-    href: `/${locale}/work/${item.uid}`,
+    href: `/work/${item.uid}`,
     ...item,
   }));
 

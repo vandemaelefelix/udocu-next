@@ -18,7 +18,7 @@ export async function generateMetadata({
   return {
     title: t("whoAmITitle"),
     description: t("whoAmIDescription"),
-    alternates: getAlternates(locale, "who-am-i"),
+    alternates: getAlternates("who-am-i"),
   };
 }
 

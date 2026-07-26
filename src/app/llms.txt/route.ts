@@ -24,15 +24,15 @@ The concept: a professional journalist conducts a deep interview about who you a
 - **Location**: Kortrijk, Belgium
 - **Contact**: ${contactInfo.email} | ${contactInfo.phone}
 - **Website**: ${SITE_URL}
-- **Languages**: Dutch (primary), English
+- **Languages**: Dutch
 
 ## Links
 
-- [About udocu](${SITE_URL}/en/about)
-- [Who is Kurt Vandemaele](${SITE_URL}/en/who-am-i)
-- [Work & Interviews](${SITE_URL}/en/work)
-- [Blog](${SITE_URL}/en/blog)
-- [Contact](${SITE_URL}/en/contact)
+- [About udocu](${SITE_URL}/about)
+- [Who is Kurt Vandemaele](${SITE_URL}/who-am-i)
+- [Work & Interviews](${SITE_URL}/work)
+- [Blog](${SITE_URL}/blog)
+- [Contact](${SITE_URL}/contact)
 - [Full LLM context](${SITE_URL}/llms-full.txt)
 `;
 

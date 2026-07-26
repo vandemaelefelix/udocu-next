@@ -19,7 +19,7 @@ export async function generateMetadata({
   return {
     title: t("aboutTitle"),
     description: t("aboutDescription"),
-    alternates: getAlternates(locale, "about"),
+    alternates: getAlternates("about"),
   };
 }
 
