@@ -41,7 +41,7 @@ function PostCard({
       className="break-inside-avoid"
     >
       <Link
-        href={`/${locale}/blog/${post.uid}`}
+        href={`/blog/${post.uid}`}
         className="group mb-8 block"
         onClick={onCardClick}
       >
@@ -136,9 +136,7 @@ export default function BlogGrid({
     posthog.capture("blog_load_more", { page: nextPage });
 
     try {
-      const res = await fetch(
-        `/api/blog?page=${nextPage}&locale=${encodeURIComponent(locale)}`,
-      );
+      const res = await fetch(`/api/blog?page=${nextPage}`);
       const data = await res.json();
 
       const newItems: PostWithBatchIndex[] = data.results.map(
@@ -156,7 +154,7 @@ export default function BlogGrid({
     } finally {
       setLoading(false);
     }
-  }, [loading, hasMore, page, locale, posthog]);
+  }, [loading, hasMore, page, posthog]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;

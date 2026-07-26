@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import UdocuLogo from "@/components/UdocuLogo";
@@ -21,7 +21,6 @@ const SECTION_IDS = ["about", "who-am-i", "work", "contact"] as const;
 export default function StickyNav() {
   const t = useTranslations("nav");
   const [menuOpen, setMenuOpen] = useState(false);
-  const locale = useLocale();
   const router = useRouter();
   const { bgColor, textColor } = useScrollColor();
   const activeSection = useActiveSection(SECTION_IDS);
@@ -44,9 +43,9 @@ export default function StickyNav() {
       // Use router.push so Next.js stores its state in the history entry —
       // plain <a href="#section"> creates a null-state entry that Next.js
       // can't restore on Back, leaving the page un-rendered.
-      router.push(`/${locale}#${item}`, { scroll: false });
+      router.push(`/#${item}`, { scroll: false });
     },
-    [locale, router],
+    [router],
   );
 
   const handleNavClick = useCallback(
@@ -84,7 +83,7 @@ export default function StickyNav() {
           style={{ color: textColor }}
         >
           <Link
-            href={`/${locale}`}
+            href="/"
             aria-label={t("home")}
             className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded"
           >
@@ -101,7 +100,7 @@ export default function StickyNav() {
               return item === "blog" ? (
                 <li key={item}>
                   <Link
-                    href={`/${locale}/blog`}
+                    href="/blog"
                     className="focus-visible:opacity-70 focus-visible:outline-none"
                   >
                     <GlitchText>{label}</GlitchText>
@@ -184,7 +183,7 @@ export default function StickyNav() {
               return item === "blog" ? (
                 <li key={item} style={animationStyle}>
                   <Link
-                    href={`/${locale}/blog`}
+                    href="/blog"
                     tabIndex={menuOpen ? 0 : -1}
                     className="focus-visible:opacity-70 focus-visible:outline-none"
                     onClick={() => setMenuOpen(false)}
