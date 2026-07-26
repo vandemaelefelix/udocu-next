@@ -12,12 +12,12 @@ export const garamond = EB_Garamond({
 export const helveticaNeue = localFont({
   src: [
     {
-      path: "../assets/fonts/HelveticaNeue-Light.otf",
+      path: "../assets/fonts/HelveticaNeue-Light.woff2",
       weight: "300",
       style: "normal",
     },
     {
-      path: "../assets/fonts/HelveticaNeue-Medium.otf",
+      path: "../assets/fonts/HelveticaNeue-Medium.woff2",
       weight: "500",
       style: "normal",
     },
@@ -26,6 +26,6 @@ export const helveticaNeue = localFont({
 });
 
 export const posterman = localFont({
-  src: "../assets/fonts/Posterman-Regular.otf",
+  src: "../assets/fonts/Posterman-Regular.woff2",
   variable: "--font-posterman",
 });

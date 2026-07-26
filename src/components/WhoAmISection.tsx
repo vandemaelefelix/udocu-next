@@ -108,7 +108,9 @@ export default function WhoAmISection() {
           </p>
 
           <div className="mt-8 flex flex-col gap-4 md:gap-16">
-            <ArrowLink href="/who-am-i">{t("readMoreLink")}</ArrowLink>
+            <ArrowLink href="/who-am-i" ariaLabel={t("readMoreAriaLabel")}>
+              {t("readMoreLink")}
+            </ArrowLink>
             <ArrowLink href="#contact">{t("contactLink")}</ArrowLink>
           </div>
         </motion.div>

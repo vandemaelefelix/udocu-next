@@ -60,9 +60,9 @@ export default async function HomePage({
         <StickyNav />
 
         <ParallaxHero
-          backgroundVideo="/videos/hero-video.mp4"
+          backgroundVideo="/videos/hero-video.v2.mp4"
           backgroundVideoPoster="/videos/hero-poster.webp"
-          backgroundVideoMobile="/videos/hero-video-mobile.mp4"
+          backgroundVideoMobile="/videos/hero-video-mobile.v2.mp4"
           backgroundVideoPosterMobile="/videos/hero-poster-mobile.webp"
         >
           <div className="w-[90vw] md:w-auto">
