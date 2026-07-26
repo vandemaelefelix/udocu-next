@@ -136,6 +136,19 @@ export default function WhoAmISection() {
             sizes="(max-width: 767px) 100vw, 60vw"
           />
         </motion.div>
+        {/* Top scrim — darkens only the portrait's top edge so the fixed nav
+            (green text over this column) stays legible against the bright
+            bookshelf. Multi-stop gradient approximates an ease curve to avoid a
+            visible band edge. Lives inside the opacity wrapper so it fades with
+            the portrait during the cross-dissolve. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-48 md:h-64"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.7) 16%, rgba(0,0,0,0.55) 36%, rgba(0,0,0,0.36) 58%, rgba(0,0,0,0.16) 80%, rgba(0,0,0,0) 100%)",
+          }}
+        />
         {/* Photographer credit — required attribution, white text in the bottom corner */}
         <span className="pointer-events-none absolute bottom-3 right-3 z-10 font-helvetica text-xs tracking-wide text-white/80 md:bottom-4 md:left-4 md:right-auto">
           {t("photoCredit")}
