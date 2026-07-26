@@ -8,7 +8,7 @@ const THRESHOLDS = {
 };
 
 async function collectVitals(page: import("@playwright/test").Page) {
-  await page.goto("/nl", { waitUntil: "load" });
+  await page.goto("/", { waitUntil: "load" });
 
   return page.evaluate(() => {
     return new Promise<{ lcp: number; fcp: number; cls: number }>((resolve) => {
@@ -42,7 +42,7 @@ async function collectVitals(page: import("@playwright/test").Page) {
   });
 }
 
-test.describe("Core Web Vitals — homepage (/nl)", () => {
+test.describe("Core Web Vitals — homepage (/)", () => {
   test("LCP is within Good threshold (<2.5s)", async ({ page }) => {
     const { lcp } = await collectVitals(page);
     expect(

@@ -10,14 +10,14 @@
  */
 
 import { test, expect, type Page, type Locator } from "@playwright/test";
-import { LOCALE, HAMBURGER } from "./helpers";
+import { HAMBURGER } from "./helpers";
 
 type NavKind = "sticky" | "detail";
 
 const SCREENS: Array<{ name: string; path: string; nav: NavKind }> = [
-  { name: "home (StickyNav)", path: `/${LOCALE}`, nav: "sticky" },
-  { name: "about detail (DetailNav)", path: `/${LOCALE}/about`, nav: "detail" },
-  { name: "blog overview (DetailNav)", path: `/${LOCALE}/blog`, nav: "detail" },
+  { name: "home (StickyNav)", path: "/", nav: "sticky" },
+  { name: "about detail (DetailNav)", path: "/about", nav: "detail" },
+  { name: "blog overview (DetailNav)", path: "/blog", nav: "detail" },
 ];
 
 // Every destination the menu must offer, in nav order.
@@ -26,17 +26,17 @@ type Item = (typeof ITEMS)[number];
 
 /** The href a given item renders with, per nav component. */
 function itemHref(nav: NavKind, key: Item): string {
-  if (key === "home") return `/${LOCALE}`;
-  if (key === "blog") return `/${LOCALE}/blog`;
-  // Section links: StickyNav uses bare "#about"; DetailNav uses "/nl#about".
-  return nav === "sticky" ? `#${key}` : `/${LOCALE}#${key}`;
+  if (key === "home") return "/";
+  if (key === "blog") return "/blog";
+  // Section links: StickyNav uses bare "#about"; DetailNav uses "/#about".
+  return nav === "sticky" ? `#${key}` : `/#${key}`;
 }
 
 /** URL expected after clicking the item. */
 function expectedUrl(key: Item): RegExp {
-  if (key === "home") return new RegExp(`/${LOCALE}$`);
-  if (key === "blog") return new RegExp(`/${LOCALE}/blog/?$`);
-  return new RegExp(`/${LOCALE}#${key}$`);
+  if (key === "home") return /\/$/;
+  if (key === "blog") return /\/blog\/?$/;
+  return new RegExp(`/#${key}$`);
 }
 
 async function loadScreen(page: Page, path: string) {

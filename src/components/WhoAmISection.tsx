@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import ArrowLink from "@/components/ArrowLink";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -10,7 +10,6 @@ import bioPhoto from "@/assets/images/who-am-i.png";
 
 export default function WhoAmISection() {
   const t = useTranslations("whoAmI");
-  const locale = useLocale();
   const sectionRef = useRef<HTMLElement>(null);
   const isMobile = useIsMobile();
 
@@ -109,9 +108,7 @@ export default function WhoAmISection() {
           </p>
 
           <div className="mt-8 flex flex-col gap-4 md:gap-16">
-            <ArrowLink href={`/${locale}/who-am-i`}>
-              {t("readMoreLink")}
-            </ArrowLink>
+            <ArrowLink href="/who-am-i">{t("readMoreLink")}</ArrowLink>
             <ArrowLink href="#contact">{t("contactLink")}</ArrowLink>
           </div>
         </motion.div>

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import * as prismic from "@prismicio/client";
-import { createClient, localeMap } from "@/prismicio";
+import { createClient, PRISMIC_LOCALE } from "@/prismicio";
 import type { Content } from "@prismicio/client";
 import { getAlternates, SITE_URL } from "@/lib/seo";
 import DetailBackLink from "@/components/DetailBackLink";
@@ -15,11 +15,11 @@ type Params = { locale: string; uid: string };
 
 export async function generateStaticParams() {
   const client = createClient();
-  const documents = await client.getAllByType("interview", { lang: "*" });
+  const documents = await client.getAllByType("interview", {
+    lang: PRISMIC_LOCALE,
+  });
 
-  return documents.flatMap((doc) =>
-    ["en", "nl"].map((locale) => ({ locale, uid: doc.uid })),
-  );
+  return documents.map((doc) => ({ locale: "nl", uid: doc.uid }));
 }
 
 export async function generateMetadata({
@@ -27,24 +27,15 @@ export async function generateMetadata({
 }: {
   params: Promise<Params>;
 }): Promise<Metadata> {
-  const { locale, uid } = await params;
+  const { uid } = await params;
   const client = createClient();
 
   try {
-    let page: Content.InterviewDocument;
-    try {
-      page = await client.getByUID<Content.InterviewDocument>(
-        "interview",
-        uid,
-        { lang: localeMap[locale] ?? "nl-be" },
-      );
-    } catch {
-      page = await client.getByUID<Content.InterviewDocument>(
-        "interview",
-        uid,
-        { lang: "*" },
-      );
-    }
+    const page = await client.getByUID<Content.InterviewDocument>(
+      "interview",
+      uid,
+      { lang: PRISMIC_LOCALE },
+    );
 
     const title = page.data.name ?? undefined;
     const description = prismic.asText(page.data.lead) ?? undefined;
@@ -57,7 +48,7 @@ export async function generateMetadata({
       description,
       openGraph: { title, description, images },
       twitter: { card: "summary_large_image", title, description, images },
-      alternates: getAlternates(locale, `work/${uid}`),
+      alternates: getAlternates(`work/${uid}`),
     };
   } catch {
     return {};
@@ -69,24 +60,16 @@ export default async function WorkDetailPage({
 }: {
   params: Promise<Params>;
 }) {
-  const { locale, uid } = await params;
+  const { uid } = await params;
   const client = createClient();
 
   let page: Content.InterviewDocument;
   try {
     page = await client.getByUID<Content.InterviewDocument>("interview", uid, {
-      lang: localeMap[locale] ?? "nl-be",
+      lang: PRISMIC_LOCALE,
     });
   } catch {
-    try {
-      page = await client.getByUID<Content.InterviewDocument>(
-        "interview",
-        uid,
-        { lang: "*" },
-      );
-    } catch {
-      notFound();
-    }
+    notFound();
   }
 
   const videoUrl =
@@ -105,13 +88,13 @@ export default async function WorkDetailPage({
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: `${SITE_URL}/${locale}`,
+        item: SITE_URL,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Work",
-        item: `${SITE_URL}/${locale}/work`,
+        item: `${SITE_URL}/work`,
       },
       {
         "@type": "ListItem",
@@ -157,7 +140,7 @@ export default async function WorkDetailPage({
 
       <div className="shrink-0">
         <DetailNav
-          backHref={`/${locale}#work`}
+          backHref="/#work"
           activeItem="work"
           mobileBackOnly
           overlayBgColor={colors.overlayBg}
@@ -184,7 +167,7 @@ export default async function WorkDetailPage({
 
           <div className="hidden justify-center md:flex">
             <DetailBackLink
-              href={`/${locale}#work`}
+              href="/#work"
               className="font-helvetica text-[16px] font-medium uppercase leading-5 tracking-widest transition-opacity hover:opacity-70"
             >
               {t("back")}

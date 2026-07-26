@@ -7,8 +7,7 @@
 
 import { type Page, type Locator } from "@playwright/test";
 
-export const LOCALE = "nl";
-export const HOME = `/${LOCALE}`;
+export const HOME = "";
 export const BACK_LABEL = "Terug"; // nav.back (nl)
 export const SECTIONS = ["about", "who-am-i", "work", "contact"] as const;
 
@@ -18,7 +17,7 @@ export const HAMBURGER =
 
 /** Navigate to the one-pager and wait for hydration. */
 export async function goHome(page: Page): Promise<void> {
-  await page.goto(HOME, { waitUntil: "load" });
+  await page.goto("/", { waitUntil: "load" });
   await page.waitForSelector('[data-testid="scroll-bg"]', { timeout: 15000 });
   await page.waitForTimeout(1500);
 }
@@ -55,7 +54,7 @@ export async function sectionCoversViewportCentre(
   }, id);
 }
 
-/** First on-page href matching a prefix (e.g. "/nl/work/"). */
+/** First on-page href matching a prefix (e.g. "/work/"). */
 export async function firstHref(
   page: Page,
   prefix: string,
