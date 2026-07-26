@@ -19,23 +19,6 @@
           "placeholder": "Interviewee name"
         }
       },
-      "lead": {
-        "type": "StructuredText",
-        "config": {
-          "label": "Lead",
-          "single": "paragraph",
-          "allowTargetBlank": false
-        }
-      },
-      "body": {
-        "type": "StructuredText",
-        "config": {
-          "label": "Body",
-          "placeholder": "",
-          "allowTargetBlank": true,
-          "multi": "paragraph,preformatted,heading2,heading3,heading4,strong,em,hyperlink,image,embed,list-item,o-list-item"
-        }
-      },
       "publish_date": {
         "type": "Date",
         "config": {

@@ -38,16 +38,14 @@ export async function generateMetadata({
     );
 
     const title = page.data.name ?? undefined;
-    const description = prismic.asText(page.data.lead) ?? undefined;
     const images = page.data.image_url?.url
       ? [{ url: page.data.image_url.url }]
       : [];
 
     return {
       title,
-      description,
-      openGraph: { title, description, images },
-      twitter: { card: "summary_large_image", title, description, images },
+      openGraph: { title, images },
+      twitter: { card: "summary_large_image", title, images },
       alternates: getAlternates(`work/${uid}`),
     };
   } catch {
@@ -109,7 +107,6 @@ export default async function WorkDetailPage({
         "@context": "https://schema.org",
         "@type": "VideoObject",
         name: page.data.name,
-        description: prismic.asText(page.data.lead) ?? undefined,
         thumbnailUrl: page.data.image_url?.url ?? undefined,
         embedUrl: videoUrl,
         uploadDate: page.data.publish_date ?? undefined,
