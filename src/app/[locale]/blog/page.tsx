@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { Content } from "@prismicio/client";
-import { createClient, localeMap } from "@/prismicio";
+import { createClient, PRISMIC_LOCALE } from "@/prismicio";
 import { getAlternates, SITE_URL } from "@/lib/seo";
 import DetailNav from "@/components/DetailNav";
 import BlogGrid from "@/components/BlogGrid";
@@ -22,7 +22,7 @@ export async function generateMetadata({
   return {
     title: t("blogTitle"),
     description: t("blogDescription"),
-    alternates: getAlternates(locale, "blog"),
+    alternates: getAlternates("blog"),
     openGraph: {
       title: t("blogTitle"),
       description: t("blogDescription"),
@@ -39,7 +39,7 @@ export default async function BlogPage() {
   const response = await client.getByType<Content.BlogPostDocument>(
     "blog_post",
     {
-      lang: localeMap[locale] ?? "nl-be",
+      lang: PRISMIC_LOCALE,
       orderings: [{ field: "my.blog_post.publish_date", direction: "desc" }],
       pageSize: PAGE_SIZE,
       page: 1,
@@ -52,7 +52,7 @@ export default async function BlogPage() {
       className="min-h-screen text-red-light"
       style={{ backgroundColor: "var(--color-red-dark)" }}
     >
-      <DetailNav backHref={`/${locale}`} activeItem="blog" hideBackLink />
+      <DetailNav backHref="/" activeItem="blog" hideBackLink />
 
       <BlogGrid
         initialPosts={response.results}

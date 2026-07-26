@@ -16,7 +16,7 @@ export async function generateMetadata({
   return {
     title: t("contactTitle"),
     description: t("contactDescription"),
-    alternates: getAlternates(locale, "contact"),
+    alternates: getAlternates("contact"),
   };
 }
 
