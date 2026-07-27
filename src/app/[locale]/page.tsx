@@ -65,13 +65,17 @@ export default async function HomePage({
           backgroundVideoMobile="/videos/hero-video-mobile.v2.mp4"
           backgroundVideoPosterMobile="/videos/hero-poster-mobile.webp"
         >
-          <div className="w-[90vw] md:w-auto">
+          <div className="flex flex-col items-center">
+            {/* Logo is capped by height on desktop (md:h-[48vh]) so the
+                vertically-centred hero block always clears the fixed nav; width
+                is auto to preserve the logo's aspect ratio. Mobile keeps the
+                full-width logo. */}
             <UdocuLogo
               aria-hidden="true"
-              className="w-full"
+              className="h-auto w-[90vw] md:h-[48vh] md:w-auto md:max-w-[92vw]"
               color="var(--color-green-light)"
             />
-            <h1 className="user-select-none mt-4 font-serif text-4xl font-bold leading-tight tracking-[0.019em] text-green-light md:whitespace-nowrap md:text-[80px] md:leading-24">
+            <h1 className="user-select-none mt-4 max-w-[92vw] text-center font-serif text-4xl font-bold leading-tight tracking-[0.019em] text-green-light md:whitespace-nowrap md:text-[80px] md:leading-24">
               {t("tagline")}
             </h1>
           </div>
