@@ -50,10 +50,20 @@ export default function ParallaxHero({
 
   const videoSrc =
     isMobile && backgroundVideoMobile ? backgroundVideoMobile : backgroundVideo;
-  const videoPoster =
-    isMobile && backgroundVideoPosterMobile
-      ? backgroundVideoPosterMobile
-      : backgroundVideoPoster;
+
+  // CSS custom properties feed the `.hero-poster` background-image rule in
+  // globals.css, so the browser picks the right poster from a plain media
+  // query — never gated behind hydration/isMobile like the video src is.
+  const posterStyle = {
+    "--hero-poster-mobile": backgroundVideoPosterMobile
+      ? `url(${backgroundVideoPosterMobile})`
+      : backgroundVideoPoster
+        ? `url(${backgroundVideoPoster})`
+        : undefined,
+    "--hero-poster-desktop": backgroundVideoPoster
+      ? `url(${backgroundVideoPoster})`
+      : undefined,
+  } as React.CSSProperties;
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -82,7 +92,6 @@ export default function ParallaxHero({
       loop
       muted
       playsInline
-      poster={videoPoster}
       className="absolute inset-0 h-full w-full object-cover pointer-events-none"
     />
   ) : backgroundImage ? (
@@ -103,7 +112,9 @@ export default function ParallaxHero({
         ref={sectionRef}
         className="relative flex h-screen items-center justify-center overflow-hidden"
       >
-        <div className="absolute inset-0">{background}</div>
+        <div className="absolute inset-0 hero-poster" style={posterStyle}>
+          {background}
+        </div>
         <div
           className="absolute inset-x-0 top-0 h-32 z-10 pointer-events-none"
           style={{
@@ -121,7 +132,10 @@ export default function ParallaxHero({
       ref={sectionRef}
       className="relative flex h-screen items-center justify-center overflow-hidden"
     >
-      <motion.div className="absolute inset-0" style={{ y: bgY }}>
+      <motion.div
+        className="absolute inset-0 hero-poster"
+        style={{ y: bgY, ...posterStyle }}
+      >
         {background}
       </motion.div>
       <div

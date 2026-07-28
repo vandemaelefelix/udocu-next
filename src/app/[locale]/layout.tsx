@@ -102,11 +102,20 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <head>
-        {/* Preload LCP image so browser fetches it at highest priority from the first byte */}
+        {/* Preload the hero poster matching ParallaxHero's mobile breakpoint (max-width: 767px)
+            so each viewport fetches only the poster it will actually render. */}
+        <link
+          rel="preload"
+          as="image"
+          href="/videos/hero-poster-mobile.webp"
+          media="(max-width: 767px)"
+          fetchPriority="high"
+        />
         <link
           rel="preload"
           as="image"
           href="/videos/hero-poster.webp"
+          media="(min-width: 768px)"
           fetchPriority="high"
         />
       </head>
