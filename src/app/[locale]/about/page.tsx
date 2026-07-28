@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { useTranslations } from "next-intl";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getAlternates } from "@/lib/seo";
 import DetailPage from "@/components/DetailPage";
 import AboutVideo from "@/components/AboutVideo";
@@ -14,6 +13,7 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "metadata" });
 
   return {
@@ -23,8 +23,14 @@ export async function generateMetadata({
   };
 }
 
-export default function AboutPage() {
-  const t = useTranslations("about");
+export default async function AboutPage({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("about");
 
   return (
     <DetailPage
@@ -33,8 +39,8 @@ export default function AboutPage() {
       media={
         <VideoPlayer className="h-full w-full">
           <AboutVideo
-            src="/videos/about.mp4"
-            poster="/videos/about-poster.jpg"
+            src="/videos/about.v2.mp4"
+            poster="/videos/about-poster.webp"
             preload="none"
             className="h-full w-full object-cover"
           />

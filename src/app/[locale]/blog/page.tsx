@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Content } from "@prismicio/client";
 import { createClient, PRISMIC_LOCALE } from "@/prismicio";
 import { getAlternates, SITE_URL } from "@/lib/seo";
@@ -17,6 +17,7 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "metadata" });
 
   return {
@@ -32,8 +33,13 @@ export async function generateMetadata({
   };
 }
 
-export default async function BlogPage() {
-  const locale = await getLocale();
+export default async function BlogPage({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   const client = createClient();
 
   const response = await client.getByType<Content.BlogPostDocument>(

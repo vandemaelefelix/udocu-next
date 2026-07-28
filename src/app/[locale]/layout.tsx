@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getTranslations } from "next-intl/server";
+import {
+  getMessages,
+  getTranslations,
+  setRequestLocale,
+} from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { routing } from "@/i18n/routing";
@@ -25,6 +29,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "metadata" });
 
   return {
@@ -72,6 +77,10 @@ function JsonLd({ data }: { data: Record<string, unknown> }) {
   return <script type="application/ld+json">{JSON.stringify(data)}</script>;
 }
 
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
 export default async function LocaleLayout({
   children,
   params,
@@ -84,6 +93,8 @@ export default async function LocaleLayout({
   if (!routing.locales.includes(locale as "nl")) {
     notFound();
   }
+
+  setRequestLocale(locale);
 
   const messages = await getMessages();
   const t = await getTranslations({ locale, namespace: "a11y" });

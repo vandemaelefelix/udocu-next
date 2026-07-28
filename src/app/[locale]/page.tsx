@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
 import { getAlternates } from "@/lib/seo";
-import UdocuLogo from "@/components/UdocuLogo";
+import HeroLockup from "@/components/HeroLockup";
 import ParallaxHero from "@/components/ParallaxHero";
 import ScrollBackground from "@/components/ScrollBackground";
 import StickyNav from "@/components/StickyNav";
@@ -60,21 +60,12 @@ export default async function HomePage({
         <StickyNav />
 
         <ParallaxHero
-          backgroundVideo="/videos/hero-video.mp4"
+          backgroundVideo="/videos/hero-video.v2.mp4"
           backgroundVideoPoster="/videos/hero-poster.webp"
-          backgroundVideoMobile="/videos/hero-video-mobile.mp4"
+          backgroundVideoMobile="/videos/hero-video-mobile.v2.mp4"
           backgroundVideoPosterMobile="/videos/hero-poster-mobile.webp"
         >
-          <div className="w-[90vw] md:w-auto">
-            <UdocuLogo
-              aria-hidden="true"
-              className="w-full"
-              color="var(--color-green-light)"
-            />
-            <h1 className="user-select-none mt-4 font-serif text-4xl font-bold leading-tight tracking-[0.019em] text-green-light md:whitespace-nowrap md:text-[80px] md:leading-24">
-              {t("tagline")}
-            </h1>
-          </div>
+          <HeroLockup tagline={t("tagline")} />
         </ParallaxHero>
 
         <ScrollBackground>

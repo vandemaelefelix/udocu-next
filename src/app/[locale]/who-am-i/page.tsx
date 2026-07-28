@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { useTranslations } from "next-intl";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getAlternates } from "@/lib/seo";
 import DetailPage from "@/components/DetailPage";
 import bioPhoto from "@/assets/images/who-am-i.png";
@@ -13,6 +12,7 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "metadata" });
 
   return {
@@ -22,8 +22,14 @@ export async function generateMetadata({
   };
 }
 
-export default function WhoAmIPage() {
-  const t = useTranslations("whoAmI");
+export default async function WhoAmIPage({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("whoAmI");
 
   return (
     <DetailPage
