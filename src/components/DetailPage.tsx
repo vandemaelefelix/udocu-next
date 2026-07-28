@@ -1,5 +1,7 @@
 import Image, { type StaticImageData } from "next/image";
+import { getTranslations } from "next-intl/server";
 import DetailNav from "@/components/DetailNav";
+import DetailBackLink from "@/components/DetailBackLink";
 import type { ReactNode } from "react";
 
 interface DetailPageProps {
@@ -17,7 +19,7 @@ interface DetailPageProps {
   children: ReactNode;
 }
 
-export default function DetailPage({
+export default async function DetailPage({
   backHref,
   colorScheme,
   image,
@@ -29,9 +31,22 @@ export default function DetailPage({
   title,
   children,
 }: DetailPageProps) {
+  const t = await getTranslations("nav");
+
   return (
     <main id="main-content" className={`min-h-screen ${colorScheme} pb-48`}>
-      <DetailNav backHref={backHref} />
+      <DetailNav />
+
+      {/* Back link: in-flow so it scrolls with the page instead of sitting
+          in the sticky header (which only holds the logo/menu row). */}
+      <div className="mx-auto max-w-5xl px-8 pt-6 pb-8 md:pt-8">
+        <DetailBackLink
+          href={backHref}
+          className="font-helvetica text-[16px] font-medium uppercase leading-5 tracking-widest transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
+        >
+          {t("back")}
+        </DetailBackLink>
+      </div>
 
       {/* Cover media */}
       <div className="mx-auto max-w-5xl px-8">

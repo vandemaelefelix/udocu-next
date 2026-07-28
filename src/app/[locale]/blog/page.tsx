@@ -58,7 +58,7 @@ export default async function BlogPage({
       className="min-h-screen text-red-light"
       style={{ backgroundColor: "var(--color-red-dark)" }}
     >
-      <DetailNav backHref="/" activeItem="blog" hideBackLink />
+      <DetailNav activeItem="blog" />
 
       <BlogGrid
         initialPosts={response.results}
