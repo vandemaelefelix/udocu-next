@@ -94,7 +94,7 @@ export default function StickyNav() {
           </Link>
 
           {/* Desktop nav */}
-          <ul className="hidden gap-6 font-helvetica text-sm font-medium uppercase tracking-widest md:flex lg:gap-8">
+          <ul className="hidden gap-6 font-helvetica text-sm font-medium uppercase tracking-widest lg:flex lg:gap-8">
             {NAV_ITEMS.map((item) => {
               const label = t(item);
               return item === "blog" ? (
@@ -131,7 +131,7 @@ export default function StickyNav() {
           {/* Mobile hamburger button */}
           <button
             type="button"
-            className="relative z-[60] flex h-8 w-8 flex-col items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded md:hidden"
+            className="relative z-[60] flex h-8 w-8 flex-col items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded lg:hidden"
             style={menuOpen ? { color: overlayTextColor } : undefined}
             onClick={(e) => {
               // WebKit does not focus buttons on click by default, which would
@@ -160,7 +160,7 @@ export default function StickyNav() {
           role="dialog"
           aria-modal="true"
           aria-label={t("openMenu")}
-          className={`fixed inset-0 z-50 flex flex-col items-center justify-center md:hidden ${
+          className={`fixed inset-0 z-50 flex flex-col items-center justify-center lg:hidden ${
             menuOpen ? "pointer-events-auto" : "pointer-events-none"
           }`}
           style={{

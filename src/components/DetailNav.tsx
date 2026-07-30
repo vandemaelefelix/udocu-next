@@ -54,7 +54,7 @@ export default function DetailNav({
         </Link>
 
         {/* Desktop nav */}
-        <ul className="hidden gap-6 font-helvetica text-xs font-medium uppercase tracking-widest md:flex lg:gap-8">
+        <ul className="hidden gap-6 font-helvetica text-xs font-medium uppercase tracking-widest lg:flex lg:gap-8">
           {NAV_ITEMS.map((item) => (
             <li key={item}>
               <Link
@@ -72,7 +72,7 @@ export default function DetailNav({
         {/* Mobile hamburger button */}
         <button
           type="button"
-          className="relative z-[60] flex h-8 w-8 flex-col items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded md:hidden"
+          className="relative z-[60] flex h-8 w-8 flex-col items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded lg:hidden"
           onClick={(e) => {
             // WebKit does not focus buttons on click by default, which would
             // make the focus trap capture the wrong element as its trigger.
@@ -100,7 +100,7 @@ export default function DetailNav({
         role="dialog"
         aria-modal="true"
         aria-label={t("openMenu")}
-        className={`fixed inset-0 z-50 flex flex-col items-center justify-center md:hidden ${
+        className={`fixed inset-0 z-50 flex flex-col items-center justify-center lg:hidden ${
           menuOpen ? "pointer-events-auto" : "pointer-events-none"
         }`}
         style={{
