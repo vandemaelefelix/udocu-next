@@ -1,11 +1,12 @@
 /**
- * Werkwijze page — the "Procedure en prijs" page renders Kurt's supplied copy,
+ * Werkwijze page. The "Procedure en prijs" page renders Kurt's supplied copy,
  * opens on the price, and lists the 12 numbered points.
  *
  * Requires a running dev/preview server (BASE_URL env or http://localhost:3000).
  */
 
 import { test, expect } from "@playwright/test";
+import { visibleBackLink } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/werkwijze", { waitUntil: "load" });
@@ -26,10 +27,13 @@ test("werkwijze: the price is stated above the numbered points", async ({
 
   // The price block must precede the list, which is the whole point of the
   // page: someone scanning for a number should not have to read to the end.
-  // Scoped to <article>: the nav renders its own <ul> higher up the DOM, so
-  // an unscoped list locator would match the menu instead of the points.
+  // Scoped to <article>: that is where NumberedPoints renders its <ol>, so
+  // the locator stays specific to the page content rather than any
+  // incidental list markup elsewhere on the page.
+  const list = page.locator("article ol");
+  await expect(list).toBeVisible();
   const priceBox = await price.boundingBox();
-  const listBox = await page.locator("article ol").boundingBox();
+  const listBox = await list.boundingBox();
   expect(priceBox!.y).toBeLessThan(listBox!.y);
 });
 
@@ -38,6 +42,8 @@ test("werkwijze: all 12 numbered points are present", async ({ page }) => {
 });
 
 test("werkwijze: the back link returns to the homepage", async ({ page }) => {
-  await page.locator('a[href="/"]').first().click();
+  const back = visibleBackLink(page);
+  await expect(back).toHaveCount(1);
+  await back.click();
   await expect(page).toHaveURL(/\/$/);
 });
