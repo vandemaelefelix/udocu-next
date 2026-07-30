@@ -9,6 +9,7 @@ const staticPages = [
   { path: "/about", priority: 0.8, changeFrequency: "monthly" as const },
   { path: "/who-am-i", priority: 0.8, changeFrequency: "monthly" as const },
   { path: "/work", priority: 0.7, changeFrequency: "monthly" as const },
+  { path: "/werkwijze", priority: 0.8, changeFrequency: "monthly" as const },
   { path: "/contact", priority: 0.6, changeFrequency: "yearly" as const },
   { path: "/blog", priority: 0.8, changeFrequency: "weekly" as const },
 ];

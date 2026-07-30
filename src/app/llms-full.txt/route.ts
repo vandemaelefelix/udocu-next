@@ -20,7 +20,7 @@ The tagline "So as not to forget who you were" (Dutch: "Om niet te vergeten wie 
 
 ## How it works
 
-A seasoned journalist conducts an in-depth interview with you about who you are now, who you were, and who you want to become. About your life, family, friends, your passions, your health, your world, your loves, doubts, worries and fears. The interview is filmed with small cameras and delivered as a time capsule — an external hard drive that will prove more valuable year after year for yourself and perhaps also for your loved ones.
+A seasoned journalist conducts an in-depth interview with you about who you are now, who you were, and who you want to become. About your life, family, friends, your passions, your health, your world, your loves, doubts, worries and fears. The interview is filmed with small cameras and delivered as a time capsule, a USB stick that will prove more valuable year after year for yourself and perhaps also for your loved ones.
 
 Today you give the answers to the questions that you or your loved ones will surely ask later. Often those questions only arise for your loved ones when you are no longer there or when you have forgotten the answers.
 
@@ -39,7 +39,7 @@ The idea for udocu grew from a personal experience: watching his father become d
 1. **Personal documentary interviews**: Professional in-depth filmed interviews preserving your complete life story — your past, present, dreams, and reflections
 2. **Family heritage documentation**: Capturing family histories, oral traditions, and generational stories before they are lost
 3. **Cultural heritage preservation**: Documenting cultural practices, community traditions, and shared memories on the verge of being forgotten
-4. **Digital time capsules**: High-quality video archives delivered on external hard drives, designed to grow in value over decades
+4. **Digital time capsules**: High-quality video archives delivered on a USB stick, designed to grow in value over decades
 
 ## Who is udocu for?
 
@@ -64,6 +64,7 @@ The idea for udocu grew from a personal experience: watching his father become d
 - [About udocu](${SITE_URL}/about) — Detailed explanation of the udocu concept and services
 - [Who Am I](${SITE_URL}/who-am-i) — Kurt Vandemaele's personal story and background
 - [Work](${SITE_URL}/work) — Portfolio of documentary interviews and projects
+- [Procedure and pricing](${SITE_URL}/werkwijze) - How a udocu interview works, from preparation to delivery, including pricing
 - [Blog](${SITE_URL}/blog) — Stories, insights, and reflections on documentary storytelling
 - [Contact](${SITE_URL}/contact) — Get in touch with udocu
 
@@ -79,10 +80,10 @@ Udocu is based in Kortrijk, Belgium, but serves clients throughout Belgium and b
 Udocu primarily works in Dutch but also offers services in English. The website itself is in Dutch.
 
 ### How much does a udocu interview cost?
-Contact ${contactInfo.name} directly at ${contactInfo.email} or ${contactInfo.phone} for pricing information.
+The standard price is 900 euro, which includes one USB stick with the recordings. Additional sticks are 20 euro each. Travel costs are kept to a minimum. Invoiced without VAT. Full details at ${SITE_URL}/werkwijze
 
 ### What do I receive after the interview?
-You receive a complete time capsule on an external hard drive containing your professionally filmed interview. The result is entirely yours — you decide who sees it and when.
+You receive a USB stick containing the complete film, typically two to three hours long and sometimes split into two parts. The result is entirely yours: you decide who sees it and when.
 
 ### At what age should I do an udocu interview?
 Any age is a good time. Whether you're 21 or 95, every moment captures a unique version of who you are. Kurt recommends considering interviews at multiple life stages: 30, 37, 41, 46, 53, 60, 67, 75, 83, and 95.
