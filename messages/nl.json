@@ -42,6 +42,22 @@
     "addressLabel": "Adres",
     "overlay": "LET'S\nTALK"
   },
+  "werkwijze": {
+    "title": "Procedure en prijs",
+    "price": "De standaardprijs is 900 euro. Dat is een aanzienlijk bedrag voor een doorsneemens, maar weinig als je bedenkt dat er minstens 3, soms 4 of zelfs 5 dagen werk in zit. In die prijs zit 1 stick inbegrepen, waarop de opnamen. Bovenop komt nog 20 euro per stick die ik aanlever met het eindresultaat. Verplaatsingskosten worden tot een minimum beperkt. In de mate van het mogelijke reis ik met het openbaar vervoer. In het opstartjaar heb ik wel al een BTW-nummer, maar ik geniet nog van een vrijstelling van BTW, dus ik factureer zonder btw.",
+    "point1": "Ik volg een zeker stramien om het gesprek te voeren. Dat verschilt natuurlijk van mens tot mens, maar doorgaans komen er een tien à vijftien thema's aan bod (soms onderverdeeld in nog een aantal verschillende blokken), die de geïnterviewde in staat stellen om een goed beeld te schetsen van zichzelf. De bedoeling is om de essentie te vatten van de mens voor de camera's.",
+    "point2": "Doorgaans bespreken we zo weinig mogelijk vooraf, omdat de spontaniteit belangrijk is. Maar als er bepaalde thema's zijn die je absoluut aan bod wil laten komen, moet je dat zeker vermelden. Want jij bepaalt wat er gezegd wordt. Vaak krijg ik de vraag van volwassen kinderen om hun vader of moeder te interviewen. Natuurlijk moeten ze dan zelf wel checken of die persoon bereid is om zo'n interview te doen. In een uitzonderlijk geval ga ik de persoon in kwestie zelf uitleggen hoe ik tewerk ga.",
+    "point3": "Het gesprek wordt vanuit verschillende standpunten gefilmd om de opnamen wat vaart te geven, de babbel vloeiend te laten gebeuren. Een hapering kan gerust, maar storende haperingen of passages die de betrokkene liever niet ziet worden geknipt.\n\nEr wordt doorlopend met drie of vier verschillende camera's gefilmd. Niet in 4 K, ook al omdat het inladen en het renderen van de beelden een gigantisch werk maken. Nee, gewoon in 1080p Full HD.",
+    "point4": "De opname gaat naar wie het gesprek heeft besteld. De afnemer doet met het resultaat wat hij of zij wil. Maar een echt openhartige babbel wordt best niet online gezwierd. Sommigen zullen de opnamen misschien meteen tonen aan de naaste geliefden, anderen zullen ze jaren wegleggen of misschien pas naar boven laten komen na hun dood.",
+    "point5": "Waar en wanneer gebeuren de opnamen? Op een plek waar het rustig is en waar de geïnterviewde zich op haar of zijn gemak voelt. Dat kan thuis zijn, maar ook op een andere locatie waar een rustig gesprek mogelijk is. Zelfs een park of een bos kan, als je daar met rust wordt gelaten en kan praten.",
+    "point6": "Reken voor de start een uurtje om de juiste plekken voor het gesprek te bepalen en alle benodigdheden op te stellen.",
+    "point7": "De opnamen verlopen eveneens rustig. Wie aan het woord is, moet zich kunnen ontspannen. We doen een lang interview en dat gebeurt hoofdzakelijk zittend. Alleen de geïnterviewde komt in beeld. De vragen worden er zoveel mogelijk uitgeknipt. Bij eerdere opnamen is het al vaker gebeurd dat we er 's morgens aan beginnen, 's middags een pauze inlassen (voor een eventueel middagdutje) en na de middag doorgaan.",
+    "point8": "Er kan natuurlijk op verschillende plaatsen in een huis of ander pand gedraaid worden. Als een geïnterviewde graag kookt en een en ander wil demonstreren, dan kan dat. Als een geïnterviewde een auto wil laten zien of een fiets, een wijnkelder, een bibliotheek… dan kunnen we daar uiteraard tussendoor even naar gaan kijken… Een deel van het gesprek kan bijvoorbeeld in de woonkamer, de keuken, het bureau… of de tuin gedraaid worden. Een nabije locatie kan ook nog wel, maar geen verre verplaatsingen tussendoor.",
+    "point9": "Ik sleur geen belichting mee, gewoon lichte, kleine camera's en statieven. Ik maak daarnaast wat tussenbeelden op de plek waar we ons bevinden (foto's tegen de muur, schilderijen, beelden die de setting weergeven). En eventueel draai ik nog wat beelden waar de mens in kwestie even gaat wandelen, of in huis met één of ander iets bezig is.",
+    "point10": "We draaien wat tussenbeelden op de locatie waar we zijn (de setting, het decor…), maar we gaan niet het hele gesprek illustreren. Er kunnen ter plekke wel een paar foto's gefilmd worden, maar als er een half foto-album in beeld moet komen, moeten we foto's laten scannen en komt er een meerprijs.",
+    "point11": "Voor de levering worden enkele passages via een verborgen link doorgemaild. Betaling gebeurt voor of bij levering. Nadien kunnen nog drie weken lang bepaalde passages verwijderd worden, indien je die liever niet in het eindproduct ziet.",
+    "point12": "Wat krijgt de klant? Een stick met de volledige film erop. Soms is die opgesplitst in twee delen. De uiteindelijke duur is al vlug twee uren, soms drie of net iets meer. Het eerste wat je best doet na ontvangst is die stick downloaden op je computer en het bestand ook minstens op één harde schijf zetten. En eventueel ook in the cloud. Daarnaast is het een goed idee om dat bestand geregeld eens naar een andere schijf te verplaatsen. En komt er een nieuwe drager uit, dan zet je je file het best over op het nieuwe formaat. Je kent het verhaal van de floppy disk en de cloud. Wellicht komen er ooit tijden dat je het filmpje zal kunnen laten inplanten in je persoonlijk geheugen."
+  },
   "blog": {
     "title": "Blog",
     "noPosts": "Nog geen berichten.",
@@ -52,6 +68,7 @@
     "about": "Over Udocu",
     "who-am-i": "Wie ben ik",
     "work": "Fragmenten",
+    "werkwijze": "Werkwijze",
     "contact": "Contact",
     "blog": "Blog",
     "back": "Terug",
@@ -71,6 +88,8 @@
     "blogDescription": "Verhalen, inzichten en reflecties over documentaire verhalen, persoonlijk erfgoed en de kunst van het bewaren van herinneringen.",
     "workTitle": "Fragmenten",
     "workDescription": "Bekijk fragmenten uit gefilmde interviews van Udocu: persoonlijke gesprekken die in beeld en woord vastleggen wie iemand is. Klik op een foto om een fragment te bekijken.",
+    "werkwijzeTitle": "Procedure en prijs",
+    "werkwijzeDescription": "Hoe een udocu-gesprek verloopt, van de voorbereiding en de opnamen tot de levering. Inclusief de standaardprijs van 900 euro.",
     "contactTitle": "Contact",
     "contactDescription": "Neem contact op met Kurt Vandemaele bij udocu. Gevestigd in Kortrijk, België."
   },
