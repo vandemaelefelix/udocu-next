@@ -48,7 +48,9 @@ Two constraints shape the design:
 
 ### Cover media
 
-`DetailPage` expects an `image` or `media`. About uses the video, Wie ben ik uses the portrait. **This page needs an asset and Kurt has to supply it.** The natural fit is a behind-the-scenes photograph of the small cameras and tripods set up in a living room, which illustrates his points 3 and 9 directly. To avoid blocking the page on it, ship with a still from the existing Fragmenten set and swap it when the photo arrives.
+`DetailPage` takes an optional `image` or `media`. About uses the video, Wie ben ik uses the portrait. **This page wants an asset and Kurt has to supply it.** The natural fit is a behind-the-scenes photograph of the small cameras and tripods set up in a living room, which illustrates his points 3 and 9 directly.
+
+The page ships without a cover rather than waiting on the photo. Reusing an existing static image would mean putting an unrelated picture on the page (the only candidates are the contact photo and the Kurt portrait), and the Fragmenten stills are Prismic assets on `interview` documents rather than static imports, so borrowing one would mean a Prismic fetch for a placeholder. Instead, `DetailPage`'s cover block becomes conditional so the page renders cleanly with no cover at all, and Kurt's photograph drops in later as `image={...}` with no other change.
 
 ### Testing
 
