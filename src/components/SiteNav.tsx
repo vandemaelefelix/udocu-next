@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import UdocuLogo from "@/components/UdocuLogo";
 import GlitchText from "@/components/GlitchText";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { useHomeLogoClick } from "@/hooks/useHomeLogoClick";
 import { NAV_ITEMS, PAGE_HREFS } from "@/config/navigation";
 
 /**
@@ -66,6 +67,7 @@ export default function SiteNav({
   const [menuOpen, setMenuOpen] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
   useFocusTrap(overlayRef, menuOpen);
+  const handleLogoClick = useHomeLogoClick();
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -157,6 +159,7 @@ export default function SiteNav({
         <Link
           href="/"
           aria-label={t("home")}
+          onClick={handleLogoClick}
           className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded"
         >
           <UdocuLogo
