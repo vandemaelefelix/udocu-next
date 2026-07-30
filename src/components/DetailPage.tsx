@@ -17,6 +17,10 @@ interface DetailPageProps {
   date?: string;
   title: ReactNode;
   children: ReactNode;
+  /** Mobile overlay background, forwarded to DetailNav. Defaults to red-dark. */
+  overlayBgColor?: string;
+  /** Mobile overlay text colour, forwarded to DetailNav. Defaults to red-light. */
+  overlayTextColor?: string;
 }
 
 export default async function DetailPage({
@@ -30,12 +34,17 @@ export default async function DetailPage({
   date,
   title,
   children,
+  overlayBgColor,
+  overlayTextColor,
 }: DetailPageProps) {
   const t = await getTranslations("nav");
 
   return (
     <main id="main-content" className={`min-h-screen ${colorScheme} pb-48`}>
-      <DetailNav />
+      <DetailNav
+        overlayBgColor={overlayBgColor}
+        overlayTextColor={overlayTextColor}
+      />
 
       {/* Back link: in-flow so it scrolls with the page instead of sitting
           in the sticky header (which only holds the logo/menu row). */}
@@ -48,27 +57,29 @@ export default async function DetailPage({
         </DetailBackLink>
       </div>
 
-      {/* Cover media */}
-      <div className="mx-auto max-w-5xl px-8">
-        <div className="relative aspect-video w-full overflow-hidden">
-          {media ??
-            (image && (
-              <Image
-                src={image}
-                alt={imageAlt}
-                fill
-                className={imageClassName}
-                sizes="100vw"
-                priority
-              />
-            ))}
-          {imageCredit && (
-            <span className="pointer-events-none absolute bottom-2 right-2 z-10 font-helvetica text-xs tracking-wide text-white/80 md:bottom-3 md:right-3">
-              {imageCredit}
-            </span>
-          )}
+      {/* Cover media (optional: pages without a cover skip the block entirely) */}
+      {(media || image) && (
+        <div className="mx-auto max-w-5xl px-8">
+          <div className="relative aspect-video w-full overflow-hidden">
+            {media ??
+              (image && (
+                <Image
+                  src={image}
+                  alt={imageAlt}
+                  fill
+                  className={imageClassName}
+                  sizes="100vw"
+                  priority
+                />
+              ))}
+            {imageCredit && (
+              <span className="pointer-events-none absolute bottom-2 right-2 z-10 font-helvetica text-xs tracking-wide text-white/80 md:bottom-3 md:right-3">
+                {imageCredit}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Date, title & body */}
       <article className="mx-auto max-w-5xl px-8 pt-8 pb-16 md:pt-12 md:pb-24">
