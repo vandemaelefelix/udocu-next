@@ -18,6 +18,13 @@ const NAV_ITEMS = ["about", "who-am-i", "work", "contact", "blog"] as const;
 // force useActiveSection's IntersectionObserver to disconnect + rebuild every frame.
 const SECTION_IDS = ["about", "who-am-i", "work", "contact"] as const;
 
+// Nav entries that link to their own page instead of scrolling to a homepage
+// section. Module-scoped for the same reason as SECTION_IDS: StickyNav
+// re-renders ~60x/sec during scroll and a fresh object each render is waste.
+const PAGE_HREFS: Record<string, string> = {
+  blog: "/blog",
+};
+
 export default function StickyNav() {
   const t = useTranslations("nav");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -97,10 +104,11 @@ export default function StickyNav() {
           <ul className="hidden gap-6 font-helvetica text-sm font-medium uppercase tracking-widest lg:flex lg:gap-8">
             {NAV_ITEMS.map((item) => {
               const label = t(item);
-              return item === "blog" ? (
+              const pageHref = PAGE_HREFS[item];
+              return pageHref ? (
                 <li key={item}>
                   <Link
-                    href="/blog"
+                    href={pageHref}
                     className="focus-visible:opacity-70 focus-visible:outline-none"
                   >
                     <GlitchText>{label}</GlitchText>
@@ -180,10 +188,11 @@ export default function StickyNav() {
                     animation: `menu-link-in 280ms ease-out ${index * 60}ms both`,
                   }
                 : { animation: "none" };
-              return item === "blog" ? (
+              const pageHref = PAGE_HREFS[item];
+              return pageHref ? (
                 <li key={item} style={animationStyle}>
                   <Link
-                    href="/blog"
+                    href={pageHref}
                     tabIndex={menuOpen ? 0 : -1}
                     className="focus-visible:opacity-70 focus-visible:outline-none"
                     onClick={() => setMenuOpen(false)}

@@ -19,6 +19,12 @@ interface DetailNavProps {
 // Keep in sync with StickyNav so every screen exposes the same destinations.
 const NAV_ITEMS = ["about", "who-am-i", "work", "contact", "blog"] as const;
 
+// Keep in sync with StickyNav. Nav entries that link to their own page
+// instead of a homepage section anchor.
+const PAGE_HREFS: Record<string, string> = {
+  blog: "/blog",
+};
+
 export default function DetailNav({
   activeItem,
   overlayBgColor = "var(--color-red-dark)",
@@ -58,7 +64,7 @@ export default function DetailNav({
           {NAV_ITEMS.map((item) => (
             <li key={item}>
               <Link
-                href={item === "blog" ? "/blog" : `/#${item}`}
+                href={PAGE_HREFS[item] ?? `/#${item}`}
                 className={`transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none ${
                   item === activeItem ? "underline underline-offset-4" : ""
                 }`}
@@ -123,7 +129,7 @@ export default function DetailNav({
             return (
               <li key={item} style={animationStyle}>
                 <Link
-                  href={item === "blog" ? "/blog" : `/#${item}`}
+                  href={PAGE_HREFS[item] ?? `/#${item}`}
                   tabIndex={menuOpen ? 0 : -1}
                   className={`focus-visible:opacity-70 focus-visible:outline-none ${
                     item === activeItem ? "underline underline-offset-4" : ""
