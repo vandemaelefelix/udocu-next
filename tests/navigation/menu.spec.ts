@@ -10,7 +10,7 @@
  */
 
 import { test, expect, type Page, type Locator } from "@playwright/test";
-import { HAMBURGER } from "./helpers";
+import { HAMBURGER, DESKTOP_NAV_MIN_WIDTH } from "./helpers";
 
 type NavKind = "sticky" | "detail";
 
@@ -78,7 +78,7 @@ for (const screen of SCREENS) {
       page,
       viewport,
     }) => {
-      const isMobile = (viewport?.width ?? 1280) < 768;
+      const isMobile = (viewport?.width ?? 1280) < DESKTOP_NAV_MIN_WIDTH;
       await loadScreen(page, screen.path);
 
       // The logo (home) lives in the top bar; every other item lives in the

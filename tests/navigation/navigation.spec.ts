@@ -36,6 +36,7 @@ import {
   HOME,
   SECTIONS,
   HAMBURGER,
+  DESKTOP_NAV_MIN_WIDTH,
   goHome,
   gotoPage,
   visibleBackLink,
@@ -182,7 +183,7 @@ test("AC4b — blog is reachable via the site menu/nav", async ({
   viewport,
 }) => {
   await goHome(page);
-  const isMobile = (viewport?.width ?? 1280) < 768;
+  const isMobile = (viewport?.width ?? 1280) < DESKTOP_NAV_MIN_WIDTH;
 
   if (isMobile) {
     // Open the hamburger overlay first.
@@ -233,7 +234,7 @@ test("D1 — clicking the 'work' menu link scrolls #work to the viewport centre"
   viewport,
 }) => {
   await goHome(page);
-  const isMobile = (viewport?.width ?? 1280) < 768;
+  const isMobile = (viewport?.width ?? 1280) < DESKTOP_NAV_MIN_WIDTH;
   if (isMobile) {
     await page.locator(HAMBURGER).click();
     await page.waitForTimeout(400);

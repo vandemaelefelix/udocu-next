@@ -1,8 +1,23 @@
 import type { Metadata } from "next";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import {
+  getMessages,
+  getTranslations,
+  setRequestLocale,
+} from "next-intl/server";
 import { getAlternates } from "@/lib/seo";
 import DetailPage from "@/components/DetailPage";
 import NumberedPoints from "@/components/NumberedPoints";
+
+const POINT_KEY_PATTERN = /^point(\d+)$/;
+
+/** Numeric point indices (1, 2, 3, ...) present in the werkwijze namespace, sorted ascending. */
+function pointIndices(werkwijzeMessages: Record<string, unknown>): number[] {
+  return Object.keys(werkwijzeMessages)
+    .map((key) => key.match(POINT_KEY_PATTERN))
+    .filter((match): match is RegExpMatchArray => match !== null)
+    .map((match) => Number(match[1]))
+    .sort((a, b) => a - b);
+}
 
 type Params = { locale: string };
 
@@ -33,7 +48,11 @@ export default async function WerkwijzePage({
 
   // Kurt supplied the price as his final point. It leads instead, because the
   // reason this page exists is that visitors could not find the price.
-  const points = Array.from({ length: 12 }, (_, i) => t(`point${i + 1}`));
+  // The point count is derived from messages/nl.json rather than hardcoded,
+  // so adding or removing a point`n` key there is reflected automatically.
+  const messages = await getMessages({ locale });
+  const werkwijzeMessages = messages.werkwijze as Record<string, unknown>;
+  const points = pointIndices(werkwijzeMessages).map((n) => t(`point${n}`));
 
   return (
     <DetailPage
