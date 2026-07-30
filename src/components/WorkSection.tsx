@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePostHog } from "posthog-js/react";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { prismicImageLoader } from "@/utils/imageLoader";
 
 type Props = {
   interviews: Content.InterviewDocument[];
@@ -180,6 +181,7 @@ const MobileWorkSection = ({
                   style={{ width: MOBILE_ITEM_SIZE, height: MOBILE_ITEM_SIZE }}
                 >
                   <Image
+                    loader={prismicImageLoader}
                     src={item.imageUrl}
                     alt={item.alt}
                     className="w-full h-full object-cover"
@@ -523,6 +525,7 @@ const CarouselItem = ({
         initial={{ opacity: 0 }}
       >
         <Image
+          loader={prismicImageLoader}
           src={item.imageUrl}
           alt={item.alt}
           className="w-full h-full object-cover"
