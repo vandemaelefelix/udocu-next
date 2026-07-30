@@ -157,13 +157,19 @@ export default async function BlogPostPage({
                 // Fall back to the post title when no alt is set in Prismic.
                 alt: page.data.image.alt || title || null,
               }}
-              fill
-              className="object-cover object-center"
-              sizes="100vw"
+              // No fixed ratio: Prismic puts no constraint on this field, so the
+              // cover keeps whatever shape the editor uploaded rather than being
+              // cropped into 16:9. Intrinsic width/height come from the field,
+              // so this still reserves the right space and avoids layout shift.
+              className="h-auto w-full"
+              // max-w-5xl (1024px) minus the 2rem page padding on each side.
+              sizes="(min-width: 1024px) 960px, 100vw"
               priority
             />
           ) : undefined
         }
+        // Videos still need the 16:9 box: the iframe sizes itself to the parent.
+        mediaAspect={videoUrl ? "video" : "natural"}
         date={formattedDate}
         title={title}
       >
