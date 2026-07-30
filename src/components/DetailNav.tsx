@@ -17,11 +17,19 @@ interface DetailNavProps {
 }
 
 // Keep in sync with StickyNav so every screen exposes the same destinations.
-const NAV_ITEMS = ["about", "who-am-i", "work", "contact", "blog"] as const;
+const NAV_ITEMS = [
+  "about",
+  "who-am-i",
+  "work",
+  "werkwijze",
+  "contact",
+  "blog",
+] as const;
 
 // Keep in sync with StickyNav. Nav entries that link to their own page
 // instead of a homepage section anchor.
 const PAGE_HREFS: Record<string, string> = {
+  werkwijze: "/werkwijze",
   blog: "/blog",
 };
 

@@ -10,7 +10,14 @@ import { useScrollColor } from "@/context/ScrollColorContext";
 import { useActiveSection } from "@/hooks/useActiveSection";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 
-const NAV_ITEMS = ["about", "who-am-i", "work", "contact", "blog"] as const;
+const NAV_ITEMS = [
+  "about",
+  "who-am-i",
+  "work",
+  "werkwijze",
+  "contact",
+  "blog",
+] as const;
 
 // Module-scoped so the reference is stable across renders. StickyNav re-renders
 // ~60×/sec during scroll (it consumes bgColor/textColor from ScrollColorContext,
@@ -22,6 +29,7 @@ const SECTION_IDS = ["about", "who-am-i", "work", "contact"] as const;
 // section. Module-scoped for the same reason as SECTION_IDS: StickyNav
 // re-renders ~60x/sec during scroll and a fresh object each render is waste.
 const PAGE_HREFS: Record<string, string> = {
+  werkwijze: "/werkwijze",
   blog: "/blog",
 };
 

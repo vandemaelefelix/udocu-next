@@ -4,7 +4,7 @@
  *
  * The one-pager uses <StickyNav>; detail pages and the blog use <DetailNav>.
  * Both must expose the same destinations: Home (logo), about, who-am-i, work,
- * contact, blog.
+ * werkwijze, contact, blog.
  *
  * Requires a running dev/preview server (BASE_URL env or http://localhost:3000).
  */
@@ -21,13 +21,22 @@ const SCREENS: Array<{ name: string; path: string; nav: NavKind }> = [
 ];
 
 // Every destination the menu must offer, in nav order.
-const ITEMS = ["home", "about", "who-am-i", "work", "contact", "blog"] as const;
+const ITEMS = [
+  "home",
+  "about",
+  "who-am-i",
+  "work",
+  "werkwijze",
+  "contact",
+  "blog",
+] as const;
 type Item = (typeof ITEMS)[number];
 
 /** The href a given item renders with, per nav component. */
 function itemHref(nav: NavKind, key: Item): string {
   if (key === "home") return "/";
   if (key === "blog") return "/blog";
+  if (key === "werkwijze") return "/werkwijze";
   // Section links: StickyNav uses bare "#about"; DetailNav uses "/#about".
   return nav === "sticky" ? `#${key}` : `/#${key}`;
 }
@@ -36,6 +45,7 @@ function itemHref(nav: NavKind, key: Item): string {
 function expectedUrl(key: Item): RegExp {
   if (key === "home") return /\/$/;
   if (key === "blog") return /\/blog\/?$/;
+  if (key === "werkwijze") return /\/werkwijze\/?$/;
   return new RegExp(`/#${key}$`);
 }
 
