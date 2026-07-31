@@ -313,7 +313,32 @@ test.describe("work carousel hover", () => {
     await context.close();
   });
 
-  test("unmounting a hovered card releases the stage", async ({ page }) => {
+  test("unmounting a hovered card stops the render loop, not just the DOM node", async ({
+    page,
+  }) => {
+    // A DOM query cannot prove this. WorkSection lives on the home route's
+    // page.tsx, not a persistent layout, so a client-side route change
+    // unmounts the whole subtree and physically removes the canvas from the
+    // document regardless of whether releaseTapeStage ever ran. What a DOM
+    // query cannot see is whether the requestAnimationFrame loop is still
+    // calling draw() against that now-detached canvas for the rest of the
+    // page session. Count real GPU draws instead, and isolate the count on
+    // a route with no tape wiring of its own (/blog), so any draws recorded
+    // there can only be the leaked carousel renderer.
+    await page.addInitScript(() => {
+      const w = window as unknown as { __draws: number };
+      w.__draws = 0;
+      const proto = WebGL2RenderingContext.prototype;
+      const original = proto.drawArrays;
+      proto.drawArrays = function (
+        this: WebGL2RenderingContext,
+        ...args: Parameters<typeof original>
+      ) {
+        w.__draws++;
+        return original.apply(this, args);
+      };
+    });
+
     await page.goto("/", { waitUntil: "load" });
 
     const card = page
@@ -325,17 +350,39 @@ test.describe("work carousel hover", () => {
     await card.hover();
     await expect(page.locator("canvas[data-tape-stage]")).toHaveCount(1);
 
-    // Navigate away via a native DOM click on a real next/link, rather than
-    // a real mouse move to the link's position. A real mouse move would fire
-    // pointerleave on the card first, which already releases the stage via
-    // the ordinary path tested above. Dispatching .click() directly leaves
-    // the pointer sitting over the card, so the only thing that can release
-    // the stage here is the CarouselItem's unmount cleanup.
+    // Confirm the loop is actually running before relying on it as a signal.
+    const beforeNav = await page.evaluate(
+      () => (window as unknown as { __draws: number }).__draws,
+    );
+    await page.waitForTimeout(300);
+    const stillHovering = await page.evaluate(
+      () => (window as unknown as { __draws: number }).__draws,
+    );
+    expect(stillHovering).toBeGreaterThan(beforeNav);
+
+    // Navigate away via a real next/link click (StickyNav's desktop "blog"
+    // item), not a full reload: a reload would reset window.__draws and
+    // make the test vacuous in a different way. The pointer is left sitting
+    // over the card (no hover/leave over the link itself), so only the
+    // CarouselItem's unmount cleanup can stop the loop here.
     await page
-      .locator("#about a[href='/about']")
+      .locator('nav a[href="/blog"]')
       .first()
       .evaluate((el) => (el as HTMLAnchorElement).click());
-    await expect(page).toHaveURL(/\/about\/?$/);
+    await expect(page).toHaveURL(/\/blog\/?$/);
+
+    // /blog has no tape wiring of its own: confirm there is nothing here
+    // that could contribute draws of its own before trusting the counter.
+    await expect(page.locator("canvas[data-tape-canvas]")).toHaveCount(0);
     await expect(page.locator("canvas[data-tape-stage]")).toHaveCount(0);
+
+    const afterNav = await page.evaluate(
+      () => (window as unknown as { __draws: number }).__draws,
+    );
+    await page.waitForTimeout(500);
+    const settled = await page.evaluate(
+      () => (window as unknown as { __draws: number }).__draws,
+    );
+    expect(settled).toBe(afterNav);
   });
 });
