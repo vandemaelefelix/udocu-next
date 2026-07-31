@@ -18,6 +18,12 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePostHog } from "posthog-js/react";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import {
+  acquireTapeStage,
+  releaseTapeStage,
+  warmTapeStage,
+} from "@/components/vhs/carouselTapeStage";
+import { TAPE_PRESETS } from "@/components/vhs/presets";
 
 type Props = {
   interviews: Content.InterviewDocument[];
@@ -506,6 +512,33 @@ const CarouselItem = ({
     ([entry, inertia]: number[]) => entry + inertia,
   );
 
+  // Pre-warm the shared GL context once the carousel is on screen, so the
+  // first hover has no shader-compile stall. Desktop pointers only.
+  useEffect(() => {
+    if (!isVisible) return;
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches)
+      return;
+    const idle =
+      (
+        window as Window & {
+          requestIdleCallback?: (cb: () => void) => number;
+        }
+      ).requestIdleCallback?.(() => warmTapeStage()) ??
+      window.setTimeout(() => warmTapeStage(), 400);
+    return () => {
+      if (
+        (window as Window & { cancelIdleCallback?: (id: number) => void })
+          .cancelIdleCallback
+      ) {
+        (
+          window as Window & { cancelIdleCallback?: (id: number) => void }
+        ).cancelIdleCallback?.(idle as number);
+      } else {
+        window.clearTimeout(idle as number);
+      }
+    };
+  }, [isVisible]);
+
   return (
     <Link
       href={item.href}
@@ -518,9 +551,18 @@ const CarouselItem = ({
       <motion.div
         ref={scope}
         data-carousel-item
-        className={`shrink-0 rounded-lg overflow-hidden bg-gray-100 ${ITEM_SIZE.className}`}
+        className={`relative shrink-0 rounded-lg overflow-hidden bg-gray-100 ${ITEM_SIZE.className}`}
         style={{ y: combinedY }}
         initial={{ opacity: 0 }}
+        onPointerEnter={(e) => {
+          if (e.pointerType !== "mouse") return;
+          const host = e.currentTarget as HTMLElement;
+          const img = host.querySelector("img");
+          if (img) acquireTapeStage(host, img, TAPE_PRESETS.hover);
+        }}
+        onPointerLeave={(e) => {
+          releaseTapeStage(e.currentTarget as HTMLElement);
+        }}
       >
         <Image
           src={item.imageUrl}

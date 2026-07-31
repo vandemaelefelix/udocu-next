@@ -218,3 +218,50 @@ test.describe("/about player", () => {
       .toBe(false);
   });
 });
+
+test.describe("work carousel hover", () => {
+  test("hovering a card tapes it, leaving restores it", async ({ page }) => {
+    await page.goto("/", { waitUntil: "load" });
+
+    // The carousel repeats items for the infinite-loop illusion and starts
+    // centred on the canonical (non-duplicate) copy, so a bare `.first()`
+    // resolves to a duplicate that sits off-screen with no scrollable
+    // ancestor to bring it into view (see navigation.spec.ts AC2c for the
+    // same carousel quirk). Scope to a canonical, on-screen item instead.
+    const card = page
+      .locator("a:not([aria-hidden]) [data-carousel-item]")
+      .first();
+    await card.scrollIntoViewIfNeeded();
+    // Let the entrance animation and idle pre-warm settle.
+    await page.waitForTimeout(1200);
+
+    const stage = page.locator("canvas[data-tape-stage]");
+    await expect(stage).toHaveCount(0);
+
+    await card.hover();
+    await expect(stage).toHaveCount(1);
+    await expect(stage).toHaveAttribute("aria-hidden", "true");
+    // The stage is inside the hovered card, so it inherits its transforms.
+    expect(await card.locator("canvas[data-tape-stage]").count()).toBe(1);
+
+    // The card's own image keeps its alt text regardless.
+    await expect(card.locator("img")).toHaveAttribute("alt", /.*/);
+
+    await page.mouse.move(0, 0);
+    await expect(stage).toHaveCount(0);
+    await expect(card.locator("img")).toHaveCSS("opacity", "1");
+  });
+
+  test("touch devices get clean images and no stage", async ({ browser }) => {
+    const context = await browser.newContext({
+      viewport: { width: 390, height: 844 },
+      hasTouch: true,
+      isMobile: true,
+    });
+    const page = await context.newPage();
+    await page.goto("/", { waitUntil: "load" });
+    await page.waitForTimeout(1200);
+    await expect(page.locator("canvas[data-tape-stage]")).toHaveCount(0);
+    await context.close();
+  });
+});
