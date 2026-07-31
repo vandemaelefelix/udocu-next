@@ -4,7 +4,7 @@ export default function NoiseOverlay() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed z-[9999]"
+      className="pointer-events-none fixed z-[9999] noise-overlay"
       style={{
         backgroundImage: `url(${noiseTexture.src})`,
         backgroundRepeat: "repeat",
@@ -13,7 +13,6 @@ export default function NoiseOverlay() {
         top: "-110%",
         left: "-50%",
         opacity: 0.1,
-        animation: "grain 8s steps(10) infinite",
         willChange: "transform",
       }}
     />

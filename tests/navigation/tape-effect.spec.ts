@@ -11,11 +11,10 @@ import { test, expect, type Page } from "@playwright/test";
  * Neutralises everything that composites over the tape canvas so a screenshot
  * diff measures the WebGL loop and nothing else.
  *
- * NoiseOverlay animates via CSS keyframes with no prefers-reduced-motion guard
- * (pre-existing, tracked separately). It is fixed and full-viewport at z-9999,
- * so it paints over the canvas. Next's dev-mode nextjs-portal uses shadow DOM,
- * which the universal selector cannot reach, so it needs its own rule. That
- * rule is a harmless no-op against a production build.
+ * Suppresses all CSS animations and transitions via universal selector override,
+ * plus suppresses Next's dev-mode nextjs-portal (shadow DOM, unreachable by
+ * universal selector). These may include grain animation from NoiseOverlay,
+ * or other CSS animations that might exist on the page.
  *
  * Our canvas is driven by requestAnimationFrame and WebGL, not CSS animation,
  * so suppressing CSS animation does not affect what these tests measure.
@@ -384,5 +383,51 @@ test.describe("work carousel hover", () => {
       () => (window as unknown as { __draws: number }).__draws,
     );
     expect(settled).toBe(afterNav);
+  });
+});
+
+test.describe("sitewide NoiseOverlay", () => {
+  test("freezes the grain animation under reduced motion but keeps it visible", async ({
+    browser,
+  }) => {
+    // Under reduced motion, the overlay grain texture must remain visible for
+    // character, but its animation must stop so it does not defeat the tape
+    // effect's own reduced-motion behaviour (or any other animation guard).
+    const reducedMotionContext = await browser.newContext({
+      reducedMotion: "reduce",
+    });
+    const reducedMotionPage = await reducedMotionContext.newPage();
+    await reducedMotionPage.goto("/", { waitUntil: "load" });
+
+    // Locate the NoiseOverlay by its CSS class
+    const noiseOverlay = reducedMotionPage.locator(".noise-overlay").first();
+
+    // Assert the overlay exists and is visible
+    await expect(noiseOverlay).toHaveCount(1);
+    const opacity = await noiseOverlay.evaluate((el) => {
+      return window.getComputedStyle(el).opacity;
+    });
+    expect(parseFloat(opacity)).toBeGreaterThan(0);
+
+    // Assert the animation is frozen (none)
+    const animationName = await noiseOverlay.evaluate((el) => {
+      return window.getComputedStyle(el).animationName;
+    });
+    expect(animationName).toBe("none");
+
+    await reducedMotionContext.close();
+
+    // Verify the animation is active in normal context (A/B proof)
+    const normalContext = await browser.newContext();
+    const normalPage = await normalContext.newPage();
+    await normalPage.goto("/", { waitUntil: "load" });
+
+    const normalOverlay = normalPage.locator(".noise-overlay").first();
+    const normalAnimationName = await normalOverlay.evaluate((el) => {
+      return window.getComputedStyle(el).animationName;
+    });
+    expect(normalAnimationName).toBe("grain");
+
+    await normalContext.close();
   });
 });
