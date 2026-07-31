@@ -57,6 +57,7 @@ export default async function WerkwijzePage({
   return (
     <DetailPage
       backHref="/"
+      activeItem="werkwijze"
       colorScheme="bg-blue-dark text-blue-light"
       overlayBgColor="var(--color-blue-dark)"
       overlayTextColor="var(--color-blue-light)"

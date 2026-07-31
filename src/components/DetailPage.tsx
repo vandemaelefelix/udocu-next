@@ -21,6 +21,8 @@ interface DetailPageProps {
   overlayBgColor?: string;
   /** Mobile overlay text colour, forwarded to DetailNav. Defaults to red-light. */
   overlayTextColor?: string;
+  /** Nav key to underline while this page is open, forwarded to DetailNav. */
+  activeItem?: string;
 }
 
 export default async function DetailPage({
@@ -36,6 +38,7 @@ export default async function DetailPage({
   children,
   overlayBgColor,
   overlayTextColor,
+  activeItem,
 }: DetailPageProps) {
   const t = await getTranslations("nav");
 
@@ -44,6 +47,7 @@ export default async function DetailPage({
       <DetailNav
         overlayBgColor={overlayBgColor}
         overlayTextColor={overlayTextColor}
+        activeItem={activeItem}
       />
 
       {/* Back link: in-flow so it scrolls with the page instead of sitting

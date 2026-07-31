@@ -10,12 +10,15 @@ import { useScrollColor } from "@/context/ScrollColorContext";
 import { useActiveSection } from "@/hooks/useActiveSection";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 
+// Homepage sections first, in scroll order, then the standalone pages. Anything
+// a visitor can reach by scrolling the one-pager comes before anything that
+// takes them off it.
 const NAV_ITEMS = [
   "about",
   "who-am-i",
   "work",
-  "werkwijze",
   "contact",
+  "werkwijze",
   "blog",
 ] as const;
 

@@ -16,13 +16,14 @@ interface DetailNavProps {
   overlayTextColor?: string;
 }
 
-// Keep in sync with StickyNav so every screen exposes the same destinations.
+// Keep in sync with StickyNav so every screen exposes the same destinations,
+// in the same order: homepage sections first, then the standalone pages.
 const NAV_ITEMS = [
   "about",
   "who-am-i",
   "work",
-  "werkwijze",
   "contact",
+  "werkwijze",
   "blog",
 ] as const;
 
@@ -73,6 +74,7 @@ export default function DetailNav({
             <li key={item}>
               <Link
                 href={PAGE_HREFS[item] ?? `/#${item}`}
+                aria-current={item === activeItem ? "page" : undefined}
                 className={`transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none ${
                   item === activeItem ? "underline underline-offset-4" : ""
                 }`}
@@ -139,6 +141,7 @@ export default function DetailNav({
                 <Link
                   href={PAGE_HREFS[item] ?? `/#${item}`}
                   tabIndex={menuOpen ? 0 : -1}
+                  aria-current={item === activeItem ? "page" : undefined}
                   className={`focus-visible:opacity-70 focus-visible:outline-none ${
                     item === activeItem ? "underline underline-offset-4" : ""
                   }`}

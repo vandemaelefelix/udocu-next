@@ -3,8 +3,9 @@
  * (one-pager, a detail page, the blog overview) on both mobile and desktop.
  *
  * The one-pager uses <StickyNav>; detail pages and the blog use <DetailNav>.
- * Both must expose the same destinations: Home (logo), about, who-am-i, work,
- * werkwijze, contact, blog.
+ * Both must expose the same destinations, in the same order: Home (logo),
+ * about, who-am-i, work, contact, werkwijze, blog. Homepage sections come
+ * first, then the standalone pages.
  *
  * Requires a running dev/preview server (BASE_URL env or http://localhost:3000).
  */
@@ -26,8 +27,8 @@ const ITEMS = [
   "about",
   "who-am-i",
   "work",
-  "werkwijze",
   "contact",
+  "werkwijze",
   "blog",
 ] as const;
 type Item = (typeof ITEMS)[number];
