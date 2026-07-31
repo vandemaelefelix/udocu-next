@@ -15,8 +15,18 @@ export const TAPE_PRESETS: Record<TapePresetName, TapeParams> = {
     wave: 0.3,
     jitter: 0.12,
     aberration: 1.0,
-    scanlines: 0.18,
-    grain: 0.08,
+    // Raised from 0.18 now that scanlineLines decouples the frequency from
+    // buffer resolution: at the old value the pattern was too faint to read
+    // behind the bezel even once it stopped aliasing away entirely.
+    scanlines: 0.3,
+    // Fewer, thicker lines than the other presets: this screen is small and
+    // its buffer is capped low (maxHeight 256), so the ~240-line count used
+    // elsewhere is too fine and reads as flat grey once upscaled. See the
+    // scanlineLines doc comment in tapeRenderer.ts.
+    scanlineLines: 120,
+    // Raised from 0.08: at that level the grain was a plus-or-minus 0.04
+    // amplitude, effectively invisible next to real video content.
+    grain: 0.14,
     switching: 0.03,
     switchingHeight: 0.02,
     barrel: 0,
@@ -31,6 +41,9 @@ export const TAPE_PRESETS: Record<TapePresetName, TapeParams> = {
     jitter: 0.2,
     aberration: 1.6,
     scanlines: 0.2,
+    // Matches the previous buffer-tied frequency at this surface's 480px
+    // buffer height (480/2 = 240 lines), so the look is unchanged.
+    scanlineLines: 480,
     grain: 0.12,
     switching: 0.06,
     switchingHeight: 0.03,
@@ -46,6 +59,9 @@ export const TAPE_PRESETS: Record<TapePresetName, TapeParams> = {
     jitter: 0.3,
     aberration: 2.0,
     scanlines: 0.15,
+    // Matches the previous buffer-tied frequency at this surface's 360px
+    // buffer height (360/2 = 180 lines), so the look is unchanged.
+    scanlineLines: 360,
     grain: 0.1,
     switching: 0.08,
     switchingHeight: 0.03,
@@ -61,6 +77,9 @@ export const TAPE_PRESETS: Record<TapePresetName, TapeParams> = {
     jitter: 0.5,
     aberration: 2.5,
     scanlines: 0.3,
+    // Matches the previous buffer-tied frequency at this surface's 480px
+    // buffer height (480/2 = 240 lines), so the look is unchanged.
+    scanlineLines: 480,
     grain: 0.55,
     switching: 0.4,
     switchingHeight: 0.06,

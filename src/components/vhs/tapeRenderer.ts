@@ -9,6 +9,15 @@ export interface TapeParams {
   aberration: number;
   /** CRT scanline overlay strength. */
   scanlines: number;
+  /**
+   * Scanline count across the full frame height, independent of the
+   * internal buffer resolution (real VHS is roughly 240 to 480 lines).
+   * Tying this to `uRes.y` instead, as an earlier version did, makes the
+   * period 1 buffer pixel: fine at large buffer sizes, but at a small
+   * buffer (e.g. the homepage TV screen) that pattern aliases into flat
+   * grey once the canvas is upscaled by CSS.
+   */
+  scanlineLines: number;
   /** Animated static grain. */
   grain: number;
   /** Head-switching noise strength at the bottom of the frame. */
@@ -61,6 +70,7 @@ uniform float uWave;
 uniform float uJitter;
 uniform float uAberration;
 uniform float uScanlines;
+uniform float uScanlineLines;
 uniform float uGrain;
 uniform float uSwitching;
 uniform float uSwitchHeight;
@@ -125,8 +135,11 @@ void main() {
   // Animated grain.
   col += (hash(uv * uRes + vec2(uTime * 91.7, uTime * 47.3)) - 0.5) * uGrain;
 
-  // Scanlines.
-  col *= 1.0 - uScanlines * (0.5 + 0.5 * sin(line * 3.14159265));
+  // Scanlines. Frequency is fixed per uScanlineLines rather than derived
+  // from uRes.y, so the pattern reads the same whether the buffer behind it
+  // is tiny (homepage TV) or large (the /about poster).
+  float scanLine = uv.y * uScanlineLines;
+  col *= 1.0 - uScanlines * (0.5 + 0.5 * sin(scanLine * 3.14159265));
 
   // Head-switch static is bright, not just displaced.
   float staticAmt = clamp(band * uSwitching * 3.0, 0.0, 1.0);
@@ -155,6 +168,7 @@ const UNIFORM_NAMES = [
   "uJitter",
   "uAberration",
   "uScanlines",
+  "uScanlineLines",
   "uGrain",
   "uSwitching",
   "uSwitchHeight",
@@ -328,6 +342,7 @@ export function createTapeRenderer(
     gl!.uniform1f(u.uJitter, params.jitter);
     gl!.uniform1f(u.uAberration, params.aberration);
     gl!.uniform1f(u.uScanlines, params.scanlines);
+    gl!.uniform1f(u.uScanlineLines, params.scanlineLines);
     gl!.uniform1f(u.uGrain, params.grain);
     gl!.uniform1f(u.uSwitching, params.switching);
     gl!.uniform1f(u.uSwitchHeight, params.switchingHeight);

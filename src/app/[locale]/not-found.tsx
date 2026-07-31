@@ -7,7 +7,7 @@ export default function NotFound() {
   const t = useTranslations("notFound");
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center px-6 text-center">
+    <main className="relative flex min-h-screen flex-col items-center justify-center px-6 text-center text-red-light">
       {/* Dead-channel backdrop. Sits behind the copy so nothing warps the text. */}
       <TapeSurface
         active
