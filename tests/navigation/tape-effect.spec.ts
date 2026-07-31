@@ -5,11 +5,33 @@
  * Requires a running dev/preview server (BASE_URL env or http://localhost:3000).
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+
+/**
+ * Neutralises everything that composites over the tape canvas so a screenshot
+ * diff measures the WebGL loop and nothing else.
+ *
+ * NoiseOverlay animates via CSS keyframes with no prefers-reduced-motion guard
+ * (pre-existing, tracked separately). It is fixed and full-viewport at z-9999,
+ * so it paints over the canvas. Next's dev-mode nextjs-portal uses shadow DOM,
+ * which the universal selector cannot reach, so it needs its own rule. That
+ * rule is a harmless no-op against a production build.
+ *
+ * Our canvas is driven by requestAnimationFrame and WebGL, not CSS animation,
+ * so suppressing CSS animation does not affect what these tests measure.
+ */
+async function isolateCanvas(page: Page) {
+  await page.addStyleTag({
+    content: `*, *::before, *::after { animation: none !important; transition: none !important; }
+              nextjs-portal { display: none !important; }`,
+  });
+}
 
 test.describe("404 no-signal backdrop", () => {
   test("renders a decorative canvas that animates", async ({ page }) => {
     await page.goto("/this-route-does-not-exist", { waitUntil: "load" });
+
+    await isolateCanvas(page);
 
     const canvas = page.locator("canvas[data-tape-canvas]");
     await expect(canvas).toHaveCount(1);
@@ -36,22 +58,7 @@ test.describe("404 no-signal backdrop", () => {
     const page = await context.newPage();
     await page.goto("/this-route-does-not-exist", { waitUntil: "load" });
 
-    // NoiseOverlay animates via CSS keyframes with no prefers-reduced-motion
-    // guard (pre-existing, tracked separately). It is fixed and full-viewport at
-    // z-9999, so it composites over the canvas and would make these two
-    // captures differ for reasons unrelated to the tape loop. Our canvas is
-    // driven by rAF and WebGL, not CSS animation, so suppressing CSS animation
-    // isolates exactly what this test measures.
-    //
-    // nextjs-portal (the dev-mode indicator, bottom-left) also has to be
-    // hidden explicitly: it renders in a shadow root, so the `*` rule above
-    // cannot reach its internals, and it is otherwise not covered by
-    // prefers-reduced-motion either. It only exists under `next dev`, never
-    // in production, but this test runs against a dev server.
-    await page.addStyleTag({
-      content: `*, *::before, *::after { animation: none !important; transition: none !important; }
-        nextjs-portal { display: none !important; }`,
-    });
+    await isolateCanvas(page);
 
     const canvas = page.locator("canvas[data-tape-canvas]");
     await expect(canvas).toHaveCount(1);
