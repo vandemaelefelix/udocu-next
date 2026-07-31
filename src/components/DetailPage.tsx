@@ -2,6 +2,7 @@ import Image, { type StaticImageData } from "next/image";
 import { getTranslations } from "next-intl/server";
 import DetailNav from "@/components/DetailNav";
 import DetailBackLink from "@/components/DetailBackLink";
+import SyncPageBackground from "@/components/SyncPageBackground";
 import type { ReactNode } from "react";
 
 interface DetailPageProps {
@@ -44,6 +45,9 @@ export default async function DetailPage({
 
   return (
     <main id="main-content" className={`min-h-screen ${colorScheme} pb-48`}>
+      {/* Keeps the overscroll rubber band the same colour as the page. */}
+      <SyncPageBackground targetId="main-content" />
+
       <DetailNav
         overlayBgColor={overlayBgColor}
         overlayTextColor={overlayTextColor}
