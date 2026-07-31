@@ -113,7 +113,7 @@ test.describe("homepage TV screen", () => {
     // server-rendered, then wait for the surface to mount.
     await page.locator("#about").scrollIntoViewIfNeeded();
 
-    const screen = page.locator("[data-tape-surface]").first();
+    const screen = page.locator("#about [data-tape-surface]");
     await expect(screen).toHaveCount(1, { timeout: 15000 });
 
     // The real video element is still in the DOM, so the mute toggle and
@@ -125,12 +125,45 @@ test.describe("homepage TV screen", () => {
     await expect(canvas).toHaveCSS("pointer-events", "none");
   });
 
-  test("the old static CSS overlays are gone", async ({ page }) => {
+  test("no gradient overlays on the TV screen (shader replaced CSS effects)", async ({
+    page,
+  }) => {
     await page.goto("/", { waitUntil: "load" });
-    // The repeating-linear-gradient scanline div is now a shader uniform.
-    const legacy = page.locator(
-      '[style*="repeating-linear-gradient(0deg, rgba(0,0,0,0.15)"]',
-    );
-    await expect(legacy).toHaveCount(0);
+
+    // Scroll the About section into view to trigger TapeSurface mount
+    await page.locator("#about").scrollIntoViewIfNeeded();
+    await page
+      .locator("#about [data-tape-surface]")
+      .waitFor({ state: "attached" });
+
+    // Check computed styles of candidate overlay elements in the TV screen area.
+    // The old CSS overlays (scanlines, vignette, RGB stripe) were divs with
+    // inline gradient styles. They are now handled by the shader via uniforms.
+    // This guard uses computed style rather than string selectors, so it catches
+    // the visual effect whether it is inlined, in a CSS class, or reformatted.
+    // Scope: check all absolutely positioned divs inside the videoContainerRef
+    // (the TV screen cutout area). Overlays would be siblings of the video/surface
+    // or nested within the screen area, all covered by this scope.
+    const gradientLayers = await page.evaluate(() => {
+      const about = document.getElementById("about");
+      if (!about) return 0;
+      // Find the Link containing the TV screen cutout area.
+      // Check all divs within and around it for gradient backgrounds.
+      const screenLink = about.querySelector("a[href='/about']");
+      if (!screenLink) return 0;
+      // Check all divs in the Link's parent (videoContainerRef).
+      // This covers both children of the Link and siblings that might be overlays.
+      const videoContainer = screenLink.parentElement;
+      if (!videoContainer) return 0;
+      const divs = videoContainer.querySelectorAll("div");
+      let count = 0;
+      divs.forEach((div) => {
+        if (window.getComputedStyle(div).backgroundImage.includes("gradient")) {
+          count++;
+        }
+      });
+      return count;
+    });
+    expect(gradientLayers).toBe(0);
   });
 });
