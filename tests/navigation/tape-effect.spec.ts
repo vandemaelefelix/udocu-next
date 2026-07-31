@@ -107,8 +107,14 @@ test.describe("homepage TV screen", () => {
   }) => {
     await page.goto("/", { waitUntil: "load" });
 
+    // The video (and therefore the TapeSurface) is gated behind an
+    // IntersectionObserver on the About section, so it does not exist until that
+    // section approaches the viewport. Scroll to the section itself, which is
+    // server-rendered, then wait for the surface to mount.
+    await page.locator("#about").scrollIntoViewIfNeeded();
+
     const screen = page.locator("[data-tape-surface]").first();
-    await screen.scrollIntoViewIfNeeded();
+    await expect(screen).toHaveCount(1, { timeout: 15000 });
 
     // The real video element is still in the DOM, so the mute toggle and
     // audio keep working.
