@@ -54,6 +54,7 @@ export default function TapeSurface({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<TapeRenderer | null>(null);
+  const sourceRef = useRef<TapeSource>(null);
   const [ready, setReady] = useState(false);
 
   // Build the renderer once the canvas is mounted.
@@ -64,11 +65,17 @@ export default function TapeSurface({
 
     const source =
       (wrapper.querySelector("img, video") as TapeSource | null) ?? null;
+    sourceRef.current = source;
 
     const renderer = createTapeRenderer(canvas, {
       source,
       params,
       maxHeight,
+      // A GPU-process crash or driver reset (routine on mobile under memory
+      // pressure) leaves GL calls as no-ops and the canvas transparent, with
+      // no automatic signal to React. Without this, `showCanvas` would stay
+      // true forever and the real content would never fade back in.
+      onContextLost: () => setReady(false),
     });
     if (!renderer) return;
     rendererRef.current = renderer;
@@ -108,18 +115,55 @@ export default function TapeSurface({
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
     let onScreen = true;
 
+    // Reduced motion draws exactly one frame and never loops, so if that
+    // frame lands before the source has decoded anything (readyState < 2 for
+    // a fresh <video>, or a not-yet-loaded <img>), it draws the shader's
+    // no-content branch and that empty frame is permanent: nothing ever
+    // triggers a repaint. Wait for the source's own readiness event instead.
+    let pendingSourceCleanup: (() => void) | null = null;
+    const clearPendingSourceListener = () => {
+      pendingSourceCleanup?.();
+      pendingSourceCleanup = null;
+    };
+
     const apply = () => {
       const shouldRun =
         active && onScreen && document.visibilityState === "visible";
       if (!shouldRun) {
+        clearPendingSourceListener();
         renderer.stop();
         return;
       }
       if (reduce.matches) {
         renderer.stop();
-        renderer.renderOnce();
+        if (renderer.sourceReady()) {
+          clearPendingSourceListener();
+          renderer.renderOnce();
+          return;
+        }
+        if (pendingSourceCleanup) {
+          // Already waiting on a readiness event from an earlier apply();
+          // nothing more to do until it fires.
+          return;
+        }
+        const source = sourceRef.current;
+        if (!source) {
+          // Source-less surface (the 404 backdrop): nothing to wait for.
+          renderer.renderOnce();
+          return;
+        }
+        const eventName =
+          source instanceof HTMLVideoElement ? "loadeddata" : "load";
+        const onSourceReady = () => {
+          clearPendingSourceListener();
+          renderer.renderOnce();
+        };
+        source.addEventListener(eventName, onSourceReady, { once: true });
+        pendingSourceCleanup = () =>
+          source.removeEventListener(eventName, onSourceReady);
         return;
       }
+      clearPendingSourceListener();
       renderer.start();
     };
 
@@ -141,6 +185,7 @@ export default function TapeSurface({
       io.disconnect();
       document.removeEventListener("visibilitychange", apply);
       reduce.removeEventListener("change", apply);
+      clearPendingSourceListener();
       renderer.stop();
     };
   }, [active, ready]);

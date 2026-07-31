@@ -98,6 +98,27 @@ test.describe("404 no-signal backdrop", () => {
 
     await context.close();
   });
+
+  test("returns a genuine 404 status for a bad URL", async ({ page }) => {
+    const response = await page.goto("/this-route-does-not-exist", {
+      waitUntil: "load",
+    });
+
+    // The real 404 status depends on [locale]/[...rest]/page.tsx's
+    // generateStaticParams() (empty) plus dynamicParams = false resolving
+    // this route at build time, which only happens against a production
+    // build; `next dev` always resolves routes at request time and returns a
+    // soft 200 by design. `x-nextjs-prerender` is only set once a route has
+    // actually been statically prerendered, so use it to detect which
+    // environment this run is against instead of asserting something false.
+    const isStaticBuild = response?.headers()["x-nextjs-prerender"] != null;
+    test.skip(
+      !isStaticBuild,
+      "requires a production build; next dev resolves this route dynamically and returns 200 by design",
+    );
+
+    expect(response?.status()).toBe(404);
+  });
 });
 
 test.describe("homepage TV screen", () => {
@@ -122,6 +143,17 @@ test.describe("homepage TV screen", () => {
     const canvas = screen.locator("canvas[data-tape-canvas]");
     await expect(canvas).toHaveAttribute("aria-hidden", "true");
     await expect(canvas).toHaveCSS("pointer-events", "none");
+
+    // The above only proves the canvas exists with the right attributes; it
+    // says nothing about whether the WebGL loop is actually drawing this
+    // content-textured surface. isolateCanvas neutralises CSS animation so a
+    // screenshot diff can only be explained by the canvas's own draw loop.
+    await isolateCanvas(page);
+    await expect(canvas).toHaveCSS("opacity", "1");
+    const a = await canvas.screenshot();
+    await page.waitForTimeout(250);
+    const b = await canvas.screenshot();
+    expect(Buffer.compare(a, b)).not.toBe(0);
   });
 
   test("no gradient overlays on the TV screen (shader replaced CSS effects)", async ({
@@ -145,15 +177,28 @@ test.describe("homepage TV screen", () => {
     // or nested within the screen area, all covered by this scope.
     const gradientLayers = await page.evaluate(() => {
       const about = document.getElementById("about");
-      if (!about) return 0;
+      // A missing #about means the About section failed to render at all
+      // (this project has already shipped that bug once, from a missing
+      // .env.local). Throw rather than return 0, so a non-rendering page
+      // fails this test loudly instead of passing vacuously.
+      if (!about)
+        throw new Error("#about is missing: About section did not render");
       // Find the Link containing the TV screen cutout area.
       // Check all divs within and around it for gradient backgrounds.
       const screenLink = about.querySelector("a[href='/about']");
-      if (!screenLink) return 0;
+      if (!screenLink) {
+        throw new Error(
+          "a[href='/about'] is missing inside #about: TV screen link did not render",
+        );
+      }
       // Check all divs in the Link's parent (videoContainerRef).
       // This covers both children of the Link and siblings that might be overlays.
       const videoContainer = screenLink.parentElement;
-      if (!videoContainer) return 0;
+      if (!videoContainer) {
+        throw new Error(
+          "a[href='/about'] has no parentElement: TV screen link is detached from the DOM",
+        );
+      }
       const divs = videoContainer.querySelectorAll("div");
       let count = 0;
       divs.forEach((div) => {

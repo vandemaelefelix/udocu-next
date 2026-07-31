@@ -43,6 +43,8 @@ export interface TapeRenderer {
   stop(): void;
   /** Draw a single frame without starting the loop. Used for reduced motion. */
   renderOnce(): void;
+  /** Whether the current source has decoded enough to be worth uploading. */
+  sourceReady(): boolean;
   resize(cssWidth: number, cssHeight: number): void;
   destroy(): void;
 }
@@ -213,7 +215,21 @@ function isVideo(src: TapeSource): src is HTMLVideoElement {
  */
 export function createTapeRenderer(
   canvas: HTMLCanvasElement,
-  opts: { source: TapeSource; params: TapeParams; maxHeight?: number },
+  opts: {
+    source: TapeSource;
+    params: TapeParams;
+    maxHeight?: number;
+    /**
+     * Called when the GL context is lost (GPU process crash, driver reset,
+     * mobile Safari reclaiming memory in a backgrounded tab). GL calls become
+     * no-ops after this fires, so the caller must stop treating the canvas as
+     * live: stop showing it and let the real element fade back in. We do not
+     * call preventDefault() on the underlying event and do not implement
+     * webglcontextrestored recovery, so this loss is permanent for the life
+     * of this renderer; graceful degradation, not recovery, is the contract.
+     */
+    onContextLost?: () => void;
+  },
 ): TapeRenderer | null {
   const gl = canvas.getContext("webgl2", {
     alpha: true,
@@ -283,6 +299,17 @@ export function createTapeRenderer(
   let raf = 0;
   let startedAt = 0;
   let destroyed = false;
+
+  function handleContextLost() {
+    // Deliberately not calling preventDefault(): we do not implement
+    // webglcontextrestored recovery, so the context loss stays permanent for
+    // this renderer's lifetime. Letting the default proceed is correct.
+    running = false;
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    opts.onContextLost?.();
+  }
+  canvas.addEventListener("webglcontextlost", handleContextLost);
 
   function sourceReady(): boolean {
     if (!source) return false;
@@ -382,16 +409,24 @@ export function createTapeRenderer(
       if (destroyed) return;
       draw(performance.now());
     },
+    sourceReady,
     resize,
     destroy() {
       if (destroyed) return;
       this.stop();
       destroyed = true;
+      canvas.removeEventListener("webglcontextlost", handleContextLost);
+      // Deliberately not calling WEBGL_lose_context's loseContext() here.
+      // Under React StrictMode, the dev double-mount's cleanup would poison
+      // the context, and the remount's getContext("webgl2") would return
+      // that same lost context, killing the effect in `next dev` while it
+      // worked fine in production. Deleting the GL resources below is
+      // sufficient; the browser reclaims the context once the canvas is
+      // unreachable.
       gl!.deleteTexture(tex);
       gl!.deleteBuffer(quad);
       gl!.deleteVertexArray(vao);
       gl!.deleteProgram(program);
-      gl!.getExtension("WEBGL_lose_context")?.loseContext();
     },
   };
 }

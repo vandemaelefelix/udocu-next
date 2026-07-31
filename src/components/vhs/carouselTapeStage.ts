@@ -44,6 +44,18 @@ function build(): boolean {
     // seed value for the pre-warm build.
     params: { ...TAPE_PRESETS.hover },
     maxHeight: 360,
+    // A GPU-process crash or driver reset kills this shared context for
+    // good (no webglcontextrestored recovery). With one renderer shared
+    // across every card, leaving it wired up would silently no-op forever;
+    // instead release whichever card currently owns it, restore its image,
+    // and mark the stage permanently unavailable so future hovers fall back
+    // to the plain image instead of an invisible canvas.
+    onContextLost: () => {
+      if (owner) releaseTapeStage(owner);
+      renderer = null;
+      canvas = null;
+      unavailable = true;
+    },
   });
   if (!r) {
     unavailable = true;
