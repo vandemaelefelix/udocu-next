@@ -9,6 +9,8 @@ import AboutVideo from "@/components/AboutVideo";
 import VolumeIcon from "@/components/icons/VolumeIcon";
 import ArrowLink from "@/components/ArrowLink";
 import Link from "next/link";
+import TapeSurface from "@/components/vhs/TapeSurface";
+import { TAPE_PRESETS } from "@/components/vhs/presets";
 
 export default function AboutSection() {
   const t = useTranslations("about");
@@ -163,14 +165,22 @@ export default function AboutSection() {
               }}
             >
               {isVideoVisible ? (
-                <AboutVideo
-                  src="/videos/about-tv.v2.mp4"
-                  poster="/videos/about-poster-tv.webp"
-                  autoPlay
-                  loop
-                  preload="auto"
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+                <TapeSurface
+                  active
+                  params={TAPE_PRESETS.tvScreen}
+                  /* Small screen area, so a small buffer is plenty. */
+                  maxHeight={256}
+                  className="absolute inset-0 h-full w-full transition-transform duration-300 group-hover:scale-105"
+                >
+                  <AboutVideo
+                    src="/videos/about-tv.v2.mp4"
+                    poster="/videos/about-poster-tv.webp"
+                    autoPlay
+                    loop
+                    preload="auto"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                </TapeSurface>
               ) : (
                 <Image
                   src="/videos/about-poster-tv.webp"
@@ -180,32 +190,6 @@ export default function AboutSection() {
                   sizes="(max-width: 767px) 40vw, 15vw"
                 />
               )}
-              {/* CRT screen effect overlay */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  background:
-                    "repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px)",
-                }}
-              />
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%)",
-                }}
-              />
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-10"
-                style={{
-                  background:
-                    "linear-gradient(90deg, rgba(255,0,0,0.5), rgba(0,255,0,0.5), rgba(0,0,255,0.5))",
-                  backgroundSize: "3px 100%",
-                }}
-              />
             </Link>
 
             {/* TV frame overlay on top */}

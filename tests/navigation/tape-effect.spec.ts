@@ -100,3 +100,31 @@ test.describe("404 no-signal backdrop", () => {
     await context.close();
   });
 });
+
+test.describe("homepage TV screen", () => {
+  test("the TV screen is taped and the video stays accessible", async ({
+    page,
+  }) => {
+    await page.goto("/", { waitUntil: "load" });
+
+    const screen = page.locator("[data-tape-surface]").first();
+    await screen.scrollIntoViewIfNeeded();
+
+    // The real video element is still in the DOM, so the mute toggle and
+    // audio keep working.
+    await expect(screen.locator("video")).toHaveCount(1);
+
+    const canvas = screen.locator("canvas[data-tape-canvas]");
+    await expect(canvas).toHaveAttribute("aria-hidden", "true");
+    await expect(canvas).toHaveCSS("pointer-events", "none");
+  });
+
+  test("the old static CSS overlays are gone", async ({ page }) => {
+    await page.goto("/", { waitUntil: "load" });
+    // The repeating-linear-gradient scanline div is now a shader uniform.
+    const legacy = page.locator(
+      '[style*="repeating-linear-gradient(0deg, rgba(0,0,0,0.15)"]',
+    );
+    await expect(legacy).toHaveCount(0);
+  });
+});
