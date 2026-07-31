@@ -539,6 +539,18 @@ const CarouselItem = ({
     };
   }, [isVisible]);
 
+  // Release the shared stage if this card unmounts while it still owns it
+  // (e.g. a client-side navigation away from the homepage fires before
+  // onPointerLeave). Without this the rAF loop keeps drawing into a detached
+  // canvas for the rest of the page session. `scope` is the same host
+  // element the pointer handlers use, so ownership matching still applies.
+  useEffect(() => {
+    const host = scope.current;
+    return () => {
+      if (host) releaseTapeStage(host);
+    };
+  }, [scope]);
+
   return (
     <Link
       href={item.href}

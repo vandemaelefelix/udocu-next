@@ -18,6 +18,11 @@ import { TAPE_PRESETS } from "./presets";
 let canvas: HTMLCanvasElement | null = null;
 let renderer: TapeRenderer | null = null;
 let owner: HTMLElement | null = null;
+// The exact image element that was hidden on acquire, restored on release.
+// Not re-derived via `host.querySelector("img")` because a card could one day
+// contain more than one <img> (a badge, a secondary photo); querying would
+// then risk restoring the wrong element and leaving the real one invisible.
+let activeSource: HTMLImageElement | null = null;
 let unavailable = false;
 
 function build(): boolean {
@@ -68,6 +73,7 @@ export function acquireTapeStage(
   if (owner && owner !== host) releaseTapeStage(owner);
 
   owner = host;
+  activeSource = source;
   host.appendChild(canvas);
 
   const rect = host.getBoundingClientRect();
@@ -88,8 +94,8 @@ export function acquireTapeStage(
 export function releaseTapeStage(host: HTMLElement): void {
   if (owner !== host || !canvas || !renderer) return;
   renderer.stop();
-  const img = host.querySelector("img");
-  if (img) img.style.opacity = "1";
+  if (activeSource) activeSource.style.opacity = "1";
   canvas.remove();
   owner = null;
+  activeSource = null;
 }

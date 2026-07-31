@@ -252,7 +252,11 @@ test.describe("work carousel hover", () => {
     await expect(card.locator("img")).toHaveCSS("opacity", "1");
   });
 
-  test("touch devices get clean images and no stage", async ({ browser }) => {
+  test("the mobile carousel has no tape wiring at all", async ({ browser }) => {
+    // At this width useIsMobile() renders MobileWorkSection, which never had
+    // any tape wiring, so this does not exercise the touch/pointer guards
+    // themselves (see the desktop-width touch test below for that). It just
+    // documents that the mobile carousel stays untouched.
     const context = await browser.newContext({
       viewport: { width: 390, height: 844 },
       hasTouch: true,
@@ -263,5 +267,75 @@ test.describe("work carousel hover", () => {
     await page.waitForTimeout(1200);
     await expect(page.locator("canvas[data-tape-stage]")).toHaveCount(0);
     await context.close();
+  });
+
+  test("a touch pointer on the desktop carousel creates no stage", async ({
+    browser,
+  }) => {
+    // Desktop width so DesktopWorkSection renders (useIsMobile is max-width:
+    // 767px), but with touch emulation so (hover: hover) and (pointer: fine)
+    // both fail and pointer events arrive with pointerType "touch". This
+    // exercises the guards themselves rather than a component that has no
+    // tape wiring at all.
+    const context = await browser.newContext({
+      viewport: { width: 1280, height: 800 },
+      hasTouch: true,
+      isMobile: true,
+    });
+    const page = await context.newPage();
+    await page.goto("/", { waitUntil: "load" });
+
+    const card = page
+      .locator("a:not([aria-hidden]) [data-carousel-item]")
+      .first();
+    await card.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(1200);
+
+    // Not card.tap(): a Playwright/Chromium tap's touchend also fires a
+    // pointerleave, which releases the stage regardless of the pointerType
+    // guard, so it would pass even with the guard removed (verified by
+    // hand). Real touch devices are not guaranteed to behave that well.
+    // iOS Safari's well-known "sticky hover" can leave a touch pointer
+    // logically "over" an element with no matching leave. Dispatching
+    // pointerover directly, with no matching pointerleave, isolates exactly
+    // what the guard is responsible for.
+    await card.evaluate((el) => {
+      el.dispatchEvent(
+        new PointerEvent("pointerover", {
+          pointerType: "touch",
+          bubbles: true,
+          composed: true,
+        }),
+      );
+    });
+    await expect(page.locator("canvas[data-tape-stage]")).toHaveCount(0);
+
+    await context.close();
+  });
+
+  test("unmounting a hovered card releases the stage", async ({ page }) => {
+    await page.goto("/", { waitUntil: "load" });
+
+    const card = page
+      .locator("a:not([aria-hidden]) [data-carousel-item]")
+      .first();
+    await card.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(1200);
+
+    await card.hover();
+    await expect(page.locator("canvas[data-tape-stage]")).toHaveCount(1);
+
+    // Navigate away via a native DOM click on a real next/link, rather than
+    // a real mouse move to the link's position. A real mouse move would fire
+    // pointerleave on the card first, which already releases the stage via
+    // the ordinary path tested above. Dispatching .click() directly leaves
+    // the pointer sitting over the card, so the only thing that can release
+    // the stage here is the CarouselItem's unmount cleanup.
+    await page
+      .locator("#about a[href='/about']")
+      .first()
+      .evaluate((el) => (el as HTMLAnchorElement).click());
+    await expect(page).toHaveURL(/\/about\/?$/);
+    await expect(page.locator("canvas[data-tape-stage]")).toHaveCount(0);
   });
 });
