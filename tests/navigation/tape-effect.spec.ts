@@ -167,3 +167,26 @@ test.describe("homepage TV screen", () => {
     expect(gradientLayers).toBe(0);
   });
 });
+
+test.describe("/about player", () => {
+  test("is taped while paused and clears once playing", async ({ page }) => {
+    await page.goto("/about", { waitUntil: "load" });
+
+    const surface = page.locator("[data-tape-surface]").first();
+    const canvas = surface.locator("canvas[data-tape-canvas]");
+    await surface.scrollIntoViewIfNeeded();
+
+    // Paused: the tape canvas is showing.
+    await expect(canvas).toHaveCSS("opacity", "1");
+
+    // Start playback through the player's own control.
+    await page.locator("video").evaluate((el: HTMLVideoElement) => el.play());
+
+    // Playing: the effect has faded out and the footage is clean.
+    await expect(canvas).toHaveCSS("opacity", "0");
+    const paused = await page
+      .locator("video")
+      .evaluate((el: HTMLVideoElement) => el.paused);
+    expect(paused).toBe(false);
+  });
+});
