@@ -189,4 +189,32 @@ test.describe("/about player", () => {
       .evaluate((el: HTMLVideoElement) => el.paused);
     expect(paused).toBe(false);
   });
+
+  test("the paused overlay does not block the player's controls", async ({
+    page,
+  }) => {
+    await page.goto("/about", { waitUntil: "load" });
+
+    const surface = page.locator("[data-tape-surface]").first();
+    await surface.waitFor({ state: "attached" });
+
+    // Verify the surface has pointer-events-none, so it does not intercept clicks.
+    // This assertion guards against someone removing the pointer-events-none class.
+    const pointerEvents = await surface.evaluate(
+      (el) => window.getComputedStyle(el).pointerEvents,
+    );
+    expect(pointerEvents).toBe("none");
+
+    // A real click on the play button, not video.play(). If the overlay were
+    // blocking pointer events, Playwright's actionability check would fail.
+    // This double-verifies that the overlay allows clicks through to the player controls.
+    await page.getByRole("button", { name: "Play video" }).click();
+
+    // Verify the video is now playing
+    await expect
+      .poll(() =>
+        page.locator("video").evaluate((el: HTMLVideoElement) => el.paused),
+      )
+      .toBe(false);
+  });
 });
