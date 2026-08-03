@@ -6,7 +6,7 @@ import { getAlternates, SITE_URL } from "@/lib/seo";
 import DetailNav from "@/components/DetailNav";
 import SyncPageBackground from "@/components/SyncPageBackground";
 import BlogGrid from "@/components/BlogGrid";
-import SocialLinks from "@/components/SocialLinks";
+import SocialDock from "@/components/SocialDock";
 
 const PAGE_SIZE = 12;
 
@@ -70,10 +70,7 @@ export default async function BlogPage({
         totalPages={response.total_pages}
       />
 
-      <SocialLinks
-        className="flex justify-end gap-4 px-8 pb-6"
-        iconClassName="h-5 w-5 text-red-light transition-opacity hover:opacity-70"
-      />
+      <SocialDock />
     </main>
   );
 }
