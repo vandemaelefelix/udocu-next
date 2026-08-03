@@ -7,6 +7,7 @@ import { getAlternates, SITE_URL } from "@/lib/seo";
 import DetailBackLink from "@/components/DetailBackLink";
 import { getTranslations } from "next-intl/server";
 import DetailNav from "@/components/DetailNav";
+import SyncPageBackground from "@/components/SyncPageBackground";
 import YouTubeEmbed from "@/components/YouTubeEmbed";
 import SocialLinks from "@/components/SocialLinks";
 import { getColorPair } from "@/utils/colors";
@@ -123,6 +124,9 @@ export default async function WorkDetailPage({
       id="main-content"
       className={`relative flex min-h-screen flex-col md:h-screen md:overflow-hidden ${colors.bg} ${colors.text}`}
     >
+      {/* Keeps the overscroll rubber band the same colour as the page. */}
+      <SyncPageBackground targetId="main-content" />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}

@@ -6,13 +6,22 @@
  *      when the menu is opened).
  */
 import { test, expect } from "@playwright/test";
-import { goHome, revealSection, HOME, HAMBURGER } from "./helpers";
+import {
+  goHome,
+  revealSection,
+  HOME,
+  HAMBURGER,
+  DESKTOP_NAV_MIN_WIDTH,
+} from "./helpers";
 
 test("E2 — one-pager nav marks the centred section active (desktop)", async ({
   page,
   viewport,
 }) => {
-  test.skip((viewport?.width ?? 0) < 768, "scroll-spy is a desktop affordance");
+  test.skip(
+    (viewport?.width ?? 0) < DESKTOP_NAV_MIN_WIDTH,
+    "scroll-spy is a desktop affordance",
+  );
   await goHome(page);
   await revealSection(page, "work");
   await expect(
@@ -31,7 +40,7 @@ test("E2 (mobile) — open hamburger overlay highlights the current section", as
   viewport,
 }) => {
   test.skip(
-    (viewport?.width ?? 1280) >= 768,
+    (viewport?.width ?? 1280) >= DESKTOP_NAV_MIN_WIDTH,
     "mobile overlay affordance (desktop uses the persistent nav bar)",
   );
   await goHome(page);
@@ -53,7 +62,10 @@ test("E1 — blog overview underlines the blog nav item (desktop)", async ({
   page,
   viewport,
 }) => {
-  test.skip((viewport?.width ?? 0) < 768, "desktop nav check");
+  test.skip(
+    (viewport?.width ?? 0) < DESKTOP_NAV_MIN_WIDTH,
+    "desktop nav check",
+  );
   await page.goto(`${HOME}/blog`, { waitUntil: "load" });
   await page.waitForSelector("#main-content", { timeout: 15000 });
   const blog = page.locator(`nav a[href="${HOME}/blog"]`).first();

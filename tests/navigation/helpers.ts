@@ -11,6 +11,9 @@ export const HOME = "";
 export const BACK_LABEL = "Terug"; // nav.back (nl)
 export const SECTIONS = ["about", "who-am-i", "work", "contact"] as const;
 
+/** Must match the `lg:` breakpoint used by StickyNav and DetailNav to switch to desktop nav. */
+export const DESKTOP_NAV_MIN_WIDTH = 1024;
+
 /** Selector for the mobile hamburger trigger (excludes the Next.js dev tools button). */
 export const HAMBURGER =
   "button[aria-expanded]:not([data-nextjs-dev-tools-button])";

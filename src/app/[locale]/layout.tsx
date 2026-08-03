@@ -179,7 +179,7 @@ export default async function LocaleLayout({
                     "@type": "Service",
                     name: "Personal Documentary Interview",
                     description:
-                      "In-depth filmed interview preserving your life story — your past, present, dreams, and reflections. Delivered as a time capsule on an external hard drive.",
+                      "In-depth filmed interview preserving your life story — your past, present, dreams, and reflections. Delivered as a time capsule on a USB stick.",
                   },
                 },
                 {

@@ -34,6 +34,7 @@ export default async function WhoAmIPage({
   return (
     <DetailPage
       backHref="/#who-am-i"
+      activeItem="who-am-i"
       colorScheme="bg-green-dark text-green-light"
       image={bioPhoto}
       imageAlt={t("imageAlt")}

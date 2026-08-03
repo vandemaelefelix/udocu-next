@@ -9,7 +9,7 @@ const content = `# udocu
 
 Udocu captures the stories, voices, and memories of ordinary people before they fade. Through intimate, in-depth video interviews, Kurt Vandemaele — a veteran journalist with 24 years at Humo magazine — helps individuals create lasting time capsules for themselves and future generations.
 
-The concept: a professional journalist conducts a deep interview about who you are now, who you were, and who you want to become — your life, family, passions, fears, and dreams. The result is a personal documentary delivered on an external hard drive, growing more valuable with every passing year.
+The concept: a professional journalist conducts a deep interview about who you are now, who you were, and who you want to become — your life, family, passions, fears, and dreams. The result is a personal documentary delivered on a USB stick, growing more valuable with every passing year.
 
 ## Services
 
@@ -31,6 +31,7 @@ The concept: a professional journalist conducts a deep interview about who you a
 - [About udocu](${SITE_URL}/about)
 - [Who is Kurt Vandemaele](${SITE_URL}/who-am-i)
 - [Work & Interviews](${SITE_URL}/work)
+- [How & What: procedure and pricing](${SITE_URL}/werkwijze)
 - [Blog](${SITE_URL}/blog)
 - [Contact](${SITE_URL}/contact)
 - [Full LLM context](${SITE_URL}/llms-full.txt)
