@@ -67,6 +67,12 @@ out vec4 outColor;
 uniform sampler2D uTex;
 uniform float uHasTex;
 uniform vec2  uRes;
+// Maps a [0,1] output coordinate into the source, cropping to the same
+// centred window CSS object-fit: cover would pick. Without it the full source
+// rect stretched onto the full canvas, distorting every surface whose aspect
+// ratio differs from its source. See coverUvTransform.
+uniform vec2  uUvScale;
+uniform vec2  uUvOffset;
 uniform float uTime;
 uniform float uWave;
 uniform float uJitter;
@@ -85,13 +91,26 @@ float hash(vec2 p) {
   return fract(sin(dot(p, vec2(89.44, 19.36))) * 22189.22);
 }
 
+/** Output coordinate to source coordinate, cover-cropped. */
+vec2 srcUv(vec2 p) {
+  return p * uUvScale + uUvOffset;
+}
+
 void main() {
   vec2 uv = vUv;
 
-  // Tube curvature.
+  // Tube curvature, overscanned.
+  //
+  // The warp pushes samples outward by up to 1.0 + uBarrel * 0.5, reached at
+  // the corners, so every pixel on the outermost ring of the output landed
+  // outside the source rect. Those pixels used to be zeroed and forced
+  // opaque, which drew a hard black frame around every curved surface.
+  // Dividing by the corner factor pulls the whole warped range back inside
+  // the frame: the same bulge, but no out-of-frame region to paint.
   if (uBarrel > 0.0) {
     vec2 c = uv * 2.0 - 1.0;
-    c *= 1.0 + uBarrel * 0.25 * dot(c, c);
+    float k = uBarrel * 0.25;
+    c *= (1.0 + k * dot(c, c)) / (1.0 + 2.0 * k);
     uv = c * 0.5 + 0.5;
   }
 
@@ -111,20 +130,20 @@ void main() {
   float sn = hash(vec2(line * 1.7, floor(uTime * 30.0)));
   uv.x += band * uSwitching * (sn - 0.5) * 0.25;
 
-  // Everything outside the frame after warping reads as bezel.
-  float inside = step(0.0, uv.x) * step(uv.x, 1.0)
-               * step(0.0, uv.y) * step(uv.y, 1.0);
-
+  // No out-of-frame masking. The barrel warp above is overscanned, and the
+  // wave, jitter and head-switch displacements only ever push a hair past the
+  // edge, where CLAMP_TO_EDGE smears the edge pixel. Smear is both closer to
+  // what tape does and preferable to the black slivers a mask produced.
   vec3 col;
   float alpha;
   if (uHasTex > 0.5) {
     float ab = uAberration / max(uRes.x, 1.0);
     col = vec3(
-      texture(uTex, uv + vec2(ab, 0.0)).r,
-      texture(uTex, uv).g,
-      texture(uTex, uv - vec2(ab, 0.0)).b
+      texture(uTex, srcUv(uv + vec2(ab, 0.0))).r,
+      texture(uTex, srcUv(uv)).g,
+      texture(uTex, srcUv(uv - vec2(ab, 0.0))).b
     );
-    alpha = texture(uTex, uv).a;
+    alpha = texture(uTex, srcUv(uv)).a;
   } else {
     // No content: a dead channel, opaque so it reads as a lit but empty tube.
     col = vec3(0.0);
@@ -155,9 +174,6 @@ void main() {
   col = mix(vec3(dot(col, vec3(0.299, 0.587, 0.114))), col, uSaturation);
   col *= uExposure;
 
-  col *= inside;
-  if (uBarrel > 0.0) alpha = 1.0;
-
   outColor = vec4(col, alpha);
 }`;
 
@@ -165,6 +181,8 @@ const UNIFORM_NAMES = [
   "uTex",
   "uHasTex",
   "uRes",
+  "uUvScale",
+  "uUvOffset",
   "uTime",
   "uWave",
   "uJitter",
@@ -206,6 +224,53 @@ function compile(
 
 function isVideo(src: TapeSource): src is HTMLVideoElement {
   return src !== null && src instanceof HTMLVideoElement;
+}
+
+export interface CoverUvTransform {
+  scaleX: number;
+  scaleY: number;
+  offsetX: number;
+  offsetY: number;
+}
+
+const IDENTITY_UV: CoverUvTransform = {
+  scaleX: 1,
+  scaleY: 1,
+  offsetX: 0,
+  offsetY: 0,
+};
+
+/**
+ * Replicates CSS `object-fit: cover` in texture space: the largest centred
+ * crop of the source that matches the destination's aspect ratio, expressed as
+ * the scale and offset that map a [0,1] destination coordinate into it.
+ *
+ * The effect always covers an element that is itself `object-fit: cover`, so
+ * without this the shader distorted anything whose source aspect ratio
+ * differed from its box. The homepage TV was the worst case: a 16:9 video
+ * squeezed to 67% of its width by a roughly 1.2:1 screen aperture.
+ *
+ * Returns the identity for any non-positive dimension, which is what a
+ * <video> reports before metadata arrives and an <img> before it loads.
+ */
+export function coverUvTransform(
+  srcW: number,
+  srcH: number,
+  dstW: number,
+  dstH: number,
+): CoverUvTransform {
+  if (srcW <= 0 || srcH <= 0 || dstW <= 0 || dstH <= 0) return IDENTITY_UV;
+
+  const srcAspect = srcW / srcH;
+  const dstAspect = dstW / dstH;
+  if (srcAspect > dstAspect) {
+    // Source is wider than the box: crop the sides.
+    const scaleX = dstAspect / srcAspect;
+    return { scaleX, scaleY: 1, offsetX: (1 - scaleX) / 2, offsetY: 0 };
+  }
+  // Source is taller than the box (or matches): crop top and bottom.
+  const scaleY = srcAspect / dstAspect;
+  return { scaleX: 1, scaleY, offsetX: 0, offsetY: (1 - scaleY) / 2 };
 }
 
 /**
@@ -317,6 +382,24 @@ export function createTapeRenderer(
     return source.complete && source.naturalWidth > 0;
   }
 
+  /**
+   * The source's intrinsic pixel size, which is what texImage2D uploads. The
+   * element's CSS box is irrelevant here: a `fill` next/image or a
+   * `h-full w-full` video is laid out at the box size but still textures at
+   * its own resolution.
+   */
+  function sourceSize(): { w: number; h: number } | null {
+    if (!source) return null;
+    if (isVideo(source)) {
+      return source.videoWidth > 0
+        ? { w: source.videoWidth, h: source.videoHeight }
+        : null;
+    }
+    return source.naturalWidth > 0
+      ? { w: source.naturalWidth, h: source.naturalHeight }
+      : null;
+  }
+
   function uploadTexture() {
     if (!source || !sourceReady()) return;
     // A still image only needs uploading once; video needs every frame.
@@ -364,6 +447,14 @@ export function createTapeRenderer(
 
     gl!.uniform1f(u.uHasTex, source && uploaded ? 1 : 0);
     gl!.uniform2f(u.uRes, canvas.width, canvas.height);
+
+    const size = sourceSize();
+    const fit = size
+      ? coverUvTransform(size.w, size.h, canvas.width, canvas.height)
+      : IDENTITY_UV;
+    gl!.uniform2f(u.uUvScale, fit.scaleX, fit.scaleY);
+    gl!.uniform2f(u.uUvOffset, fit.offsetX, fit.offsetY);
+
     gl!.uniform1f(u.uTime, t);
     gl!.uniform1f(u.uWave, params.wave);
     gl!.uniform1f(u.uJitter, params.jitter);
