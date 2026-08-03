@@ -2,29 +2,12 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-
-const STORAGE_KEY = "udocu_scroll";
-
-function readPositions(): Record<string, number> {
-  try {
-    return JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? "{}");
-  } catch {
-    return {};
-  }
-}
-
-function writePosition(url: string, y: number) {
-  try {
-    const positions = readPositions();
-    positions[url] = y;
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
-  } catch {}
-}
+import { readScrollPositions, saveScrollPosition } from "@/lib/scrollMemory";
 
 function restoreScroll() {
   const { hash } = window.location;
   const url = window.location.href;
-  const saved = readPositions()[url];
+  const saved = readScrollPositions()[url];
 
   if (saved === undefined && !hash) return;
 
@@ -72,7 +55,7 @@ export default function ScrollRestoration() {
     function save(e: MouseEvent) {
       const link = (e.target as Element).closest("a");
       if (!link?.href) return;
-      writePosition(window.location.href, window.scrollY);
+      saveScrollPosition(window.location.href, window.scrollY);
 
       try {
         const url = new URL(link.href, window.location.origin);
