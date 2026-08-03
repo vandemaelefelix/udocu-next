@@ -64,7 +64,7 @@ The idea for udocu grew from a personal experience: watching his father become d
 - [About udocu](${SITE_URL}/about) — Detailed explanation of the udocu concept and services
 - [Who Am I](${SITE_URL}/who-am-i) — Kurt Vandemaele's personal story and background
 - [Work](${SITE_URL}/work) — Portfolio of documentary interviews and projects
-- [Procedure and pricing](${SITE_URL}/werkwijze) - How a udocu interview works, from preparation to delivery, including pricing
+- [How & What](${SITE_URL}/werkwijze) - How a udocu interview works, from preparation to delivery, including pricing
 - [Blog](${SITE_URL}/blog) — Stories, insights, and reflections on documentary storytelling
 - [Contact](${SITE_URL}/contact) — Get in touch with udocu
 
@@ -80,7 +80,7 @@ Udocu is based in Kortrijk, Belgium, but serves clients throughout Belgium and b
 Udocu primarily works in Dutch but also offers services in English. The website itself is in Dutch.
 
 ### How much does a udocu interview cost?
-The standard price is 900 euro, which includes one USB stick with the recordings. Additional sticks are 20 euro each. Travel costs are kept to a minimum. Invoiced without VAT. Full details at ${SITE_URL}/werkwijze
+The standard price is 900 euro, which covers at least three and sometimes four or five days of work, and includes one USB stick with the recordings. Additional sticks are 20 euro each. Travel costs are kept to a minimum: where public transport works, only the ticket price is added. Detours during the shoot carry a surcharge. Invoiced without VAT. Full details at ${SITE_URL}/werkwijze
 
 ### What do I receive after the interview?
 You receive a USB stick containing the complete film, typically two to three hours long and sometimes split into two parts. The result is entirely yours: you decide who sees it and when.

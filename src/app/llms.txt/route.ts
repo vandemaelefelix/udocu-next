@@ -31,7 +31,7 @@ The concept: a professional journalist conducts a deep interview about who you a
 - [About udocu](${SITE_URL}/about)
 - [Who is Kurt Vandemaele](${SITE_URL}/who-am-i)
 - [Work & Interviews](${SITE_URL}/work)
-- [Procedure and pricing](${SITE_URL}/werkwijze)
+- [How & What: procedure and pricing](${SITE_URL}/werkwijze)
 - [Blog](${SITE_URL}/blog)
 - [Contact](${SITE_URL}/contact)
 - [Full LLM context](${SITE_URL}/llms-full.txt)

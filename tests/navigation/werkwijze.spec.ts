@@ -1,6 +1,6 @@
 /**
- * Werkwijze page. The "Procedure en prijs" page renders Kurt's supplied copy,
- * opens on the price, and lists the 12 numbered points.
+ * Werkwijze page. The "Hoe & Wat" page renders Kurt's supplied copy: a lead
+ * paragraph, a note on asking questions, and the 14 numbered points.
  *
  * Requires a running dev/preview server (BASE_URL env or http://localhost:3000).
  */
@@ -15,30 +15,41 @@ test.beforeEach(async ({ page }) => {
 
 test("werkwijze: page renders with its title", async ({ page }) => {
   await expect(
-    page.getByRole("heading", { level: 1, name: "Procedure en prijs" }),
+    page.getByRole("heading", { level: 1, name: "Hoe & Wat" }),
   ).toBeVisible();
 });
 
-test("werkwijze: the price is stated above the numbered points", async ({
+test("werkwijze: the lead states the price above the numbered points", async ({
   page,
 }) => {
-  const price = page.getByText("De standaardprijs is 900 euro");
-  await expect(price).toBeVisible();
+  // First paragraph of the article body: the lead, which names the price.
+  // Someone scanning for a number should not have to read to the end.
+  const lead = page.locator("article p").first();
+  await expect(lead).toBeVisible();
+  await expect(lead).toContainText("De standaardprijs is 900 euro");
 
-  // The price block must precede the list, which is the whole point of the
-  // page: someone scanning for a number should not have to read to the end.
   // Scoped to <article>: that is where NumberedPoints renders its <ol>, so
   // the locator stays specific to the page content rather than any
   // incidental list markup elsewhere on the page.
   const list = page.locator("article ol");
   await expect(list).toBeVisible();
-  const priceBox = await price.boundingBox();
+  const leadBox = await lead.boundingBox();
   const listBox = await list.boundingBox();
-  expect(priceBox!.y).toBeLessThan(listBox!.y);
+  expect(leadBox!.y).toBeLessThan(listBox!.y);
 });
 
-test("werkwijze: all 12 numbered points are present", async ({ page }) => {
-  await expect(page.locator("article ol > li")).toHaveCount(12);
+test("werkwijze: all 14 numbered points are present", async ({ page }) => {
+  await expect(page.locator("article ol > li")).toHaveCount(14);
+});
+
+test("werkwijze: the key phrases in the points are set in bold", async ({
+  page,
+}) => {
+  // Kurt marks the essential phrase of each point in bold; the copy carries
+  // <b> tags that must survive next-intl's rich-text rendering as <strong>.
+  const bold = page.locator("article ol > li strong");
+  expect(await bold.count()).toBeGreaterThan(10);
+  await expect(bold.first()).toBeVisible();
 });
 
 test("werkwijze: the back link returns to the homepage", async ({ page }) => {

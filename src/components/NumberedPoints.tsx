@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
+
 interface NumberedPointsProps {
-  /** Point bodies in order. Paragraphs within a point are separated by "\n\n". */
-  points: string[];
+  /** Point bodies in order, one paragraph each. May contain inline markup. */
+  points: ReactNode[];
 }
 
 /**
@@ -25,11 +27,7 @@ export default function NumberedPoints({ points }: NumberedPointsProps) {
           >
             {index + 1}
           </span>
-          <div className="space-y-4">
-            {point.split("\n\n").map((paragraph, i) => (
-              <p key={i}>{paragraph}</p>
-            ))}
-          </div>
+          <p>{point}</p>
         </li>
       ))}
     </ol>
