@@ -4,6 +4,7 @@ import type { Content } from "@prismicio/client";
 import { createClient, PRISMIC_LOCALE } from "@/prismicio";
 import { getAlternates, SITE_URL } from "@/lib/seo";
 import DetailNav from "@/components/DetailNav";
+import SyncPageBackground from "@/components/SyncPageBackground";
 import BlogGrid from "@/components/BlogGrid";
 import SocialDock from "@/components/SocialDock";
 
@@ -58,6 +59,9 @@ export default async function BlogPage({
       className="min-h-screen text-red-light"
       style={{ backgroundColor: "var(--color-red-dark)" }}
     >
+      {/* Keeps the overscroll rubber band the same colour as the page. */}
+      <SyncPageBackground targetId="main-content" />
+
       <DetailNav activeItem="blog" />
 
       <BlogGrid

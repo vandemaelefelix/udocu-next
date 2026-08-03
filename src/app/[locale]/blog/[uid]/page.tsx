@@ -146,6 +146,7 @@ export default async function BlogPostPage({
       />
       <DetailPage
         backHref="/blog"
+        activeItem="blog"
         colorScheme="bg-red-dark text-red-light"
         media={
           videoUrl ? (

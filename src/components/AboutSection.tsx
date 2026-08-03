@@ -9,6 +9,8 @@ import AboutVideo from "@/components/AboutVideo";
 import VolumeIcon from "@/components/icons/VolumeIcon";
 import ArrowLink from "@/components/ArrowLink";
 import Link from "next/link";
+import TapeSurface from "@/components/vhs/TapeSurface";
+import { TAPE_PRESETS } from "@/components/vhs/presets";
 
 export default function AboutSection() {
   const t = useTranslations("about");
@@ -19,6 +21,9 @@ export default function AboutSection() {
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const [isMuted, setIsMuted] = useState(true);
   const [isVideoVisible, setIsVideoVisible] = useState(false);
+  // Drives the TV screen's tape ramp. Mouse pointers only, so a touch tap does
+  // not leave the screen stuck at full strength with no matching leave.
+  const [screenHovered, setScreenHovered] = useState(false);
 
   useEffect(() => {
     const el = videoContainerRef.current;
@@ -154,23 +159,42 @@ export default function AboutSection() {
             <Link
               href="/about"
               aria-label={t("aboutLinkLabel")}
-              className="group absolute cursor-pointer overflow-hidden"
+              className="absolute cursor-pointer overflow-hidden"
               style={{
                 top: "37%",
                 left: "37%",
                 width: "23%",
                 height: "15.5%",
               }}
+              onPointerEnter={(e) => {
+                if (e.pointerType !== "mouse") return;
+                setScreenHovered(true);
+              }}
+              onPointerLeave={() => setScreenHovered(false)}
             >
               {isVideoVisible ? (
-                <AboutVideo
-                  src="/videos/about-tv.v2.mp4"
-                  poster="/videos/about-poster-tv.webp"
-                  autoPlay
-                  loop
-                  preload="auto"
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+                <TapeSurface
+                  active
+                  /* Ramps from ambient to full strength on hover, the same
+                     gesture the work carousel cards make. This replaced a
+                     group-hover scale transform on this wrapper. */
+                  params={TAPE_PRESETS.screenAmbient}
+                  hoverParams={TAPE_PRESETS.screen}
+                  hovered={screenHovered}
+                  /* The screen preset's scanline count needs 360 lines to
+                     resolve; below that the pattern aliases into flat grey. */
+                  maxHeight={360}
+                  className="absolute inset-0 h-full w-full"
+                >
+                  <AboutVideo
+                    src="/videos/about-tv.v2.mp4"
+                    poster="/videos/about-poster-tv.webp"
+                    autoPlay
+                    loop
+                    preload="auto"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                </TapeSurface>
               ) : (
                 <Image
                   src="/videos/about-poster-tv.webp"
@@ -180,32 +204,6 @@ export default function AboutSection() {
                   sizes="(max-width: 767px) 40vw, 15vw"
                 />
               )}
-              {/* CRT screen effect overlay */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  background:
-                    "repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px)",
-                }}
-              />
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%)",
-                }}
-              />
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-10"
-                style={{
-                  background:
-                    "linear-gradient(90deg, rgba(255,0,0,0.5), rgba(0,255,0,0.5), rgba(0,0,255,0.5))",
-                  backgroundSize: "3px 100%",
-                }}
-              />
             </Link>
 
             {/* TV frame overlay on top */}

@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import UdocuLogo from "@/components/UdocuLogo";
 import GlitchText from "@/components/GlitchText";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { useHomeLogoClick } from "@/hooks/useHomeLogoClick";
 import { NAV_ITEMS, PAGE_HREFS } from "@/config/navigation";
 
 /**
@@ -24,8 +25,10 @@ import { NAV_ITEMS, PAGE_HREFS } from "@/config/navigation";
  * Link typography. Kept in constants next to each other so the desktop bar
  * cannot end up a different size on one screen than another.
  */
+// The bar switches on at `lg`, not `md`: with six destinations the row no
+// longer fits a tablet-width viewport without wrapping.
 const DESKTOP_LIST_CLASS =
-  "hidden gap-6 font-helvetica text-sm font-medium uppercase tracking-widest md:flex lg:gap-8";
+  "hidden gap-6 font-helvetica text-sm font-medium uppercase tracking-widest lg:flex lg:gap-8";
 const OVERLAY_LIST_CLASS =
   "flex flex-col items-center gap-10 font-helvetica text-2xl font-medium uppercase tracking-widest";
 
@@ -66,6 +69,7 @@ export default function SiteNav({
   const [menuOpen, setMenuOpen] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
   useFocusTrap(overlayRef, menuOpen);
+  const handleLogoClick = useHomeLogoClick();
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -103,12 +107,16 @@ export default function SiteNav({
     // Overlay links stay out of the tab order while the overlay is hidden.
     const tabIndex = inOverlay ? (menuOpen ? 0 : -1) : undefined;
     const label = <GlitchText>{t(item)}</GlitchText>;
+    // A link that navigates marks the page the visitor is on ("page"); the
+    // one-pager's scroll links mark a section within this page ("true").
+    const ariaCurrentPage = item === activeItem ? "page" : undefined;
 
     if (pageHref) {
       return (
         <Link
           href={pageHref}
           tabIndex={tabIndex}
+          aria-current={ariaCurrentPage}
           className={className}
           onClick={() => setMenuOpen(false)}
         >
@@ -133,6 +141,7 @@ export default function SiteNav({
       <Link
         href={`/#${item}`}
         tabIndex={tabIndex}
+        aria-current={ariaCurrentPage}
         className={className}
         onClick={() => setMenuOpen(false)}
       >
@@ -157,6 +166,7 @@ export default function SiteNav({
         <Link
           href="/"
           aria-label={t("home")}
+          onClick={handleLogoClick}
           className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded"
         >
           <UdocuLogo
@@ -175,7 +185,7 @@ export default function SiteNav({
         {/* Mobile hamburger button */}
         <button
           type="button"
-          className="relative z-[60] flex h-8 w-8 flex-col items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded md:hidden"
+          className="relative z-[60] flex h-8 w-8 flex-col items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded lg:hidden"
           // While open, the button sits on top of the overlay, so it has to take
           // the overlay's colour rather than the bar's.
           style={menuOpen ? { color: overlayTextColor } : undefined}
@@ -206,7 +216,7 @@ export default function SiteNav({
         role="dialog"
         aria-modal="true"
         aria-label={t("openMenu")}
-        className={`fixed inset-0 z-50 flex flex-col items-center justify-center md:hidden ${
+        className={`fixed inset-0 z-50 flex flex-col items-center justify-center lg:hidden ${
           menuOpen ? "pointer-events-auto" : "pointer-events-none"
         }`}
         style={{

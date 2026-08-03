@@ -3,14 +3,15 @@
  * (one-pager, a detail page, the blog overview) on both mobile and desktop.
  *
  * The one-pager uses <StickyNav>; detail pages and the blog use <DetailNav>.
- * Both must expose the same destinations: Home (logo), about, who-am-i, work,
- * contact, blog.
+ * Both must expose the same destinations, in the same order: Home (logo),
+ * about, who-am-i, work, contact, werkwijze, blog. Homepage sections come
+ * first, then the standalone pages.
  *
  * Requires a running dev/preview server (BASE_URL env or http://localhost:3000).
  */
 
 import { test, expect, type Page, type Locator } from "@playwright/test";
-import { HAMBURGER } from "./helpers";
+import { HAMBURGER, DESKTOP_NAV_MIN_WIDTH } from "./helpers";
 
 type NavKind = "sticky" | "detail";
 
@@ -21,13 +22,22 @@ const SCREENS: Array<{ name: string; path: string; nav: NavKind }> = [
 ];
 
 // Every destination the menu must offer, in nav order.
-const ITEMS = ["home", "about", "who-am-i", "work", "contact", "blog"] as const;
+const ITEMS = [
+  "home",
+  "about",
+  "who-am-i",
+  "work",
+  "contact",
+  "werkwijze",
+  "blog",
+] as const;
 type Item = (typeof ITEMS)[number];
 
 /** The href a given item renders with, per nav component. */
 function itemHref(nav: NavKind, key: Item): string {
   if (key === "home") return "/";
   if (key === "blog") return "/blog";
+  if (key === "werkwijze") return "/werkwijze";
   // Section links: StickyNav uses bare "#about"; DetailNav uses "/#about".
   return nav === "sticky" ? `#${key}` : `/#${key}`;
 }
@@ -36,6 +46,7 @@ function itemHref(nav: NavKind, key: Item): string {
 function expectedUrl(key: Item): RegExp {
   if (key === "home") return /\/$/;
   if (key === "blog") return /\/blog\/?$/;
+  if (key === "werkwijze") return /\/werkwijze\/?$/;
   return new RegExp(`/#${key}$`);
 }
 
@@ -68,7 +79,7 @@ for (const screen of SCREENS) {
       page,
       viewport,
     }) => {
-      const isMobile = (viewport?.width ?? 1280) < 768;
+      const isMobile = (viewport?.width ?? 1280) < DESKTOP_NAV_MIN_WIDTH;
       await loadScreen(page, screen.path);
 
       // The logo (home) lives in the top bar; every other item lives in the

@@ -4,13 +4,13 @@
  * Requires a running server (webServer in playwright.config.ts).
  */
 import { test, expect } from "@playwright/test";
-import { goHome, HAMBURGER } from "./helpers";
+import { goHome, HAMBURGER, DESKTOP_NAV_MIN_WIDTH } from "./helpers";
 
 test("C1/F1 — hamburger toggles overlay and reflects aria-expanded", async ({
   page,
   viewport,
 }) => {
-  test.skip((viewport?.width ?? 1280) >= 768, "mobile-only");
+  test.skip((viewport?.width ?? 1280) >= DESKTOP_NAV_MIN_WIDTH, "mobile-only");
   await goHome(page);
   const trigger = page.locator(HAMBURGER);
   await expect(trigger).toHaveAttribute("aria-expanded", "false");
@@ -20,7 +20,7 @@ test("C1/F1 — hamburger toggles overlay and reflects aria-expanded", async ({
 });
 
 test("C2 — Escape closes the overlay", async ({ page, viewport }) => {
-  test.skip((viewport?.width ?? 1280) >= 768, "mobile-only");
+  test.skip((viewport?.width ?? 1280) >= DESKTOP_NAV_MIN_WIDTH, "mobile-only");
   await goHome(page);
   const trigger = page.locator(HAMBURGER);
   await trigger.click();
@@ -34,7 +34,7 @@ test("C3 — tapping an overlay link closes it and navigates", async ({
   page,
   viewport,
 }) => {
-  test.skip((viewport?.width ?? 1280) >= 768, "mobile-only");
+  test.skip((viewport?.width ?? 1280) >= DESKTOP_NAV_MIN_WIDTH, "mobile-only");
   await goHome(page);
   await page.locator(HAMBURGER).click();
   await page.waitForTimeout(400);
@@ -46,7 +46,7 @@ test("C4 — body scroll locks while the overlay is open", async ({
   page,
   viewport,
 }) => {
-  test.skip((viewport?.width ?? 1280) >= 768, "mobile-only");
+  test.skip((viewport?.width ?? 1280) >= DESKTOP_NAV_MIN_WIDTH, "mobile-only");
   await goHome(page);
   const trigger = page.locator(HAMBURGER);
   await trigger.click();
@@ -63,7 +63,7 @@ test("F2 — overlay links are not tab-reachable when closed", async ({
   page,
   viewport,
 }) => {
-  test.skip((viewport?.width ?? 1280) >= 768, "mobile-only");
+  test.skip((viewport?.width ?? 1280) >= DESKTOP_NAV_MIN_WIDTH, "mobile-only");
   await goHome(page);
   const closedTabindex = await page
     .locator(`[role="dialog"] a`)
@@ -92,7 +92,10 @@ test("F3 — open overlay traps focus and Escape returns focus to the trigger", 
   page,
   viewport,
 }) => {
-  test.skip((viewport?.width ?? 1280) >= 768, "overlay is mobile-only");
+  test.skip(
+    (viewport?.width ?? 1280) >= DESKTOP_NAV_MIN_WIDTH,
+    "overlay is mobile-only",
+  );
   await goHome(page);
   const trigger = page.locator(HAMBURGER);
   await trigger.click();

@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getAlternates } from "@/lib/seo";
 import DetailPage from "@/components/DetailPage";
-import AboutVideo from "@/components/AboutVideo";
-import VideoPlayer from "@/components/VideoPlayer";
+import TapedVideo from "@/components/TapedVideo";
 
 type Params = { locale: string };
 
@@ -35,17 +34,9 @@ export default async function AboutPage({
   return (
     <DetailPage
       backHref="/#about"
+      activeItem="about"
       colorScheme="bg-red-dark text-red-light"
-      media={
-        <VideoPlayer className="h-full w-full">
-          <AboutVideo
-            src="/videos/about.v2.mp4"
-            poster="/videos/about-poster.webp"
-            preload="none"
-            className="h-full w-full object-cover"
-          />
-        </VideoPlayer>
-      }
+      media={<TapedVideo />}
       title={
         <>
           <span className="font-serif font-semibold">{t("titlePrefix")}</span>{" "}

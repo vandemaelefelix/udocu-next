@@ -6,11 +6,15 @@
  * screen at once. Keys are `nav.*` translation keys.
  */
 
+// Homepage sections first, in scroll order, then the standalone pages. Anything
+// a visitor can reach by scrolling the one-pager comes before anything that
+// takes them off it.
 export const NAV_ITEMS = [
   "about",
   "who-am-i",
   "work",
   "contact",
+  "werkwijze",
   "blog",
 ] as const;
 
@@ -21,6 +25,7 @@ export type NavItem = (typeof NAV_ITEMS)[number];
  * homepage section: the one-pager scrolls to it, other pages link to `/#<id>`.
  */
 export const PAGE_HREFS: Partial<Record<NavItem, string>> = {
+  werkwijze: "/werkwijze",
   blog: "/blog",
 };
 

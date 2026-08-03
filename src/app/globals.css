@@ -20,6 +20,10 @@
   /* Theme Pair 4: Blue/Teal (Dark background + Light text) */
   --color-blue-dark: #2d5f63;
   --color-blue-light: #c5e8e6;
+  /* One step lighter than blue-light, for emphasised text on blue-dark:
+     EB Garamond's heavier grades read too close to its regular to carry
+     emphasis on weight alone. */
+  --color-blue-lighter: #dff2f1;
 
   /* Contact section */
   --color-contact-bg: #5c2800;
@@ -99,6 +103,19 @@ body {
   }
   90% {
     transform: translate(-10%, 10%);
+  }
+}
+
+.noise-overlay {
+  animation: grain 8s steps(10) infinite;
+}
+
+/* Keep the grain texture, stop it moving. A full-viewport animated layer at
+   z-9999 would otherwise override the reduced-motion behaviour of everything
+   beneath it, including the tape effect. */
+@media (prefers-reduced-motion: reduce) {
+  .noise-overlay {
+    animation: none;
   }
 }
 

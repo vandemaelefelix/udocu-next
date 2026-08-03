@@ -6,21 +6,25 @@
  * (text-xs vs the homepage's text-sm). Both now render <SiteNav>, so the
  * computed link typography has to match everywhere.
  *
- * Desktop-only: the link bar is hidden below md (768px); the mobile overlay is
- * covered by menu.spec.ts.
+ * Desktop-only: the link bar is hidden below lg; the mobile overlay is covered
+ * by menu.spec.ts.
  *
  * Requires a running dev/preview server (BASE_URL env or http://localhost:3000).
  */
 
 import { test, expect } from "@playwright/test";
+import { DESKTOP_NAV_MIN_WIDTH } from "./helpers";
 
-const SCREENS = ["/", "/blog", "/about", "/who-am-i"] as const;
+const SCREENS = ["/", "/blog", "/about", "/who-am-i", "/werkwijze"] as const;
 
 test("nav links share the same typography on every screen", async ({
   page,
   viewport,
 }) => {
-  test.skip((viewport?.width ?? 1280) < 768, "desktop link bar only");
+  test.skip(
+    (viewport?.width ?? 1280) < DESKTOP_NAV_MIN_WIDTH,
+    "desktop link bar only",
+  );
 
   const measured: Array<{ path: string; style: Record<string, string> }> = [];
 
