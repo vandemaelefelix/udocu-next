@@ -31,6 +31,23 @@ html {
   position: relative;
 }
 
+/* Renders ParallaxHero's poster purely via CSS so the correct image is
+   selected from the first paint on both server and client — no client-side
+   viewport check (and its hydration delay) in the loop. Only the
+   background-image that matches the current media query is fetched; the
+   other is never requested. Breakpoint matches useIsMobile's 767px query. */
+.hero-poster {
+  background-image: var(--hero-poster-mobile);
+  background-size: cover;
+  background-position: center;
+}
+
+@media (min-width: 768px) {
+  .hero-poster {
+    background-image: var(--hero-poster-desktop, var(--hero-poster-mobile));
+  }
+}
+
 body {
   font-family: var(--font-serif);
   scroll-behavior: initial;

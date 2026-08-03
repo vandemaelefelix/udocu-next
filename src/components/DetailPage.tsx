@@ -1,5 +1,7 @@
 import Image, { type StaticImageData } from "next/image";
+import { getTranslations } from "next-intl/server";
 import DetailNav from "@/components/DetailNav";
+import DetailBackLink from "@/components/DetailBackLink";
 import type { ReactNode } from "react";
 
 interface DetailPageProps {
@@ -12,12 +14,20 @@ interface DetailPageProps {
   imageCredit?: string;
   /** Optional custom media element (e.g. a video) that replaces the cover image */
   media?: ReactNode;
+  /**
+   * Cover media ratio. "video" locks a 16:9 box and crops with object-cover;
+   * "natural" lets the media keep the ratio it was uploaded at (blog covers,
+   * where editors upload whatever shape the artwork happens to be).
+   * Only valid together with `media`. The `image` prop renders with `fill`,
+   * which needs the fixed box to have a height.
+   */
+  mediaAspect?: "video" | "natural";
   date?: string;
   title: ReactNode;
   children: ReactNode;
 }
 
-export default function DetailPage({
+export default async function DetailPage({
   backHref,
   colorScheme,
   image,
@@ -25,17 +35,37 @@ export default function DetailPage({
   imageClassName = "object-cover object-center",
   imageCredit,
   media,
+  mediaAspect = "video",
   date,
   title,
   children,
 }: DetailPageProps) {
+  const t = await getTranslations("nav");
+
   return (
     <main id="main-content" className={`min-h-screen ${colorScheme} pb-48`}>
-      <DetailNav backHref={backHref} />
+      <DetailNav />
+
+      {/* Back link: in-flow so it scrolls with the page instead of sitting
+          in the sticky header (which only holds the logo/menu row). */}
+      <div className="mx-auto max-w-5xl px-8 pt-6 pb-8 md:pt-8">
+        <DetailBackLink
+          href={backHref}
+          className="font-helvetica text-[16px] font-medium uppercase leading-5 tracking-widest transition-opacity hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
+        >
+          {t("back")}
+        </DetailBackLink>
+      </div>
 
       {/* Cover media */}
       <div className="mx-auto max-w-5xl px-8">
-        <div className="relative aspect-video w-full overflow-hidden">
+        <div
+          className={
+            mediaAspect === "video"
+              ? "relative aspect-video w-full overflow-hidden"
+              : "relative w-full overflow-hidden"
+          }
+        >
           {media ??
             (image && (
               <Image

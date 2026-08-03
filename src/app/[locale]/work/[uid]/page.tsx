@@ -137,12 +137,22 @@ export default async function WorkDetailPage({
 
       <div className="shrink-0">
         <DetailNav
-          backHref="/#work"
           activeItem="work"
-          mobileBackOnly
           overlayBgColor={colors.overlayBg}
           overlayTextColor={colors.overlayText}
         />
+      </div>
+
+      {/* Mobile back link: in-flow (scrolls with the page) instead of
+          sitting in the sticky header. Desktop keeps its own back link
+          further down, centered below the content. */}
+      <div className="px-8 pt-6 pb-2 md:hidden">
+        <DetailBackLink
+          href="/#work"
+          className="font-helvetica text-[16px] font-medium uppercase leading-5 tracking-widest transition-opacity hover:opacity-70"
+        >
+          {t("back")}
+        </DetailBackLink>
       </div>
 
       <div className="flex flex-1 flex-col px-8 pb-8 md:pb-16">
