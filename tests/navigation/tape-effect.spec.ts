@@ -5,7 +5,10 @@
  * Requires a running dev/preview server (BASE_URL env or http://localhost:3000).
  */
 
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
+import { coverUvTransform } from "@/components/vhs/tapeRenderer";
+import { TAPE_PRESETS, lerpTapeParams } from "@/components/vhs/presets";
+import { TAPE_RAMP_MS, advanceRamp, easeTapeRamp } from "@/components/vhs/ramp";
 
 /**
  * Neutralises everything that composites over the tape canvas so a screenshot
@@ -25,6 +28,304 @@ async function isolateCanvas(page: Page) {
               nextjs-portal { display: none !important; }`,
   });
 }
+
+/**
+ * Page-side helpers, injected into evaluate() calls as a source string because
+ * a Playwright evaluate body cannot close over module scope.
+ *
+ * `readTapeFrame` reads a tape canvas's GL drawing buffer. It reads the buffer
+ * rather than screenshotting because neither toDataURL nor drawImage is
+ * reliable on a WebGL canvas created without preserveDrawingBuffer, and the
+ * buffer is cleared once a frame has been presented to the compositor. Our
+ * requestAnimationFrame callback can land before the renderer's own draw for
+ * that frame and read a cleared buffer, so it polls frames until one has
+ * content and throws loudly if none ever does.
+ *
+ * It reports two measures:
+ *  - `ringOpaqueBlack`: the fraction of the outermost 2px ring that is opaque
+ *    black. The barrel warp pushes that ring outside the source rect, so if
+ *    out-of-frame samples were painted opaque black this would be ~1.
+ *  - `edgeSplit`: mean |d/dx R - d/dx B| across the frame, a measure of how far
+ *    the shader's RGB split is pushed. The gradient form matters: plain mean
+ *    |R-B| is swamped by the photo's own chroma and moves only 2% across the
+ *    whole hover ramp, whereas this moves about 38% (measured: 11.0 ambient
+ *    against 15.2 hovered) and is stable to +/-0.02 between frames.
+ */
+const TAPE_FRAME_HELPERS = `
+  function tapeMeasure(gl, w, h, px) {
+    gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px);
+    // Subsampled by 2 on both axes. The metric is a mean, so this changes
+    // nothing statistically, and it keeps a sample cheap enough that a frame
+    // series is not dominated by the cost of measuring it.
+    let lit = 0, litN = 0, splitSum = 0, splitN = 0;
+    for (let y = 0; y < h; y += 2) {
+      for (let x = 2; x < w - 2; x += 2) {
+        const i = (y * w + x) * 4;
+        litN++;
+        if (px[i + 3] > 200 && px[i] + px[i + 1] + px[i + 2] > 90) lit++;
+        const l = (y * w + x - 1) * 4;
+        const r = (y * w + x + 1) * 4;
+        splitSum += Math.abs((px[r] - px[l]) - (px[r + 2] - px[l + 2]));
+        splitN++;
+      }
+    }
+    // The ring is scanned exactly, but it is only the perimeter, so it is
+    // cheap: the top and bottom bands in full, then the side bands.
+    const band = 2;
+    let ringTotal = 0, ringBlack = 0;
+    const tally = (x, y) => {
+      const i = (y * w + x) * 4;
+      ringTotal++;
+      if (px[i + 3] > 200 && px[i] + px[i + 1] + px[i + 2] < 8) ringBlack++;
+    };
+    for (let y = 0; y < Math.min(band, h); y++)
+      for (let x = 0; x < w; x++) tally(x, y);
+    for (let y = Math.max(band, h - band); y < h; y++)
+      for (let x = 0; x < w; x++) tally(x, y);
+    for (let y = band; y < h - band; y++) {
+      for (let x = 0; x < Math.min(band, w); x++) tally(x, y);
+      for (let x = Math.max(band, w - band); x < w; x++) tally(x, y);
+    }
+    return {
+      hasContent: litN > 0 && lit > litN * 0.5,
+      ringOpaqueBlack: ringTotal > 0 ? ringBlack / ringTotal : 0,
+      edgeSplit: splitN > 0 ? splitSum / splitN : 0,
+      at: performance.now(),
+    };
+  }
+  function tapeNextFrame(gl, w, h, px) {
+    return new Promise((resolve) =>
+      requestAnimationFrame(() => resolve(tapeMeasure(gl, w, h, px))),
+    );
+  }
+  async function readTapeFrame(el) {
+    const gl = el.getContext("webgl2");
+    if (!gl) throw new Error("no webgl2 context on the tape canvas");
+    const w = el.width, h = el.height;
+    const px = new Uint8Array(w * h * 4);
+    for (let attempt = 0; attempt < 30; attempt++) {
+      const m = await tapeNextFrame(gl, w, h, px);
+      if (m.hasContent) return m;
+    }
+    throw new Error("never read a drawn frame from the tape canvas");
+  }
+  /**
+   * Samples edgeSplit over a window of frames, stamping each with the time it
+   * was taken. Callers assert on elapsed time rather than sample count,
+   * because measuring costs enough that samples are spaced wider than
+   * display frames.
+   */
+  async function tapeRampSeries(el, ms) {
+    const gl = el.getContext("webgl2");
+    const w = el.width, h = el.height;
+    const px = new Uint8Array(w * h * 4);
+    const started = performance.now();
+    const out = [];
+    while (performance.now() - started < ms) {
+      const m = await tapeNextFrame(gl, w, h, px);
+      if (m.hasContent) out.push({ split: m.edgeSplit, t: m.at - started });
+    }
+    return out;
+  }
+`;
+
+interface TapeFrame {
+  ringOpaqueBlack: number;
+  edgeSplit: number;
+}
+
+async function sampleTapeCanvas(canvas: Locator): Promise<TapeFrame> {
+  return canvas.evaluate(
+    (el, helpers) =>
+      new Function("el", `${helpers}; return readTapeFrame(el);`)(
+        el,
+      ) as Promise<TapeFrame>,
+    TAPE_FRAME_HELPERS,
+  );
+}
+
+interface RampSeries {
+  ambient: number;
+  rising: Array<{ split: number; t: number }>;
+}
+
+/**
+ * Asserts a ramp both arrived and took its time getting there.
+ *
+ * Assertions are on elapsed milliseconds, not on sample index: a sample costs
+ * enough that recorded frames are spaced wider than display frames, so a
+ * frame-count threshold silently depends on machine speed. It failed
+ * intermittently on exactly that.
+ */
+function assertRampedSmoothly(ramp: RampSeries) {
+  expect(ramp.rising.length).toBeGreaterThan(5);
+
+  const full = Math.max(...ramp.rising.map((s) => s.split));
+  // screenAmbient's aberration is 0.6 against screen's 4.0, so the split has to
+  // climb substantially.
+  expect(full).toBeGreaterThan(ramp.ambient * 1.2);
+
+  // Smooth, not a jump. A cubic-eased 220ms ramp crosses its midpoint at about
+  // 110ms; requiring 50ms leaves generous headroom while still failing an
+  // instant switch, which would cross within the first frame.
+  const half = ramp.ambient + (full - ramp.ambient) / 2;
+  const crossed = ramp.rising.find((s) => s.split >= half);
+  expect(crossed).toBeDefined();
+  expect(crossed!.t).toBeGreaterThan(50);
+  expect(crossed!.t).toBeLessThan(TAPE_RAMP_MS * 3);
+}
+
+/**
+ * Pure texture-mapping maths, exercised without a browser.
+ *
+ * The shader used to stretch the whole source rect onto the whole canvas,
+ * which distorted every surface whose aspect ratio differed from its source.
+ * Every element the effect covers is `object-fit: cover`, so the shader has
+ * to crop the same way.
+ */
+test.describe("cover-fit texture mapping", () => {
+  test("crops a wide source horizontally, matching object-fit: cover", () => {
+    // The homepage TV: a 640x360 video behind a ~1.195:1 screen aperture.
+    const fit = coverUvTransform(640, 360, 306, 256);
+
+    expect(fit.scaleX).toBeCloseTo(306 / 256 / (640 / 360), 4);
+    expect(fit.scaleY).toBe(1);
+    expect(fit.offsetX).toBeCloseTo((1 - fit.scaleX) / 2, 4);
+    expect(fit.offsetY).toBe(0);
+  });
+
+  test("crops a tall source vertically", () => {
+    const fit = coverUvTransform(1080, 1920, 1280, 720);
+
+    expect(fit.scaleX).toBe(1);
+    expect(fit.scaleY).toBeCloseTo(1080 / 1920 / (1280 / 720), 4);
+    expect(fit.offsetX).toBe(0);
+    expect(fit.offsetY).toBeCloseTo((1 - fit.scaleY) / 2, 4);
+  });
+
+  test("is the identity when the aspect ratios already agree", () => {
+    expect(coverUvTransform(1920, 1080, 640, 360)).toEqual({
+      scaleX: 1,
+      scaleY: 1,
+      offsetX: 0,
+      offsetY: 0,
+    });
+  });
+
+  test("keeps the sampled window inside the texture for any aspect pair", () => {
+    const sizes = [16, 90, 256, 360, 640, 1080, 1920];
+    for (const sw of sizes) {
+      for (const sh of sizes) {
+        for (const dw of sizes) {
+          for (const dh of sizes) {
+            const fit = coverUvTransform(sw, sh, dw, dh);
+            expect(fit.offsetX).toBeGreaterThanOrEqual(0);
+            expect(fit.offsetY).toBeGreaterThanOrEqual(0);
+            expect(fit.offsetX + fit.scaleX).toBeLessThanOrEqual(1 + 1e-9);
+            expect(fit.offsetY + fit.scaleY).toBeLessThanOrEqual(1 + 1e-9);
+          }
+        }
+      }
+    }
+  });
+
+  test("falls back to the identity for a source that has not decoded yet", () => {
+    // A <video> reports 0x0 until metadata arrives, and an <img> until it
+    // loads. Dividing by that would produce NaN uniforms and a blank frame.
+    const undecoded: Array<[number, number, number, number]> = [
+      [0, 0, 320, 240],
+      [640, 0, 320, 240],
+      [640, 360, 0, 240],
+      [640, 360, 320, 0],
+    ];
+    for (const [sw, sh, dw, dh] of undecoded) {
+      expect(coverUvTransform(sw, sh, dw, dh)).toEqual({
+        scaleX: 1,
+        scaleY: 1,
+        offsetX: 0,
+        offsetY: 0,
+      });
+    }
+  });
+});
+
+/**
+ * The hover ramp, exercised without a browser. This is the whole "smoothly"
+ * mechanism for the carousel: the pool eases a number from 0 to 1 and asks for
+ * the param set at that point.
+ */
+test.describe("tape param interpolation", () => {
+  const { screenAmbient: lo, screen: hi } = TAPE_PRESETS;
+
+  test("returns each endpoint exactly", () => {
+    expect(lerpTapeParams(lo, hi, 0)).toEqual(lo);
+    expect(lerpTapeParams(lo, hi, 1)).toEqual(hi);
+  });
+
+  test("clamps outside [0,1] rather than extrapolating", () => {
+    expect(lerpTapeParams(lo, hi, -3)).toEqual(lo);
+    expect(lerpTapeParams(lo, hi, 4)).toEqual(hi);
+  });
+
+  test("puts the midpoint halfway along every param", () => {
+    const mid = lerpTapeParams(lo, hi, 0.5);
+    for (const key of Object.keys(lo) as Array<keyof typeof lo>) {
+      expect(mid[key]).toBeCloseTo((lo[key] + hi[key]) / 2, 6);
+    }
+  });
+
+  test("interpolates every param, leaving none frozen", () => {
+    // Guards against a param added to TapeParams but forgotten by the ramp,
+    // which would silently stick at its ambient value on hover.
+    const mid = lerpTapeParams(lo, hi, 0.5);
+    expect(Object.keys(mid).sort()).toEqual(Object.keys(hi).sort());
+    const differing = (Object.keys(lo) as Array<keyof typeof lo>).filter(
+      (k) => lo[k] !== hi[k],
+    );
+    expect(differing.length).toBeGreaterThan(0);
+    for (const key of differing) {
+      expect(mid[key]).not.toBe(lo[key]);
+      expect(mid[key]).not.toBe(hi[key]);
+    }
+  });
+
+  test("advances toward a target without overshooting it", () => {
+    // A frame's worth of a 220ms ramp. Kept under the 100ms delta clamp
+    // asserted in the next test.
+    expect(advanceRamp(0, 1, TAPE_RAMP_MS / 4)).toBeCloseTo(0.25, 6);
+    expect(advanceRamp(0.25, 1, 16)).toBeCloseTo(0.25 + 16 / TAPE_RAMP_MS, 6);
+    // Landing exactly on the target matters: the carousel pool and TapeSurface
+    // both stop their loop on `amount === target`, so an overshoot that never
+    // equals the target would spin forever.
+    expect(advanceRamp(0.9, 1, TAPE_RAMP_MS)).toBe(1);
+    expect(advanceRamp(0.1, 0, TAPE_RAMP_MS)).toBe(0);
+    expect(advanceRamp(1, 1, 16)).toBe(1);
+  });
+
+  test("caps a long frame so a stalled tab cannot skip the ramp", () => {
+    // A backgrounded tab or a slow paint can hand over a multi-second delta.
+    expect(advanceRamp(0, 1, 60_000)).toBeCloseTo(100 / TAPE_RAMP_MS, 6);
+    expect(advanceRamp(0, 1, -5)).toBe(0);
+  });
+
+  test("eases in and out, clamped at both ends", () => {
+    expect(easeTapeRamp(0)).toBe(0);
+    expect(easeTapeRamp(1)).toBe(1);
+    expect(easeTapeRamp(0.5)).toBeCloseTo(0.5, 6);
+    expect(easeTapeRamp(-1)).toBe(0);
+    expect(easeTapeRamp(2)).toBe(1);
+    // Slow at the start, which is what makes the ramp read as a ramp.
+    expect(easeTapeRamp(0.25)).toBeLessThan(0.25);
+    expect(easeTapeRamp(0.75)).toBeGreaterThan(0.75);
+  });
+
+  test("holds the clock and the scanline frequency steady across the ramp", () => {
+    // Sweeping speed makes the animation jump mid-ramp; sweeping a frequency
+    // beats and aliases. Both must be equal in the two presets.
+    expect(lo.speed).toBe(hi.speed);
+    expect(lo.scanlineLines).toBe(hi.scanlineLines);
+  });
+});
 
 test.describe("404 no-signal backdrop", () => {
   test("renders a decorative canvas that animates", async ({ page }) => {
@@ -156,6 +457,66 @@ test.describe("homepage TV screen", () => {
     expect(Buffer.compare(a, b)).not.toBe(0);
   });
 
+  test("hovering the screen ramps the tape up instead of scaling it", async ({
+    page,
+    viewport,
+  }) => {
+    test.skip(
+      (viewport?.width ?? 0) < 768,
+      "the hover ramp is gated on a mouse pointer, which the mobile projects do not emulate",
+    );
+    await page.goto("/", { waitUntil: "load" });
+    await page.locator("#about").scrollIntoViewIfNeeded();
+
+    const surface = page.locator("#about [data-tape-surface]");
+    await expect(surface).toHaveCount(1, { timeout: 15000 });
+    const canvas = surface.locator("canvas[data-tape-canvas]");
+    await expect(canvas).toHaveCSS("opacity", "1");
+    await page.waitForTimeout(600);
+
+    // Same in-page frame series as the carousel ramp test, for the same
+    // reason: a hover driven from the test costs more than the ramp lasts.
+    // Scoped to the screen cutout link, since the section also has a "read
+    // more" link pointing at /about further down.
+    const ramp = await page
+      .locator("#about a[href='/about']:has([data-tape-surface])")
+      .evaluate(
+        (link, helpers) =>
+          new Function(
+            "link",
+            `${helpers};
+          return (async () => {
+            const el = link.querySelector("canvas[data-tape-canvas]");
+            if (!el) throw new Error("TV screen has no tape canvas");
+            const settling = await tapeRampSeries(el, 400);
+            const ambient = settling[settling.length - 1].split;
+            link.dispatchEvent(new PointerEvent("pointerover", {
+              pointerType: "mouse", bubbles: true, composed: true,
+            }));
+            const rising = await tapeRampSeries(el, 600);
+            const transform = getComputedStyle(
+              link.querySelector("[data-tape-surface]") ?? link,
+            ).transform;
+            return { ambient, rising, transform };
+          })();`,
+          )(link) as Promise<{
+            ambient: number;
+            rising: Array<{ split: number; t: number }>;
+            transform: string;
+          }>,
+        TAPE_FRAME_HELPERS,
+      );
+
+    assertRampedSmoothly({ ambient: ramp.ambient, rising: ramp.rising });
+
+    // The old hover treatment was a group-hover scale on the surface wrapper.
+    // The shader ramp replaced it, so nothing may scale the screen any more.
+    expect(
+      ramp.transform === "none" ||
+        ramp.transform === "matrix(1, 0, 0, 1, 0, 0)",
+    ).toBe(true);
+  });
+
   test("no gradient overlays on the TV screen (shader replaced CSS effects)", async ({
     page,
   }) => {
@@ -264,7 +625,24 @@ test.describe("/about player", () => {
 });
 
 test.describe("work carousel hover", () => {
-  test("hovering a card tapes it, leaving restores it", async ({ page }) => {
+  /**
+   * Only the desktop carousel has tape wiring, and it only renders above
+   * useIsMobile's 767px breakpoint, so a test that hovers a card has nothing
+   * to hover in the mobile-viewport projects. Skip rather than fail there.
+   * The tests below that build their own context with an explicit viewport are
+   * viewport-independent and do not need this.
+   */
+  const requireDesktopCarousel = (viewport: { width: number } | null) =>
+    test.skip(
+      (viewport?.width ?? 0) < 768,
+      "the desktop carousel does not render below useIsMobile's 767px breakpoint",
+    );
+
+  test("every card on screen wears the ambient tape, unhovered", async ({
+    page,
+    viewport,
+  }) => {
+    requireDesktopCarousel(viewport);
     await page.goto("/", { waitUntil: "load" });
 
     // The carousel repeats items for the infinite-loop illusion and starts
@@ -279,21 +657,110 @@ test.describe("work carousel hover", () => {
     // Let the entrance animation and idle pre-warm settle.
     await page.waitForTimeout(1200);
 
+    // Nothing is hovered: the tape is ambient, on every card the pool lent a
+    // canvas to, and each of those cards has exactly one.
+    await page.mouse.move(0, 0);
     const stage = page.locator("canvas[data-tape-stage]");
-    await expect(stage).toHaveCount(0);
+    const lent = await stage.count();
+    expect(lent).toBeGreaterThanOrEqual(3);
+    // MAX_SLOTS in carouselTapeStage.ts. Exceeding it means the GL context cap
+    // is no longer being respected.
+    expect(lent).toBeLessThanOrEqual(8);
 
-    await card.hover();
-    await expect(stage).toHaveCount(1);
-    await expect(stage).toHaveAttribute("aria-hidden", "true");
-    // The stage is inside the hovered card, so it inherits its transforms.
-    expect(await card.locator("canvas[data-tape-stage]").count()).toBe(1);
+    await expect(stage.first()).toHaveAttribute("aria-hidden", "true");
+    await expect(card.locator("canvas[data-tape-stage]")).toHaveCount(1);
 
     // The card's own image keeps its alt text regardless.
     await expect(card.locator("img")).toHaveAttribute("alt", /.*/);
 
+    // Every taped card hides its image behind the canvas, and only once a
+    // frame has drawn. A card showing a canvas over a visible image would
+    // double-expose; a card showing neither would be blank.
+    const mismatched = await page.evaluate(
+      () =>
+        [...document.querySelectorAll("canvas[data-tape-stage]")].filter(
+          (c) => {
+            const img = c.parentElement?.querySelector("img");
+            return !img || getComputedStyle(img).opacity !== "0";
+          },
+        ).length,
+    );
+    expect(mismatched).toBe(0);
+  });
+
+  test("hovering ramps a card up smoothly, and leaving ramps it back", async ({
+    page,
+    viewport,
+  }) => {
+    requireDesktopCarousel(viewport);
+    await page.goto("/", { waitUntil: "load" });
+
+    const card = page
+      .locator("a:not([aria-hidden]) [data-carousel-item]")
+      .first();
+    await card.scrollIntoViewIfNeeded();
     await page.mouse.move(0, 0);
-    await expect(stage).toHaveCount(0);
-    await expect(card.locator("img")).toHaveCSS("opacity", "1");
+    await page.waitForTimeout(1200);
+    await expect(card.locator("canvas[data-tape-stage]")).toHaveCount(1);
+
+    // The hover is dispatched and then sampled from inside the page. Driving it
+    // from the test would prove nothing about smoothness: card.hover() plus one
+    // round trip already costs more than the 220ms ramp, so every sample would
+    // read full strength no matter what the easing did (measured while writing
+    // this test).
+    const ramp = await card.evaluate(
+      (host, helpers) =>
+        new Function(
+          "host",
+          `${helpers};
+          return (async () => {
+            const el = host.querySelector("canvas[data-tape-stage]");
+            if (!el) throw new Error("card has no tape stage");
+            const settling = await tapeRampSeries(el, 400);
+            const ambient = settling[settling.length - 1].split;
+            // React binds onPointerEnter through pointerover delegation, so
+            // this is the same path a real cursor takes.
+            host.dispatchEvent(new PointerEvent("pointerover", {
+              pointerType: "mouse", bubbles: true, composed: true,
+            }));
+            const rising = await tapeRampSeries(el, 600);
+            host.dispatchEvent(new PointerEvent("pointerout", {
+              pointerType: "mouse", bubbles: true, composed: true,
+            }));
+            const falling = await tapeRampSeries(el, 600);
+            return { ambient, rising, falling };
+          })();`,
+        )(host) as Promise<{
+          ambient: number;
+          rising: Array<{ split: number; t: number }>;
+          falling: Array<{ split: number; t: number }>;
+        }>,
+      TAPE_FRAME_HELPERS,
+    );
+
+    assertRampedSmoothly(ramp);
+  });
+
+  test("draws no black frame around the hovered card", async ({
+    page,
+    viewport,
+  }) => {
+    requireDesktopCarousel(viewport);
+    await page.goto("/", { waitUntil: "load" });
+
+    const card = page
+      .locator("a:not([aria-hidden]) [data-carousel-item]")
+      .first();
+    await card.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(1200);
+    await card.hover();
+
+    const canvas = card.locator("canvas[data-tape-stage]");
+    await expect(canvas).toHaveCount(1);
+    await page.waitForTimeout(600);
+
+    const { ringOpaqueBlack } = await sampleTapeCanvas(canvas);
+    expect(ringOpaqueBlack).toBeLessThan(0.2);
   });
 
   test("the mobile carousel has no tape wiring at all", async ({ browser }) => {
@@ -359,7 +826,9 @@ test.describe("work carousel hover", () => {
 
   test("unmounting a hovered card stops the render loop, not just the DOM node", async ({
     page,
+    viewport,
   }) => {
+    requireDesktopCarousel(viewport);
     // A DOM query cannot prove this. WorkSection lives on the home route's
     // page.tsx, not a persistent layout, so a client-side route change
     // unmounts the whole subtree and physically removes the canvas from the
@@ -392,7 +861,7 @@ test.describe("work carousel hover", () => {
     await page.waitForTimeout(1200);
 
     await card.hover();
-    await expect(page.locator("canvas[data-tape-stage]")).toHaveCount(1);
+    await expect(card.locator("canvas[data-tape-stage]")).toHaveCount(1);
 
     // Confirm the loop is actually running before relying on it as a signal.
     const beforeNav = await page.evaluate(

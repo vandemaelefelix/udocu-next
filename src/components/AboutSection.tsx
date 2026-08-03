@@ -21,6 +21,9 @@ export default function AboutSection() {
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const [isMuted, setIsMuted] = useState(true);
   const [isVideoVisible, setIsVideoVisible] = useState(false);
+  // Drives the TV screen's tape ramp. Mouse pointers only, so a touch tap does
+  // not leave the screen stuck at full strength with no matching leave.
+  const [screenHovered, setScreenHovered] = useState(false);
 
   useEffect(() => {
     const el = videoContainerRef.current;
@@ -156,21 +159,32 @@ export default function AboutSection() {
             <Link
               href="/about"
               aria-label={t("aboutLinkLabel")}
-              className="group absolute cursor-pointer overflow-hidden"
+              className="absolute cursor-pointer overflow-hidden"
               style={{
                 top: "37%",
                 left: "37%",
                 width: "23%",
                 height: "15.5%",
               }}
+              onPointerEnter={(e) => {
+                if (e.pointerType !== "mouse") return;
+                setScreenHovered(true);
+              }}
+              onPointerLeave={() => setScreenHovered(false)}
             >
               {isVideoVisible ? (
                 <TapeSurface
                   active
-                  params={TAPE_PRESETS.tvScreen}
-                  /* Small screen area, so a small buffer is plenty. */
-                  maxHeight={256}
-                  className="absolute inset-0 h-full w-full transition-transform duration-300 group-hover:scale-105"
+                  /* Ramps from ambient to full strength on hover, the same
+                     gesture the work carousel cards make. This replaced a
+                     group-hover scale transform on this wrapper. */
+                  params={TAPE_PRESETS.screenAmbient}
+                  hoverParams={TAPE_PRESETS.screen}
+                  hovered={screenHovered}
+                  /* The screen preset's scanline count needs 360 lines to
+                     resolve; below that the pattern aliases into flat grey. */
+                  maxHeight={360}
+                  className="absolute inset-0 h-full w-full"
                 >
                   <AboutVideo
                     src="/videos/about-tv.v2.mp4"

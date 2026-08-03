@@ -7,11 +7,20 @@ import {
   type TapeRenderer,
   type TapeSource,
 } from "./tapeRenderer";
+import { lerpTapeParams } from "./presets";
+import { advanceRamp, easeTapeRamp } from "./ramp";
 
 interface TapeSurfaceProps {
   /** Whether the tape treatment is showing. Crossfades both ways. */
   active: boolean;
+  /** The resting look. */
   params: TapeParams;
+  /**
+   * The look to ramp toward while `hovered`. Omit for a surface with a single
+   * fixed look, in which case `hovered` is ignored.
+   */
+  hoverParams?: TapeParams;
+  hovered?: boolean;
   /**
    * The real element to texture, normally an <img> or <video>. Omit for a
    * source-less surface (the 404 no-signal backdrop).
@@ -45,6 +54,8 @@ interface TapeSurfaceProps {
 export default function TapeSurface({
   active,
   params,
+  hoverParams,
+  hovered = false,
   children,
   className,
   fadeMs = 220,
@@ -101,9 +112,51 @@ export default function TapeSurface({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maxHeight]);
 
+  // Sole writer of params, so nothing fights the ramp.
+  //
+  // The ramp runs on its own requestAnimationFrame rather than through React
+  // state: easing through state would re-render this component, and the video
+  // subtree under it, on every frame of every hover.
+  const rampRef = useRef(0);
   useEffect(() => {
-    rendererRef.current?.setParams(params);
-  }, [params]);
+    const renderer = rendererRef.current;
+    if (!renderer) return;
+
+    if (!hoverParams) {
+      renderer.setParams(params);
+      return;
+    }
+
+    const target = hovered ? 1 : 0;
+    const apply = () =>
+      renderer.setParams(
+        lerpTapeParams(params, hoverParams, easeTapeRamp(rampRef.current)),
+      );
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      // The destination, not the journey. renderOnce covers the case where the
+      // draw loop is stopped, which under reduced motion it always is.
+      rampRef.current = target;
+      apply();
+      renderer.renderOnce();
+      return;
+    }
+
+    let raf = 0;
+    let last = 0;
+    const step = (now: number) => {
+      const dt = last === 0 ? 16 : now - last;
+      last = now;
+      rampRef.current = advanceRamp(rampRef.current, target, dt);
+      apply();
+      if (rampRef.current !== target) raf = requestAnimationFrame(step);
+      else raf = 0;
+    };
+    raf = requestAnimationFrame(step);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [params, hoverParams, hovered, ready]);
 
   // Run the loop only when active, on screen, and the tab is visible.
   // Under reduced motion, draw exactly one frame and never loop.

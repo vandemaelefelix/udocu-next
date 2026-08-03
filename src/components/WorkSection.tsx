@@ -19,11 +19,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { usePostHog } from "posthog-js/react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
-  acquireTapeStage,
-  releaseTapeStage,
+  registerCard,
+  setTapeHover,
   warmTapeStage,
 } from "@/components/vhs/carouselTapeStage";
-import { TAPE_PRESETS } from "@/components/vhs/presets";
 
 type Props = {
   interviews: Content.InterviewDocument[];
@@ -512,8 +511,9 @@ const CarouselItem = ({
     ([entry, inertia]: number[]) => entry + inertia,
   );
 
-  // Pre-warm the shared GL context once the carousel is on screen, so the
-  // first hover has no shader-compile stall. Desktop pointers only.
+  // Pre-warm the first GL context once the carousel is on screen, so the card
+  // that scrolls in first does not pay the shader compile. Desktop pointers
+  // only.
   useEffect(() => {
     if (!isVisible) return;
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches)
@@ -539,17 +539,19 @@ const CarouselItem = ({
     };
   }, [isVisible]);
 
-  // Release the shared stage if this card unmounts while it still owns it
-  // (e.g. a client-side navigation away from the homepage fires before
-  // onPointerLeave). Without this the rAF loop keeps drawing into a detached
-  // canvas for the rest of the page session. `scope` is the same host
-  // element the pointer handlers use, so ownership matching still applies.
+  // Put this card under tape for as long as it is on screen. The pool owns the
+  // visibility policy, so registering is all this component does; unregistering
+  // on unmount also covers a client-side navigation away from the homepage,
+  // which would otherwise leave the loop drawing into a detached canvas.
   useEffect(() => {
-    const host = scope.current;
-    return () => {
-      if (host) releaseTapeStage(host);
-    };
-  }, [scope]);
+    if (!isVisible) return;
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches)
+      return;
+    const host = scope.current as HTMLElement | null;
+    const img = host?.querySelector("img");
+    if (!host || !img) return;
+    return registerCard(host, img);
+  }, [isVisible, scope]);
 
   return (
     <Link
@@ -568,12 +570,10 @@ const CarouselItem = ({
         initial={{ opacity: 0 }}
         onPointerEnter={(e) => {
           if (e.pointerType !== "mouse") return;
-          const host = e.currentTarget as HTMLElement;
-          const img = host.querySelector("img");
-          if (img) acquireTapeStage(host, img, TAPE_PRESETS.hover);
+          setTapeHover(e.currentTarget as HTMLElement, true);
         }}
         onPointerLeave={(e) => {
-          releaseTapeStage(e.currentTarget as HTMLElement);
+          setTapeHover(e.currentTarget as HTMLElement, false);
         }}
       >
         <Image
