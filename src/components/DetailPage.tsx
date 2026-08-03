@@ -2,6 +2,7 @@ import Image, { type StaticImageData } from "next/image";
 import { getTranslations } from "next-intl/server";
 import DetailNav from "@/components/DetailNav";
 import DetailBackLink from "@/components/DetailBackLink";
+import SyncPageBackground from "@/components/SyncPageBackground";
 import type { ReactNode } from "react";
 
 interface DetailPageProps {
@@ -14,6 +15,14 @@ interface DetailPageProps {
   imageCredit?: string;
   /** Optional custom media element (e.g. a video) that replaces the cover image */
   media?: ReactNode;
+  /**
+   * Cover media ratio. "video" locks a 16:9 box and crops with object-cover;
+   * "natural" lets the media keep the ratio it was uploaded at (blog covers,
+   * where editors upload whatever shape the artwork happens to be).
+   * Only valid together with `media`. The `image` prop renders with `fill`,
+   * which needs the fixed box to have a height.
+   */
+  mediaAspect?: "video" | "natural";
   date?: string;
   title: ReactNode;
   children: ReactNode;
@@ -21,6 +30,8 @@ interface DetailPageProps {
   overlayBgColor?: string;
   /** Mobile overlay text colour, forwarded to DetailNav. Defaults to red-light. */
   overlayTextColor?: string;
+  /** Nav key to underline while this page is open, forwarded to DetailNav. */
+  activeItem?: string;
 }
 
 export default async function DetailPage({
@@ -31,19 +42,25 @@ export default async function DetailPage({
   imageClassName = "object-cover object-center",
   imageCredit,
   media,
+  mediaAspect = "video",
   date,
   title,
   children,
   overlayBgColor,
   overlayTextColor,
+  activeItem,
 }: DetailPageProps) {
   const t = await getTranslations("nav");
 
   return (
     <main id="main-content" className={`min-h-screen ${colorScheme} pb-48`}>
+      {/* Keeps the overscroll rubber band the same colour as the page. */}
+      <SyncPageBackground targetId="main-content" />
+
       <DetailNav
         overlayBgColor={overlayBgColor}
         overlayTextColor={overlayTextColor}
+        activeItem={activeItem}
       />
 
       {/* Back link: in-flow so it scrolls with the page instead of sitting
@@ -60,7 +77,13 @@ export default async function DetailPage({
       {/* Cover media (optional: pages without a cover skip the block entirely) */}
       {(media || image) && (
         <div className="mx-auto max-w-5xl px-8">
-          <div className="relative aspect-video w-full overflow-hidden">
+          <div
+            className={
+              mediaAspect === "video"
+                ? "relative aspect-video w-full overflow-hidden"
+                : "relative w-full overflow-hidden"
+            }
+          >
             {media ??
               (image && (
                 <Image

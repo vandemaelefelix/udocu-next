@@ -23,6 +23,7 @@ import {
   setTapeHover,
   warmTapeStage,
 } from "@/components/vhs/carouselTapeStage";
+import { prismicImageLoader } from "@/utils/imageLoader";
 
 type Props = {
   interviews: Content.InterviewDocument[];
@@ -185,6 +186,7 @@ const MobileWorkSection = ({
                   style={{ width: MOBILE_ITEM_SIZE, height: MOBILE_ITEM_SIZE }}
                 >
                   <Image
+                    loader={prismicImageLoader}
                     src={item.imageUrl}
                     alt={item.alt}
                     className="w-full h-full object-cover"
@@ -577,6 +579,14 @@ const CarouselItem = ({
         }}
       >
         <Image
+          loader={prismicImageLoader}
+          // The tape effect uploads this element into a WebGL texture, and
+          // `prismicImageLoader` serves it straight from images.prismic.io
+          // rather than through the same-origin /_next/image route. WebGL
+          // rejects a cross-origin image unless it was *fetched* in CORS mode,
+          // so without this the upload throws SecurityError and the card loses
+          // its tape. imgix answers with `access-control-allow-origin: *`.
+          crossOrigin="anonymous"
           src={item.imageUrl}
           alt={item.alt}
           className="w-full h-full object-cover"

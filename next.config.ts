@@ -103,6 +103,22 @@ const nextConfig: NextConfig = {
         hostname: "images.prismic.io",
       },
     ],
+    // Prismic images are served through imgix and bypass this optimizer (see
+    // prismicImageLoader / PrismicNextImage), so this config only governs the
+    // handful of local static images. Keeping the settings tight limits how
+    // many optimized variants Vercel writes to its durable cache.
+    //
+    // Hold optimized variants for 31 days so repeat traffic reuses them instead
+    // of re-optimizing (and re-writing to cache) the same image. This is the
+    // main lever against Image Cache Writes churn.
+    minimumCacheTTL: 2678400,
+    // A single modern format — enabling AVIF alongside WebP would double the
+    // number of variants (and cache writes) generated per image.
+    formats: ["image/webp"],
+    // Trim the largest breakpoints (2048/3840) that our layouts never request;
+    // each retained width is one more variant that can be generated per image.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [128, 256, 384],
   },
   experimental: {
     optimizePackageImports: ["motion"],

@@ -1,38 +1,21 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useTranslations } from "next-intl";
-import Link from "next/link";
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import UdocuLogo from "@/components/UdocuLogo";
-import GlitchText from "@/components/GlitchText";
+import SiteNav from "@/components/SiteNav";
 import { useScrollColor } from "@/context/ScrollColorContext";
 import { useActiveSection } from "@/hooks/useActiveSection";
-import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { SECTION_IDS } from "@/config/navigation";
 
-const NAV_ITEMS = ["about", "who-am-i", "work", "contact", "blog"] as const;
-
-// Module-scoped so the reference is stable across renders. StickyNav re-renders
-// ~60×/sec during scroll (it consumes bgColor/textColor from ScrollColorContext,
-// which updates per requestAnimationFrame); a new inline array each render would
-// force useActiveSection's IntersectionObserver to disconnect + rebuild every frame.
-const SECTION_IDS = ["about", "who-am-i", "work", "contact"] as const;
-
-// Nav entries that link to their own page instead of scrolling to a homepage
-// section. Module-scoped for the same reason as SECTION_IDS: StickyNav
-// re-renders ~60x/sec during scroll and a fresh object each render is waste.
-const PAGE_HREFS: Record<string, string> = {
-  blog: "/blog",
-};
-
+/**
+ * The one-pager's nav: floats over the hero, takes its colours from the scroll
+ * position, and scrolls to sections instead of navigating. The menu itself is
+ * `SiteNav`, shared with the detail pages.
+ */
 export default function StickyNav() {
-  const t = useTranslations("nav");
-  const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
   const { bgColor, textColor } = useScrollColor();
   const activeSection = useActiveSection(SECTION_IDS);
-  const overlayRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(overlayRef, menuOpen);
 
   // On the hero the nav text is green over a Bordeaux background; the menu
   // overlay uses purple text there (matching About) instead of green.
@@ -55,172 +38,15 @@ export default function StickyNav() {
     [router],
   );
 
-  const handleNavClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault();
-      const item = e.currentTarget.getAttribute("href")?.replace("#", "");
-      if (!item) return;
-      if (menuOpen) setMenuOpen(false);
-      scrollToSection(item);
-    },
-    [menuOpen, scrollToSection],
-  );
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMenuOpen(false);
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [menuOpen]);
-
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [menuOpen]);
-
   return (
-    <>
-      <div className="fixed top-0 left-0 right-0 z-50 h-0">
-        <nav
-          className="flex items-center justify-between px-8 py-6"
-          style={{ color: textColor }}
-        >
-          <Link
-            href="/"
-            aria-label={t("home")}
-            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded"
-          >
-            <UdocuLogo
-              aria-hidden="true"
-              className="h-6 w-auto max-w-24 md:h-8 md:max-w-36 lg:h-10 lg:max-w-48"
-            />
-          </Link>
-
-          {/* Desktop nav */}
-          <ul className="hidden gap-6 font-helvetica text-sm font-medium uppercase tracking-widest lg:flex lg:gap-8">
-            {NAV_ITEMS.map((item) => {
-              const label = t(item);
-              const pageHref = PAGE_HREFS[item];
-              return pageHref ? (
-                <li key={item}>
-                  <Link
-                    href={pageHref}
-                    className="focus-visible:opacity-70 focus-visible:outline-none"
-                  >
-                    <GlitchText>{label}</GlitchText>
-                  </Link>
-                </li>
-              ) : (
-                <li key={item}>
-                  <a
-                    href={`#${item}`}
-                    aria-current={item === activeSection ? "true" : undefined}
-                    className={`focus-visible:opacity-70 focus-visible:outline-none ${
-                      item === activeSection
-                        ? "underline underline-offset-4"
-                        : ""
-                    }`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      scrollToSection(item);
-                    }}
-                  >
-                    <GlitchText>{label}</GlitchText>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-
-          {/* Mobile hamburger button */}
-          <button
-            type="button"
-            className="relative z-[60] flex h-8 w-8 flex-col items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 rounded lg:hidden"
-            style={menuOpen ? { color: overlayTextColor } : undefined}
-            onClick={(e) => {
-              // WebKit does not focus buttons on click by default, which would
-              // make the focus trap capture the wrong element as its trigger.
-              e.currentTarget.focus();
-              setMenuOpen((prev) => !prev);
-            }}
-            aria-label={menuOpen ? t("closeMenu") : t("openMenu")}
-            aria-expanded={menuOpen}
-          >
-            <span
-              className={`block h-0.5 w-6 bg-current transition-[transform,opacity] duration-300 ${menuOpen ? "translate-y-2 rotate-45" : ""}`}
-            />
-            <span
-              className={`block h-0.5 w-6 bg-current transition-[transform,opacity] duration-300 ${menuOpen ? "opacity-0" : ""}`}
-            />
-            <span
-              className={`block h-0.5 w-6 bg-current transition-[transform,opacity] duration-300 ${menuOpen ? "-translate-y-2 -rotate-45" : ""}`}
-            />
-          </button>
-        </nav>
-
-        {/* Mobile full-screen overlay */}
-        <div
-          ref={overlayRef}
-          role="dialog"
-          aria-modal="true"
-          aria-label={t("openMenu")}
-          className={`fixed inset-0 z-50 flex flex-col items-center justify-center lg:hidden ${
-            menuOpen ? "pointer-events-auto" : "pointer-events-none"
-          }`}
-          style={{
-            backgroundColor: bgColor,
-            color: overlayTextColor,
-            transform: menuOpen ? "translateY(0)" : "translateY(-100%)",
-            transition: menuOpen
-              ? "transform 300ms cubic-bezier(0.4,0,0.1,1)"
-              : "transform 150ms ease-in",
-            willChange: menuOpen ? "transform" : "auto",
-          }}
-        >
-          <ul className="flex flex-col items-center gap-10 font-helvetica text-2xl font-medium uppercase tracking-widest">
-            {NAV_ITEMS.map((item, index) => {
-              const animationStyle = menuOpen
-                ? {
-                    animation: `menu-link-in 280ms ease-out ${index * 60}ms both`,
-                  }
-                : { animation: "none" };
-              const pageHref = PAGE_HREFS[item];
-              return pageHref ? (
-                <li key={item} style={animationStyle}>
-                  <Link
-                    href={pageHref}
-                    tabIndex={menuOpen ? 0 : -1}
-                    className="focus-visible:opacity-70 focus-visible:outline-none"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <GlitchText>{t(item)}</GlitchText>
-                  </Link>
-                </li>
-              ) : (
-                <li key={item} style={animationStyle}>
-                  <a
-                    href={`#${item}`}
-                    tabIndex={menuOpen ? 0 : -1}
-                    aria-current={item === activeSection ? "true" : undefined}
-                    className={`focus-visible:opacity-70 focus-visible:outline-none ${
-                      item === activeSection
-                        ? "underline underline-offset-4"
-                        : ""
-                    }`}
-                    onClick={handleNavClick}
-                  >
-                    <GlitchText>{t(item)}</GlitchText>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </div>
-    </>
+    <SiteNav
+      layout="floating"
+      sectionBehavior="scroll"
+      onSectionSelect={scrollToSection}
+      activeItem={activeSection}
+      barColor={textColor}
+      overlayBgColor={bgColor}
+      overlayTextColor={overlayTextColor}
+    />
   );
 }

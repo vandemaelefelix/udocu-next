@@ -1,0 +1,8 @@
+# Gitignored files that should be copied into every new git worktree.
+# Read by worktrunk (`wt step copy-ignored`) and by Claude Code's native worktrees.
+# Without this, a fresh worktree has no env vars and the dev server fails to boot.
+
+.env
+.env.local
+.env.development.local
+.env.production.local

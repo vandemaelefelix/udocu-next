@@ -34,6 +34,7 @@ export default async function AboutPage({
   return (
     <DetailPage
       backHref="/#about"
+      activeItem="about"
       colorScheme="bg-red-dark text-red-light"
       media={<TapedVideo />}
       title={

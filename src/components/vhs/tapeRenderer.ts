@@ -360,6 +360,8 @@ export function createTapeRenderer(
   let params: TapeParams = { ...opts.params };
   let source: TapeSource = opts.source;
   let uploaded = false;
+  /** Set once a source proves un-uploadable (cross-origin), to stop retrying. */
+  let uploadBlocked = false;
   let running = false;
   let raf = 0;
   let startedAt = 0;
@@ -401,19 +403,28 @@ export function createTapeRenderer(
   }
 
   function uploadTexture() {
-    if (!source || !sourceReady()) return;
+    if (!source || uploadBlocked || !sourceReady()) return;
     // A still image only needs uploading once; video needs every frame.
     if (uploaded && !isVideo(source)) return;
     gl!.bindTexture(gl!.TEXTURE_2D, tex);
     gl!.pixelStorei(gl!.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-    gl!.texImage2D(
-      gl!.TEXTURE_2D,
-      0,
-      gl!.RGBA,
-      gl!.RGBA,
-      gl!.UNSIGNED_BYTE,
-      source,
-    );
+    try {
+      gl!.texImage2D(
+        gl!.TEXTURE_2D,
+        0,
+        gl!.RGBA,
+        gl!.RGBA,
+        gl!.UNSIGNED_BYTE,
+        source,
+      );
+    } catch {
+      // A source that was not fetched in CORS mode makes texImage2D throw
+      // SecurityError. Nothing about it will change on a later frame, so stop
+      // retrying: an untaped surface beats an exception thrown every frame from
+      // inside the rAF loop, which would take the animation down with it.
+      uploadBlocked = true;
+      return;
+    }
     uploaded = true;
   }
 
@@ -485,6 +496,8 @@ export function createTapeRenderer(
     setSource(next) {
       source = next;
       uploaded = false;
+      // A fresh source deserves its own attempt; the block is per-source.
+      uploadBlocked = false;
     },
     start() {
       if (running || destroyed) return;
