@@ -7,6 +7,11 @@ const isDev = process.env.NODE_ENV !== "production";
 // Vercel preview deployments inject a live-feedback toolbar (vercel.live).
 // NODE_ENV is "production" on preview builds, so we need a separate check.
 const isVercelPreview = process.env.VERCEL_ENV === "preview";
+// True only when actually deployed on Vercel (prod or preview), where TLS is
+// always terminated for us. Vercel sets this for every build and runtime,
+// including previews; NODE_ENV alone cannot tell "deployed" apart from
+// "`next build && next start` on a developer's machine".
+const isVercelDeployment = process.env.VERCEL === "1";
 
 const csp = [
   "default-src 'self'",
@@ -32,11 +37,16 @@ const csp = [
   `connect-src 'self' https://images.prismic.io https://*.prismic.io https://eu.i.posthog.com https://eu-assets.i.posthog.com https://eu.posthog.com${isDev || isVercelPreview ? " https://vercel.live wss://ws-us3.pusher.com" : ""}`,
   "worker-src 'self' blob:",
   "manifest-src 'self'",
-  // Force http→https in production only. On the HTTP dev server this directive
-  // breaks WebKit/Safari (unlike Chromium, WebKit does not exempt localhost):
-  // it upgrades _next/static chunk requests to https, they fail TLS, and React
-  // never hydrates. Omit it in dev so local Safari testing works.
-  ...(isDev ? [] : ["upgrade-insecure-requests"]),
+  // Force http→https, but only on Vercel, where every request already
+  // arrives over TLS, so this is a safe no-op there. On a plain HTTP server
+  // (next dev, or `next build && next start` on a developer's machine) this
+  // directive breaks WebKit/Safari: unlike Chromium, WebKit does not exempt
+  // localhost from it, so it upgrades every subresource request (JS chunks,
+  // images, fonts) to https, they fail TLS, and the page never hydrates.
+  // Gating on NODE_ENV alone used to miss the local-production-build case
+  // (`next start`, NODE_ENV=production, no TLS) and silently broke the tape
+  // effect under WebKit whenever it was tested against such a build.
+  ...(isVercelDeployment ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 const permissionsPolicy = [

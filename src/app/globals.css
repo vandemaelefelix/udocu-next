@@ -106,6 +106,19 @@ body {
   }
 }
 
+.noise-overlay {
+  animation: grain 8s steps(10) infinite;
+}
+
+/* Keep the grain texture, stop it moving. A full-viewport animated layer at
+   z-9999 would otherwise override the reduced-motion behaviour of everything
+   beneath it, including the tape effect. */
+@media (prefers-reduced-motion: reduce) {
+  .noise-overlay {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

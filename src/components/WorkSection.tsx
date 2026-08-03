@@ -18,6 +18,11 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePostHog } from "posthog-js/react";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import {
+  registerCard,
+  setTapeHover,
+  warmTapeStage,
+} from "@/components/vhs/carouselTapeStage";
 import { prismicImageLoader } from "@/utils/imageLoader";
 
 type Props = {
@@ -508,6 +513,48 @@ const CarouselItem = ({
     ([entry, inertia]: number[]) => entry + inertia,
   );
 
+  // Pre-warm the first GL context once the carousel is on screen, so the card
+  // that scrolls in first does not pay the shader compile. Desktop pointers
+  // only.
+  useEffect(() => {
+    if (!isVisible) return;
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches)
+      return;
+    const idle =
+      (
+        window as Window & {
+          requestIdleCallback?: (cb: () => void) => number;
+        }
+      ).requestIdleCallback?.(() => warmTapeStage()) ??
+      window.setTimeout(() => warmTapeStage(), 400);
+    return () => {
+      if (
+        (window as Window & { cancelIdleCallback?: (id: number) => void })
+          .cancelIdleCallback
+      ) {
+        (
+          window as Window & { cancelIdleCallback?: (id: number) => void }
+        ).cancelIdleCallback?.(idle as number);
+      } else {
+        window.clearTimeout(idle as number);
+      }
+    };
+  }, [isVisible]);
+
+  // Put this card under tape for as long as it is on screen. The pool owns the
+  // visibility policy, so registering is all this component does; unregistering
+  // on unmount also covers a client-side navigation away from the homepage,
+  // which would otherwise leave the loop drawing into a detached canvas.
+  useEffect(() => {
+    if (!isVisible) return;
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches)
+      return;
+    const host = scope.current as HTMLElement | null;
+    const img = host?.querySelector("img");
+    if (!host || !img) return;
+    return registerCard(host, img);
+  }, [isVisible, scope]);
+
   return (
     <Link
       href={item.href}
@@ -520,12 +567,26 @@ const CarouselItem = ({
       <motion.div
         ref={scope}
         data-carousel-item
-        className={`shrink-0 rounded-lg overflow-hidden bg-gray-100 ${ITEM_SIZE.className}`}
+        className={`relative shrink-0 rounded-lg overflow-hidden bg-gray-100 ${ITEM_SIZE.className}`}
         style={{ y: combinedY }}
         initial={{ opacity: 0 }}
+        onPointerEnter={(e) => {
+          if (e.pointerType !== "mouse") return;
+          setTapeHover(e.currentTarget as HTMLElement, true);
+        }}
+        onPointerLeave={(e) => {
+          setTapeHover(e.currentTarget as HTMLElement, false);
+        }}
       >
         <Image
           loader={prismicImageLoader}
+          // The tape effect uploads this element into a WebGL texture, and
+          // `prismicImageLoader` serves it straight from images.prismic.io
+          // rather than through the same-origin /_next/image route. WebGL
+          // rejects a cross-origin image unless it was *fetched* in CORS mode,
+          // so without this the upload throws SecurityError and the card loses
+          // its tape. imgix answers with `access-control-allow-origin: *`.
+          crossOrigin="anonymous"
           src={item.imageUrl}
           alt={item.alt}
           className="w-full h-full object-cover"
