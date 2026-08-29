@@ -1,4 +1,5 @@
-function extractYouTubeId(url: string): string | null {
+/** Pulls the 11-character video id out of any common YouTube URL shape. */
+export function extractYouTubeId(url: string): string | null {
   const patterns = [
     /(?:youtube\.com\/watch\?.*v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
   ];

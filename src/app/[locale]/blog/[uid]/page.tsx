@@ -9,6 +9,7 @@ import { formatDate } from "@/utils/formatDate";
 import { getAlternates, SITE_URL } from "@/lib/seo";
 import DetailPage from "@/components/DetailPage";
 import YouTubeEmbed from "@/components/YouTubeEmbed";
+import { richTextComponents } from "@/components/richTextComponents";
 
 type Params = { locale: string; uid: string };
 
@@ -174,7 +175,10 @@ export default async function BlogPostPage({
         date={formattedDate}
         title={title}
       >
-        <PrismicRichText field={page.data.body} />
+        <PrismicRichText
+          field={page.data.body}
+          components={richTextComponents}
+        />
       </DetailPage>
     </>
   );
