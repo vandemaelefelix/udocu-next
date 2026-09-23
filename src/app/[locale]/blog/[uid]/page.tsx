@@ -9,6 +9,12 @@ import { formatDate } from "@/utils/formatDate";
 import { getAlternates, SITE_URL } from "@/lib/seo";
 import DetailPage from "@/components/DetailPage";
 import YouTubeEmbed from "@/components/YouTubeEmbed";
+import { richTextComponents } from "@/components/richTextComponents";
+
+// Pin the ISR interval on the route itself. Without it, Next derives the
+// interval from the fetches of each render, and a render that reports none
+// leaves the cached page frozen until the next deploy.
+export const revalidate = 60;
 
 type Params = { locale: string; uid: string };
 
@@ -174,7 +180,10 @@ export default async function BlogPostPage({
         date={formattedDate}
         title={title}
       >
-        <PrismicRichText field={page.data.body} />
+        <PrismicRichText
+          field={page.data.body}
+          components={richTextComponents}
+        />
       </DetailPage>
     </>
   );

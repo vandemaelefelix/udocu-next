@@ -8,6 +8,11 @@ import SyncPageBackground from "@/components/SyncPageBackground";
 import BlogGrid from "@/components/BlogGrid";
 import SocialDock from "@/components/SocialDock";
 
+// Pin the ISR interval on the route itself. Without it, Next derives the
+// interval from the fetches of each render, and a render that reports none
+// leaves the cached page frozen until the next deploy.
+export const revalidate = 60;
+
 const PAGE_SIZE = 12;
 
 type Params = { locale: string };
