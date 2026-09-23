@@ -14,6 +14,11 @@ const staticPages = [
   { path: "/blog", priority: 0.8, changeFrequency: "weekly" as const },
 ];
 
+// Pin the ISR interval on the route itself. Without it, Next derives the
+// interval from the fetches of each render, and a render that reports none
+// leaves the cached page frozen until the next deploy.
+export const revalidate = 60;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const client = createClient();
 
