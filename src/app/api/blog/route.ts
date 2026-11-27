@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
+import { SeverityNumber } from "@opentelemetry/api-logs";
 import type { Content } from "@prismicio/client";
 import { createClient, PRISMIC_LOCALE } from "@/prismicio";
+import { loggerProvider, posthogLogsLogger } from "../../../../instrumentation";
 
 const PAGE_SIZE = 12;
 
@@ -19,6 +21,19 @@ export async function GET(request: NextRequest) {
       page,
     },
   );
+
+  posthogLogsLogger?.emit({
+    body: "Blog page served",
+    severityNumber: SeverityNumber.INFO,
+    attributes: {
+      event: "blog_page_served",
+      page: response.page,
+      result_count: response.results.length,
+      total_pages: response.total_pages,
+    },
+  });
+
+  after(() => loggerProvider?.forceFlush().catch(() => {}));
 
   return NextResponse.json({
     results: response.results,

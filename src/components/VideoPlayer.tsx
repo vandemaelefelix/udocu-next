@@ -8,6 +8,7 @@ import {
   type ReactNode,
   type MouseEvent as ReactMouseEvent,
 } from "react";
+import posthog from "posthog-js";
 import VolumeIcon from "@/components/icons/VolumeIcon";
 
 // Vendor-prefixed Fullscreen API members that the DOM lib types don't cover.
@@ -75,6 +76,7 @@ export default function VideoPlayer({
       v.loop = false;
       v.currentTime = 0;
       v.muted = false;
+      posthog.capture("video_playback_started");
       setIsMuted(false);
       setHasStarted(true);
     }

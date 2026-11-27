@@ -1,5 +1,6 @@
 "use client";
 
+import posthog from "posthog-js";
 import { useEffect } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -14,6 +15,7 @@ export default function LocaleError({
   const t = useTranslations("error");
 
   useEffect(() => {
+    posthog.captureException(error);
     console.error(error);
   }, [error]);
 
